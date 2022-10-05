@@ -1,10 +1,14 @@
---Datos para carga inicial de la base de datos
-
---Para giis.demo.tkrun:
-delete from carreras;
-insert into carreras(id,inicio,fin,fecha,descr) values 
-	(100,'2016-10-05','2016-10-25','2016-11-09','finalizada'),
-	(101,'2016-10-05','2016-10-25','2016-11-10','en fase 3'),
-	(102,'2016-11-05','2016-11-09','2016-11-20','en fase 2'),
-	(103,'2016-11-10','2016-11-15','2016-11-21','en fase 1'),
-	(104,'2016-11-11','2016-11-15','2016-11-22','antes inscripcion');
+delete from RESERVA;
+delete from ACTIVIDADLIMITADA;
+delete from ACTIVIDAD;
+delete from SOCIO;
+delete from TIPOACTIVIDAD;
+delete from INSTALACION;
+delete from RECURSO;
+INSERT INTO RECURSO (rc_nombre, rc_cantidad) VALUES ('esterillas', 20), ('bicis', 15);
+INSERT INTO INSTALACION (i_nombre, rc_nombre) VALUES ('sala de yoga', 'esterillas'), ('sala de bicis', 'bicis');
+INSERT INTO TIPOACTIVIDAD (ta_nombre, ta_intensidad, i_nombre) VALUES ('yoga', 'media', 'sala de yoga'), ('pilates', 'baja', NULL), ('bicicleta', 'alta', 'sala de bicis');
+INSERT INTO SOCIO (s_id, s_nombre) VALUES (1, 'Pedro'), (2, 'Marcos'), (3, 'Mario');
+INSERT INTO ACTIVIDAD(a_id, ta_nombre, a_dia, a_ini, a_fin) VALUES (1, 'pilates', '2022-10-19', 15, 16), (2, 'yoga', '2022-10-18', 12, 14), (3, 'bicicleta', '2022-10-17', 20, 21), (4, 'pilates', '2022-10-16', 9, 12), (5, 'yoga', '2022-10-15', 17, 18), (6, 'bicicleta', '2022-10-14', 10, 11), (7, 'pilates', '2022-10-13', 13, 14), (8, 'yoga', '2022-10-12', 19, 21), (9, 'bicicleta', '2022-10-11', 15, 17), (10, 'pilates', '2022-10-10', 13, 14), (11, 'yoga', '2022-10-9', 19, 20), (12, 'bicicleta', '2022-10-8', 15, 18);
+INSERT INTO ACTIVIDADLIMITADA(a_id, a_plazas) VALUES (2, 20), (3, 15);
+INSERT INTO RESERVA(s_id, a_id) VALUES (1, 1), (2, 2), (3, 3);
