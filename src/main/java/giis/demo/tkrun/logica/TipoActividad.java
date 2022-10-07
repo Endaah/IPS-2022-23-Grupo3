@@ -14,10 +14,27 @@ public class TipoActividad {
 	private List<Recurso> recursosUsados = new ArrayList<Recurso>();
 	private String nombre;
 	private Intensidad intensidad;
+	private String instalacion;
 	
-	public TipoActividad(List<Recurso> recursos, String nombre, String intensidad) {
+	public TipoActividad(List<Recurso> recursos, String nombre, String intensidad, String instalacion) {
 		this.recursosUsados = recursos;
 		this.nombre = nombre;
+		this.setIntensidad(intensidad);
+		this.instalacion = instalacion;
+	}
+	
+	private void setIntensidad(String intensidad) {
+		switch(intensidad) {
+		case "alta":
+			this.intensidad = Intensidad.ALTA;
+			break;
+		case "media":
+			this.intensidad = Intensidad.MEDIA;
+			break;
+		case "baja":
+			this.intensidad = Intensidad.BAJA;
+			break;
+		}
 	}
 	
 	public String getNombre() {
