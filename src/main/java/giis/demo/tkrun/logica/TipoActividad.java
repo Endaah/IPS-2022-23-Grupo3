@@ -25,13 +25,13 @@ public class TipoActividad {
 	
 	private void setIntensidad(String intensidad) {
 		switch(intensidad) {
-		case "alta":
+		case "Alta":
 			this.intensidad = Intensidad.ALTA;
 			break;
-		case "media":
+		case "Media":
 			this.intensidad = Intensidad.MEDIA;
 			break;
-		case "baja":
+		case "Baja":
 			this.intensidad = Intensidad.BAJA;
 			break;
 		}
@@ -47,5 +47,19 @@ public class TipoActividad {
 	
 	public Recurso[] getRecurso() {
 		return (Recurso[]) recursosUsados.toArray();
+	}
+	
+	public String getInstalacion() {
+		return instalacion;
+	}
+	
+	@Override
+	public String toString() {
+		String res = "";
+		for (Recurso r : recursosUsados) {
+			res = res + r.toString() + " - ";
+		}
+		res = res + nombre + " - " + intensidad + " - " + instalacion;
+		return res;
 	}
 }

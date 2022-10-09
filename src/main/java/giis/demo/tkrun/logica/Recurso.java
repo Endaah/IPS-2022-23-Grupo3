@@ -17,4 +17,9 @@ public class Recurso {
 	public int getCantidad() {
 		return cantidad;
 	}
+	
+	@Override
+	public String toString() {
+		return nombre;
+	}
 }

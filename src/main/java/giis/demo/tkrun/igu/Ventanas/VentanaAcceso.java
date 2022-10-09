@@ -6,6 +6,10 @@ import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+
+import giis.demo.tkrun.Main;
+import giis.demo.tkrun.logica.GymControlador;
+
 import java.awt.Color;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -15,29 +19,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class VentanaAcceso extends JFrame {
-
+	
 	private JPanel contentPane;
 	private JPanel panel;
 	private JLabel lblNewLabel;
 	private JPanel panelBotones;
 	private JButton btnAdministrador;
 	private JButton btnSocio;
-
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					VentanaAcceso frame = new VentanaAcceso();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
@@ -86,12 +74,24 @@ public class VentanaAcceso extends JFrame {
 			btnAdministrador = new JButton("Administrador");
 			btnAdministrador.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+					abrirVentanaAdmin();
 				}
 			});
 			btnAdministrador.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return btnAdministrador;
+	}
+	private void abrirVentanaAdmin() {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					VentanaAdmin frame = new VentanaAdmin();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	private JButton getBtnSocio() {
 		if (btnSocio == null) {
