@@ -12,8 +12,6 @@ import java.util.List;
 
 public class ModelSocio {
 	
-	public static int ACTIVIDADILIMITADA = 0;
-	
 	public static final String url = "jdbc:hsqldb:hsql://localhost:9002/labdb";
 	public static final String user = "SA";
 	public static final String password = "";
@@ -25,13 +23,11 @@ public class ModelSocio {
 			Connection c = getConnection();
 			
 			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS "
-					+ "FROM actividad WHERE A_DIA = ?";
+					+ "FROM actividad WHERE A_DIA = ? ORDER BY A_INI";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
-		    
-		    System.out.println(date);
-		    
+		    		    
 		    pst.setDate(1, date);
 		    
 		    ResultSet rs = pst.executeQuery();
@@ -63,6 +59,19 @@ public class ModelSocio {
 		}
 		
 		return activities;
+	}
+	
+	public boolean comprobarFecha(int day, int month, int year) {
+		if(day <= 28) {
+			return true;
+		}
+		if(day <= 30 && month != 2) {
+			return true;
+		}
+		if (month != 4 && month != 6 && month != 9 && month != 11 && month != 2) {
+			return true;
+		}
+		return false;
 	}
 
 	public Connection getConnection() {

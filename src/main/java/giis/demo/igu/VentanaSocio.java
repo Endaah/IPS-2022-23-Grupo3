@@ -68,7 +68,7 @@ public class VentanaSocio extends JFrame {
 		
 		setTitle("Aplicacion del gimnasio - Socio");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 550);
+		setBounds(100, 100, 649, 550);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -89,7 +89,7 @@ public class VentanaSocio extends JFrame {
 		if (lblActividades == null) {
 			lblActividades = new JLabel("Actividades disponibles");
 			lblActividades.setFont(new Font("Tahoma", Font.BOLD, 18));
-			lblActividades.setBounds(24, 45, 223, 35);
+			lblActividades.setBounds(122, 46, 223, 35);
 		}
 		return lblActividades;
 	}
@@ -97,7 +97,7 @@ public class VentanaSocio extends JFrame {
 		if (lblDia == null) {
 			lblDia = new JLabel("Selecciona un dia:");
 			lblDia.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDia.setBounds(257, 50, 127, 27);
+			lblDia.setBounds(456, 51, 127, 27);
 		}
 		return lblDia;
 	}
@@ -105,7 +105,7 @@ public class VentanaSocio extends JFrame {
 		if (spDay == null) {
 			spDay = new JSpinner();
 			spDay.setModel(new SpinnerNumberModel(INITIALDAY, 1, 31, 1));
-			spDay.setBounds(385, 55, 41, 20);
+			spDay.setBounds(584, 56, 41, 20);
 		}
 		return spDay;
 	}
@@ -113,7 +113,7 @@ public class VentanaSocio extends JFrame {
 		if (lblMonth == null) {
 			lblMonth = new JLabel("Selecciona un mes:");
 			lblMonth.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblMonth.setBounds(256, 90, 127, 27);
+			lblMonth.setBounds(455, 91, 127, 27);
 		}
 		return lblMonth;
 	}
@@ -121,7 +121,7 @@ public class VentanaSocio extends JFrame {
 		if (spMonth == null) {
 			spMonth = new JSpinner();
 			spMonth.setModel(new SpinnerNumberModel(INITIALMONTH, 1, 12, 1));
-			spMonth.setBounds(385, 95, 41, 20);
+			spMonth.setBounds(584, 96, 41, 20);
 		}
 		return spMonth;
 	}
@@ -130,7 +130,7 @@ public class VentanaSocio extends JFrame {
 		if (spYear == null) {
 			spYear = new JSpinner();
 			spYear.setModel(new SpinnerNumberModel(INITIALYEAR, INITIALYEAR, 2023, 1));
-			spYear.setBounds(369, 133, 57, 20);
+			spYear.setBounds(568, 134, 57, 20);
 		}
 		return spYear;
 	}
@@ -138,7 +138,7 @@ public class VentanaSocio extends JFrame {
 		if (lblYear == null) {
 			lblYear = new JLabel("Año:");
 			lblYear.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblYear.setBounds(257, 128, 41, 27);
+			lblYear.setBounds(456, 129, 41, 27);
 		}
 		return lblYear;
 	}
@@ -150,39 +150,29 @@ public class VentanaSocio extends JFrame {
 					int day = (int)spDay.getValue();
 					int month = (int)spMonth.getValue();
 					int year = (int)spYear.getValue();
-					if (!comprobarFecha(day, month, year)) {
-						showMessage("Esta fecha no existe, Introduce una fecha correcta",
-								"Aviso - Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
-					}
-					else {
-						//Actualizar lista de actividades
-						Date date = new Date(year-YEARCORRECTION, month-MONTHCORRECTION, day);
-						List <Activity> activities = model.getListActivitiesFor(date);
-						modelList.clear();
-						modelList.addAll(activities);
-					}
+					showActivities(year, month, day);
 				}
 			});
 			btnFecha.setBackground(Color.WHITE);
-			btnFecha.setBounds(257, 166, 107, 23);
+			btnFecha.setBounds(456, 167, 107, 23);
 		}
 		return btnFecha;
 	}
 	
-	
-	
-	private boolean comprobarFecha(int day, int month, int year) {
-		if(day <= 28) {
-			return true;
+	private void showActivities(int year, int month, int day) {
+		if (!model.comprobarFecha(day, month, year)) {
+			showMessage("Esta fecha no existe, Introduce una fecha correcta",
+					"Aviso - Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
 		}
-		if(day <= 30 && month != 2) {
-			return true;
+		else {
+			//Actualizar lista de actividades
+			Date date = new Date(year-YEARCORRECTION, month-MONTHCORRECTION, day);
+			List <Activity> activities = model.getListActivitiesFor(date);
+			modelList.clear();
+			modelList.addAll(activities);
 		}
-		if (month != 4 && month != 6 && month != 9 && month != 11 && month != 2) {
-			return true;
-		}
-		return false;
 	}
+
 	
 	private static void showMessage(String message, String title, int type) {
 	    JOptionPane pane = new JOptionPane(message,type,JOptionPane.DEFAULT_OPTION);
@@ -194,7 +184,7 @@ public class VentanaSocio extends JFrame {
 	private JScrollPane getScPaneList() {
 		if (scPaneList == null) {
 			scPaneList = new JScrollPane();
-			scPaneList.setBounds(34, 95, 189, 306);
+			scPaneList.setBounds(34, 95, 398, 356);
 			scPaneList.setViewportView(getActList());
 		}
 		return scPaneList;
@@ -209,6 +199,7 @@ public class VentanaSocio extends JFrame {
 			actList.setModel(modelList);
 			
 			actList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			showActivities(INITIALYEAR, INITIALMONTH, INITIALDAY);
 		}
 		return actList;
 	}

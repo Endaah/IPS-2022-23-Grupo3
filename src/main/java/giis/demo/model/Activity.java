@@ -4,6 +4,8 @@ import java.sql.Date;
 
 public class Activity {
 	
+	public final static int ACTIVIDADILIMITADA = 0;
+	
 	private int id;
 	private String nombre;
 	private Date dia;
@@ -20,42 +22,37 @@ public class Activity {
 		this.plazas = plazas;
 	}
 
-	public int getA_id() {return id;}
-	public void setA_id(int a_id) {	this.id = a_id;}
-	public String getTa_nombre() {return nombre;	}
-	public void setTa_nombre(String ta_nombre) {this.nombre = ta_nombre;}
-	public Date getA_dia() {return dia;}
-	public void setA_dia(Date a_dia) {this.dia = a_dia;}
-	public int getA_ini() {return ini;}
-	public void setA_ini(int a_ini) {this.ini = a_ini;}
-	public int getA_fin() {return fin;}
-	public void setA_fin(int a_fin) {this.fin = a_fin;}
-
 	@Override
 	public String toString() {
-		String aux = "Actividad con ";
-		
-		if (plazas == ModelSocio.ACTIVIDADILIMITADA) {
-			aux += "PLAZAS ILIMITADAS,";
-		}
-		else {
-			aux += plazas;
-			aux += " PLAZAS DE LIMITE,";
-		}
-		
-		aux += " con id: ";
+		String aux = "ID: ";
 		aux += id;
-		aux += ", ";
-		aux += nombre;
-		aux += ", ";
-		aux += dia.toString();
-		aux += ", de ";
+		aux += ", (";
 		aux += ini;
-		aux += ", a ";
+		aux += "-";
 		aux += fin;
-		
+		aux += ") ";
+		if (plazas == ACTIVIDADILIMITADA) {
+			aux += "SIN LIMITE DE PLAZAS, ";
+		} else {
+			aux += plazas;
+			aux += " PLAZAS, ";
+		}
+		aux += nombre;
 		return aux;
 	}
+
+	public int getId() {return id;}
+	public String getNombre() {return nombre;}
+	public Date getDia() {return dia;}
+	public int getIni() {return ini;}
+	public int getFin() {return fin;}
+	public int getPlazas() {return plazas;}
+	public void setId(int id) {this.id = id;}
+	public void setNombre(String nombre) {this.nombre = nombre;}
+	public void setDia(Date dia) {this.dia = dia;}
+	public void setIni(int ini) {this.ini = ini;}
+	public void setFin(int fin) {this.fin = fin;}
+	public void setPlazas(int plazas) {this.plazas = plazas;}
 	
 	
 
