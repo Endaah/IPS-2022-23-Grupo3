@@ -1,4 +1,4 @@
-package igu;
+package giis.demo.igu;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JComboBox;
 import javax.swing.JButton;
+import com.toedter.calendar.JCalendar;
 
 public class VentanaAdminAñadir extends JFrame {
 
@@ -28,6 +29,7 @@ public class VentanaAdminAñadir extends JFrame {
 	private JComboBox cmbRecursos;
 	private JLabel lblNewLabel_3;
 	private JButton btnAceptar;
+	private JCalendar calendar;
 
 	/**
 	 * Launch the application.
@@ -50,7 +52,7 @@ public class VentanaAdminAñadir extends JFrame {
 	 */
 	public VentanaAdminAñadir() {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 553, 417);
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -73,6 +75,7 @@ public class VentanaAdminAñadir extends JFrame {
 			panel.add(getCmbRecursos());
 			panel.add(getLblNewLabel_3());
 			panel.add(getBtnAceptar());
+			panel.add(getCalendar());
 		}
 		return panel;
 	}
@@ -80,7 +83,7 @@ public class VentanaAdminAñadir extends JFrame {
 		if (rdbtnSiLimite == null) {
 			rdbtnSiLimite = new JRadioButton("Si");
 			buttonGroup.add(rdbtnSiLimite);
-			rdbtnSiLimite.setBounds(158, 151, 39, 23);
+			rdbtnSiLimite.setBounds(143, 247, 39, 23);
 		}
 		return rdbtnSiLimite;
 	}
@@ -89,7 +92,7 @@ public class VentanaAdminAñadir extends JFrame {
 			rdbtnNoLimite = new JRadioButton("No");
 			rdbtnNoLimite.setSelected(true);
 			buttonGroup.add(rdbtnNoLimite);
-			rdbtnNoLimite.setBounds(196, 151, 46, 23);
+			rdbtnNoLimite.setBounds(181, 247, 46, 23);
 		}
 		return rdbtnNoLimite;
 	}
@@ -97,7 +100,7 @@ public class VentanaAdminAñadir extends JFrame {
 		if (lblNewLabel == null) {
 			lblNewLabel = new JLabel("Plazas limitadas :");
 			lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblNewLabel.setBounds(10, 151, 120, 23);
+			lblNewLabel.setBounds(23, 245, 120, 23);
 		}
 		return lblNewLabel;
 	}
@@ -118,16 +121,16 @@ public class VentanaAdminAñadir extends JFrame {
 	}
 	private JLabel getLblNewLabel_2() {
 		if (lblNewLabel_2 == null) {
-			lblNewLabel_2 = new JLabel("Recursos necesarios :");
+			lblNewLabel_2 = new JLabel("Hora :");
 			lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblNewLabel_2.setBounds(10, 106, 133, 23);
+			lblNewLabel_2.setBounds(23, 212, 170, 23);
 		}
 		return lblNewLabel_2;
 	}
 	private JComboBox getCmbRecursos() {
 		if (cmbRecursos == null) {
 			cmbRecursos = new JComboBox();
-			cmbRecursos.setBounds(181, 108, 147, 23);
+			cmbRecursos.setBounds(143, 214, 147, 23);
 		}
 		return cmbRecursos;
 	}
@@ -135,15 +138,22 @@ public class VentanaAdminAñadir extends JFrame {
 		if (lblNewLabel_3 == null) {
 			lblNewLabel_3 = new JLabel("Seleccione una fecha :");
 			lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblNewLabel_3.setBounds(10, 60, 147, 23);
+			lblNewLabel_3.setBounds(10, 49, 147, 23);
 		}
 		return lblNewLabel_3;
 	}
 	private JButton getBtnAceptar() {
 		if (btnAceptar == null) {
 			btnAceptar = new JButton("Aceptar");
-			btnAceptar.setBounds(325, 217, 89, 23);
+			btnAceptar.setBounds(430, 337, 89, 23);
 		}
 		return btnAceptar;
+	}
+	private JCalendar getCalendar() {
+		if (calendar == null) {
+			calendar = new JCalendar();
+			calendar.setBounds(156, 49, 220, 152);
+		}
+		return calendar;
 	}
 }

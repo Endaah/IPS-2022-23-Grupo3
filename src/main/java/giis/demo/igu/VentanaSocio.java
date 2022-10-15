@@ -1,4 +1,4 @@
-package igu;
+package giis.demo.igu;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
