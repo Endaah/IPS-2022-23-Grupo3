@@ -118,8 +118,16 @@ public class DialogTipoActividad extends JDialog {
 		if (listRecursos == null) {
 			listRecursos = new JList();
 			listRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
+			listRecursos.setModel(getModelRecursos());
 		}
 		return listRecursos;
+	}
+	private DefaultListModel<Recurso> getModelRecursos() {
+		DefaultListModel<Recurso> model = new DefaultListModel<Recurso>();
+		for (Recurso r : vA.getControlador().getRecursosDisponibles()) {
+			model.addElement(r);
+		}
+		return model;
 	}
 	private JTextField getTfNombreAct() {
 		if (tfNombreAct == null) {

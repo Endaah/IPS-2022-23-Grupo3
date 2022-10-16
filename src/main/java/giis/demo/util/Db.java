@@ -5,11 +5,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import giis.demo.tkrun.Main;
+import giis.demo.tkrun.logica.Actividad;
 import giis.demo.tkrun.logica.Instalacion;
 import giis.demo.tkrun.logica.Recurso;
 import giis.demo.tkrun.logica.TipoActividad;
@@ -144,11 +147,32 @@ public class Db {
 		return tiposActividad;
 	}
 	
+	public static List<Actividad> cargarActividades() {
+		String query = "SELECT * FROM ACTIVIDAD";
+		
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		ResultSet rs = sqlExecuteSimple(query);
+		try {
+			while (rs.next()) {
+				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6)));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return actividades;
+	}
+	
 	// =========== CIERRE =============
 	
 	public static void shutdown() {
-		String query = "SHUTDOWN";
-		sqlExecuteSimple(query);
+		try {
+			if (con != null) {
+				Statement st = con.createStatement();
+				//st.execute("SHUTDOWN"); TODO: descomentar
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 	}
 	
 }

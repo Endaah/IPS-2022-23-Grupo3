@@ -2,6 +2,7 @@ package giis.demo.tkrun.logica;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,6 +14,7 @@ public class GymControlador {
 	private List<Recurso> recursosDisponibles;
 	private List<TipoActividad> tiposActividadDisponibles;
 	private List<Instalacion> instalacionesDisponibles;
+	private List<Actividad> actividadesDisponibles;
 	
 	public List<Recurso> getRecursosDisponibles(){
 		List<Recurso> tmp = new ArrayList<Recurso>();
@@ -53,16 +55,35 @@ public class GymControlador {
 		this.instalacionesDisponibles.add(r);
 	}
 	
+	public List<Actividad> getActividadesDisponibles() {
+		List<Actividad> tmp = new ArrayList<Actividad>();
+		for (Actividad ta : actividadesDisponibles) {
+			tmp.add(ta);
+		}
+		return tmp;
+	}
+	
+	public void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas) {
+		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas);
+		this.actividadesDisponibles.add(t);
+		printAct(); // TODO: QUITAR
+	}
+	
 	// TODO: BORRAR TESTS
 	private void testDb() {
 		System.out.println("---- CARGA DESDE BD ----");
 		String testQuery = "SELECT * FROM TIPOACTIVIDAD";
-		ResultSet rs = Db.sqlExecuteSimple(testQuery);
+		String testQueryU = "SELECT * FROM UTILIZA";
+		ResultSet rsTA = Db.sqlExecuteSimple(testQuery);
+		ResultSet rsU = Db.sqlExecuteSimple(testQueryU);
 		try {
 			System.out.println("=== TABLA UTILIZA ===");
+			while (rsU.next()) {
+				System.out.println(rsU.getString(1) + " - " + rsU.getString(2));
+			}
 			System.out.println("=== TABLA TIPOACTIVIDAD ===");
-			while (rs.next()) {
-				System.out.println(rs.getString(1) + " - " + rs.getString(2) + " - " + rs.getString(3));
+			while (rsTA.next()) {
+				System.out.println(rsTA.getString(1) + " - " + rsTA.getString(2) + " - " + rsTA.getString(3));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -70,6 +91,7 @@ public class GymControlador {
 		}
 	}
 	
+	// TODO: BORRAR
 	public void printAct() {
 		for (TipoActividad t : tiposActividadDisponibles) {
 			System.out.println(t.toString());
@@ -89,14 +111,18 @@ public class GymControlador {
 		instalacionesDisponibles = Db.cargarInstalaciones();
 	}
 	
+	public void cargarActividades() {
+		actividadesDisponibles = Db.cargarActividades();
+	}
+	
 	// ============ INTRODUCIR DATOS A LA DB ================
 	private void guardarTipoActividad(TipoActividad ta) {
 		List<Recurso> rcUsados = ta.getRecurso();
-		String query = "INSERT INTO 'UTILIZA' VALUES(?, ?)";
+		String query = "INSERT INTO \"TIPOACTIVIDAD\" VALUES(?, ?, ?)" ;
+		Db.sqlInsertParam(query, new ArrayList<Object>(Arrays.asList(ta.getNombre(), ta.getIntensidad().toString().toLowerCase(), ta.getInstalacion())));
+		query = "INSERT INTO \"UTILIZA\" VALUES(?, ?)";
 		for (Recurso r : rcUsados) {
 			Db.sqlInsertParam(query, new ArrayList<Object>(Arrays.asList(r.getNombre(), ta.getNombre())));
 		}
-		query = "INSERT INTO \"TIPOACTIVIDAD\" VALUES(?, ?, ?)";
-		Db.sqlInsertParam(query, new ArrayList<Object>(Arrays.asList(ta.getNombre(), ta.getIntensidad().toString().toLowerCase(), ta.getInstalacion())));
 	}
 }
