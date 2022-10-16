@@ -15,7 +15,7 @@ import giis.demo.model.*;
 
 public class Db {
 
-	private final static String URL = "jdbc:hsqldb:hsql://localhost:9002/labdb";
+	private final static String URL = "jdbc:hsqldb:hsql://localhost:9001/labdb";
 	private final static String USER = "SA";
 	private final static String PWD = "";
 	
@@ -114,7 +114,7 @@ public class Db {
 		return actividades;
 	}
 	
-	public void insertActivity(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas) {
+	public static void insertActivity(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas) {
 		try {
 			String query = "INSERT INTO actividades (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS) "
 					+ "VALUES (a_id,ta_nombre,a_dia,a_ini,a_fin,plazas)";
@@ -131,6 +131,25 @@ public class Db {
 		}
 		
 	}
+	
+	// ============ INSERCIÓN DE DATOS ==============
+		public static void sqlInsertParam(String query, List<Object> params) {
+			connect();
+			try {
+				PreparedStatement st = con.prepareStatement(query);
+				for (int i = 0; i < params.size(); i++) {
+					if (params.get(i) instanceof String)
+						st.setString(i + 1, (String) params.get(i));
+					else if (params.get(i) instanceof Integer)
+						st.setInt(i + 1, i);
+				}
+				st.execute();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
 	
 	public static void shutdown() {
 		String query = "SHUTDOWN";

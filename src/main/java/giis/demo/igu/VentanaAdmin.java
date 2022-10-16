@@ -68,7 +68,7 @@ public class VentanaAdmin extends JFrame {
 					abrirDialogoActividad();
 				}
 			});
-			btnCrearTipoActividad.setBounds(15, 39, 145, 42);
+			btnCrearTipoActividad.setBounds(15, 55, 145, 42);
 		}
 		return btnCrearTipoActividad;
 	}

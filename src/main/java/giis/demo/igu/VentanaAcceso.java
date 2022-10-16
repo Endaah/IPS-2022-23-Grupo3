@@ -86,7 +86,16 @@ public class VentanaAcceso extends JFrame {
 			btnAdministrador = new JButton("Administrador");
 			btnAdministrador.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+					EventQueue.invokeLater(new Runnable() {
+						public void run() {
+							try {
+								VentanaAdmin frame = new VentanaAdmin();
+								frame.setVisible(true);
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						}
+					});
 				}
 			});
 			btnAdministrador.setFont(new Font("Tahoma", Font.PLAIN, 14));
