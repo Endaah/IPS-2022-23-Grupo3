@@ -20,6 +20,6 @@ public class Recurso {
 	
 	@Override
 	public String toString() {
-		return nombre;
+		return "Recurso: " + nombre + " - Cantidad: " + cantidad;
 	}
 }

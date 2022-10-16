@@ -1,4 +1,4 @@
-package giis.demo.tkrun.igu.Ventanas.dialogos;
+package giis.demo.tkrun.igu.Ventanas.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -14,6 +14,8 @@ import giis.demo.tkrun.logica.Recurso;
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
@@ -61,8 +63,7 @@ public class DialogTipoActividad extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						crearTipoActividad();
-						dispose();
+						okConfirmar();
 					}
 				});
 				okButton.setActionCommand("OK");
@@ -81,14 +82,23 @@ public class DialogTipoActividad extends JDialog {
 			}
 		}
 	}
+	private void okConfirmar() {
+		if (getTfNombreAct().getText().isBlank()
+				|| getTfInstalacionAct().getText().isBlank()
+				|| getCbIntensidadAct().getSelectedItem().toString().equals("Elegir intensidad")) {
+			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad e instalación");
+			return;
+		}
+		crearTipoActividad();
+		dispose();
+	}
 	private void crearTipoActividad() {
+		
 		List<Recurso> selected = this.getListRecursos().getSelectedValuesList();
 		String nombre = getTfNombreAct().getText();
 		String intensidad = getCbIntensidadAct().getSelectedItem().toString();
 		String instalacion = getTfInstalacionAct().getText();
-		System.out.println(intensidad);
 		vA.getControlador().addTipoActividad(selected, nombre, intensidad, instalacion);
-		vA.getControlador().printAct();
 	}
 	private JScrollPane getSpListaRecursos() {
 		if (spListaRecursos == null) {

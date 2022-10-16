@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.tkrun.Main;
-import giis.demo.tkrun.igu.Ventanas.dialogos.DialogTipoActividad;
+import giis.demo.tkrun.igu.Ventanas.dialogs.DialogTipoActividad;
 import giis.demo.tkrun.logica.GymControlador;
 
 import javax.swing.JLabel;
