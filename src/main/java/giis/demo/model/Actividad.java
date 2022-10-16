@@ -2,7 +2,7 @@ package giis.demo.model;
 
 import java.sql.Date;
 
-public class Activity {
+public class Actividad {
 public final static int ACTIVIDADILIMITADA = 0;
 	
 	private int id;
@@ -12,7 +12,7 @@ public final static int ACTIVIDADILIMITADA = 0;
 	private int fin;
 	private int plazas;
 	
-	public Activity(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas) {
+	public Actividad(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas) {
 		this.id = a_id;
 		this.nombre = ta_nombre;
 		this.dia = a_dia;
