@@ -53,6 +53,7 @@ public class VentanaSocio extends JFrame {
 	private JScrollPane scPaneList;
 	private JList<Activity> actList;
 	private DefaultListModel<Activity> modelList;
+	private JButton btnReserva;
 
 	/**
 	 * Create the frame.
@@ -82,6 +83,7 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getLblYear());
 		contentPane.add(getBtnFecha());
 		contentPane.add(getScPaneList());
+		contentPane.add(getBtnReserva());
 		
 		this.setVisible(true);
 	}
@@ -89,7 +91,7 @@ public class VentanaSocio extends JFrame {
 		if (lblActividades == null) {
 			lblActividades = new JLabel("Actividades disponibles");
 			lblActividades.setFont(new Font("Tahoma", Font.BOLD, 18));
-			lblActividades.setBounds(122, 46, 223, 35);
+			lblActividades.setBounds(34, 46, 223, 35);
 		}
 		return lblActividades;
 	}
@@ -202,5 +204,47 @@ public class VentanaSocio extends JFrame {
 			showActivities(INITIALYEAR, INITIALMONTH, INITIALDAY);
 		}
 		return actList;
+	}
+	private JButton getBtnReserva() {
+		if (btnReserva == null) {
+			btnReserva = new JButton("Reservar actividad");
+			btnReserva.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					reservar();
+				}
+			});
+			btnReserva.setBackground(Color.GREEN);
+			btnReserva.setBounds(290, 46, 142, 35);
+		}
+		return btnReserva;
+	}
+	
+	private void reservar() {
+		if (actList.getSelectedValue() == null ||
+				actList.getSelectedValue().getPlazas() == Activity.ACTIVIDADILIMITADA) {
+			showMessage("Asegurese de que ha escogido una actividad con limite de plazas.",
+					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		int actId = actList.getSelectedValue().getId();
+		int userId = askForIdSocio();
+		model.reservarActividad(actId, userId);
+	}
+	
+	private int askForIdSocio(){
+		String input;
+		do {
+			input = JOptionPane.showInputDialog("Introduzca su ID de socio (Número)");
+		} while (input == null || input.isEmpty() || !model.checkIsInt(input));
+		
+		int result = Integer.parseInt(input);
+		
+		if (!model.existsIdSocio(result)) {
+			showMessage("No exixte ningun socio con id " + result,
+					"Aviso - Socio no válido", JOptionPane.WARNING_MESSAGE);
+			return askForIdSocio();
+		}
+		
+		return result;
 	}
 }

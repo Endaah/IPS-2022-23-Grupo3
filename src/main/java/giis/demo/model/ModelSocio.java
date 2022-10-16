@@ -55,7 +55,7 @@ public class ModelSocio {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.err.println("Error obteniendo las actividades");
 		}
 		
 		return activities;
@@ -72,6 +72,73 @@ public class ModelSocio {
 			return true;
 		}
 		return false;
+	}
+	
+	public boolean checkIsInt(String s) {
+		for (char c : s.toCharArray()) {
+			if (!Character.isDigit(c)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public boolean existsIdSocio(int id) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT s_id FROM socio WHERE s_id = ?";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, id);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    while(rs.next()) {
+		    	return true;
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error obteniendo los socios");
+		}
+		return false;
+	}
+	
+	public void reservarActividad(int actId, int userId) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "INSERT INTO RESERVA VALUES(?,?)";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, userId);
+		    pst.setInt(2, actId);
+		    
+		    int res = pst.executeUpdate();
+		    
+		    if (res == 1) {
+				System.out.println("Datos insertados correctamente");
+			}
+			else {
+				System.out.println("ERROR insertando los datos");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error obteniendo las actividades");
+		}
 	}
 
 	public Connection getConnection() {
