@@ -45,8 +45,12 @@ public class TipoActividad {
 		return intensidad.toString();
 	}
 	
-	public Recurso[] getRecurso() {
-		return (Recurso[]) recursosUsados.toArray();
+	public List<Recurso> getRecurso() {
+		List<Recurso> tmp = new ArrayList<Recurso>();
+		for (Recurso r : recursosUsados) {
+			tmp.add(r);
+		}
+		return tmp;
 	}
 	
 	public String getInstalacion() {

@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.tkrun.igu.Ventanas.VentanaAdmin;
+import giis.demo.tkrun.logica.Instalacion;
 import giis.demo.tkrun.logica.Recurso;
 
 import javax.swing.JTextField;
@@ -20,9 +21,12 @@ import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.awt.event.ActionEvent;
+import javax.swing.ListSelectionModel;
 
 public class DialogTipoActividad extends JDialog {
 
@@ -35,15 +39,17 @@ public class DialogTipoActividad extends JDialog {
 	private JLabel lblNombreAct;
 	private JLabel lblIntensidadAct;
 	private JComboBox<String> cbIntensidadAct;
-	private JLabel lblInstalacionAct;
-	private JTextField tfInstalacionAct;
+	private JLabel lblRecursos;
+	private JScrollPane spListaInstalaciones;
+	private JLabel lblInstalaciones;
+	private JList listInstalaciones;
 
 	/**
 	 * Create the dialog.
 	 */
 	public DialogTipoActividad(VentanaAdmin vA) {
 		this.vA = vA;
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 666, 320);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -53,8 +59,9 @@ public class DialogTipoActividad extends JDialog {
 		contentPanel.add(getLblNombreAct());
 		contentPanel.add(getLblIntensidadAct());
 		contentPanel.add(getCbIntensidadAct());
-		contentPanel.add(getLblInstalacionAct());
-		contentPanel.add(getTfInstalacionAct());
+		contentPanel.add(getLblRecursos());
+		contentPanel.add(getSpListaInstalaciones());
+		contentPanel.add(getLblInstalaciones());
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -84,7 +91,6 @@ public class DialogTipoActividad extends JDialog {
 	}
 	private void okConfirmar() {
 		if (getTfNombreAct().getText().isBlank()
-				|| getTfInstalacionAct().getText().isBlank()
 				|| getCbIntensidadAct().getSelectedItem().toString().equals("Elegir intensidad")) {
 			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad e instalación");
 			return;
@@ -94,16 +100,16 @@ public class DialogTipoActividad extends JDialog {
 	}
 	private void crearTipoActividad() {
 		
-		List<Recurso> selected = this.getListRecursos().getSelectedValuesList();
+		List<Recurso> selected = getListRecursos().getSelectedValuesList();
 		String nombre = getTfNombreAct().getText();
 		String intensidad = getCbIntensidadAct().getSelectedItem().toString();
-		String instalacion = getTfInstalacionAct().getText();
+		String instalacion = ((Instalacion) getListInstalaciones().getSelectedValue()).getNombre();
 		vA.getControlador().addTipoActividad(selected, nombre, intensidad, instalacion);
 	}
 	private JScrollPane getSpListaRecursos() {
 		if (spListaRecursos == null) {
 			spListaRecursos = new JScrollPane();
-			spListaRecursos.setBounds(10, 11, 162, 206);
+			spListaRecursos.setBounds(10, 27, 324, 92);
 			spListaRecursos.setViewportView(getListRecursos());
 		}
 		return spListaRecursos;
@@ -118,7 +124,7 @@ public class DialogTipoActividad extends JDialog {
 	private JTextField getTfNombreAct() {
 		if (tfNombreAct == null) {
 			tfNombreAct = new JTextField();
-			tfNombreAct.setBounds(182, 27, 242, 20);
+			tfNombreAct.setBounds(367, 75, 242, 20);
 			tfNombreAct.setColumns(10);
 		}
 		return tfNombreAct;
@@ -127,7 +133,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblNombreAct == null) {
 			lblNombreAct = new JLabel("Nombre de la actividad:");
 			lblNombreAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblNombreAct.setBounds(182, 13, 162, 14);
+			lblNombreAct.setBounds(367, 50, 162, 14);
 		}
 		return lblNombreAct;
 	}
@@ -135,7 +141,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblIntensidadAct == null) {
 			lblIntensidadAct = new JLabel("Intensidad de la actividad:");
 			lblIntensidadAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblIntensidadAct.setBounds(182, 79, 162, 14);
+			lblIntensidadAct.setBounds(367, 142, 162, 14);
 		}
 		return lblIntensidadAct;
 	}
@@ -143,24 +149,47 @@ public class DialogTipoActividad extends JDialog {
 		if (cbIntensidadAct == null) {
 			cbIntensidadAct = new JComboBox<String>();
 			cbIntensidadAct.setModel(new DefaultComboBoxModel<String>(new String[] {"Elegir intensidad", "Alta", "Media", "Baja"}));
-			cbIntensidadAct.setBounds(182, 97, 242, 22);
+			cbIntensidadAct.setBounds(367, 167, 242, 22);
 		}
 		return cbIntensidadAct;
 	}
-	private JLabel getLblInstalacionAct() {
-		if (lblInstalacionAct == null) {
-			lblInstalacionAct = new JLabel("Nombre de la instalación:");
-			lblInstalacionAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblInstalacionAct.setBounds(182, 169, 146, 14);
+	private JLabel getLblRecursos() {
+		if (lblRecursos == null) {
+			lblRecursos = new JLabel("Recursos a usar:");
+			lblRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
+			lblRecursos.setBounds(10, 13, 162, 14);
 		}
-		return lblInstalacionAct;
+		return lblRecursos;
 	}
-	private JTextField getTfInstalacionAct() {
-		if (tfInstalacionAct == null) {
-			tfInstalacionAct = new JTextField();
-			tfInstalacionAct.setBounds(182, 186, 242, 20);
-			tfInstalacionAct.setColumns(10);
+	private JScrollPane getSpListaInstalaciones() {
+		if (spListaInstalaciones == null) {
+			spListaInstalaciones = new JScrollPane();
+			spListaInstalaciones.setBounds(10, 136, 324, 92);
+			spListaInstalaciones.setViewportView(getListInstalaciones());
 		}
-		return tfInstalacionAct;
+		return spListaInstalaciones;
+	}
+	private JLabel getLblInstalaciones() {
+		if (lblInstalaciones == null) {
+			lblInstalaciones = new JLabel("Instalacion a usar:");
+			lblInstalaciones.setFont(new Font("Arial", Font.PLAIN, 12));
+			lblInstalaciones.setBounds(10, 121, 162, 14);
+		}
+		return lblInstalaciones;
+	}
+	private JList getListInstalaciones() {
+		if (listInstalaciones == null) {
+			listInstalaciones = new JList();
+			listInstalaciones.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			listInstalaciones.setModel(getModelInstalaciones());
+		}
+		return listInstalaciones;
+	}
+	private DefaultListModel<Instalacion> getModelInstalaciones() {
+		DefaultListModel<Instalacion> model = new DefaultListModel<Instalacion>();
+		for (Instalacion i : vA.getControlador().getInstalacionesDisponibles()) {
+			model.addElement(i);
+		}
+		return model;
 	}
 }

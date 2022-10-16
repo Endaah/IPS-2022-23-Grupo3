@@ -37,7 +37,9 @@ public class Main {
 	private static void initializeLogic() {
 		gC = new GymControlador();
 		gC.cargarRecursos();
+		gC.cargarInstalaciones();
 		gC.cargarTiposDeActividad();
+		/*
 		System.out.println("--- Recursos cargados ---");
 		for (Recurso r : gC.getRecursosDisponibles()) {
 			System.out.println(r.toString());
@@ -45,7 +47,7 @@ public class Main {
 		System.out.println("--- Actividades cargadas ---");
 		for (TipoActividad ta : gC.getTiposActividadDisponibles()) {
 			System.out.println(ta.toString());
-		}
+		}*/
 	}
 	
 	private static void initializeDB() {

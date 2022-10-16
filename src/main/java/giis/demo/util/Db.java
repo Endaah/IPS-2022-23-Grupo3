@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import giis.demo.tkrun.Main;
+import giis.demo.tkrun.logica.Instalacion;
 import giis.demo.tkrun.logica.Recurso;
 import giis.demo.tkrun.logica.TipoActividad;
 
@@ -31,8 +33,8 @@ public class Db {
 	private static void connect() {
 		if (con == null) try { con = DriverManager.getConnection(URL, USER, PWD); } catch (SQLException e) { e.printStackTrace(); };
 	}
-
-	private static ResultSet sqlExecuteSimple(String query) {
+	// TODO: CAMBIAR DE VUELTA A PRIVATE
+	public static ResultSet sqlExecuteSimple(String query) {
 		connect();
 		ResultSet rs = null;
 		try {
@@ -57,6 +59,25 @@ public class Db {
 		} return rs;
 	}
 	
+	// ============ INSERCIÓN DE DATOS ==============
+	public static void sqlInsertParam(String query, List<Object> params) {
+		connect();
+		try {
+			PreparedStatement st = con.prepareStatement(query);
+			for (int i = 0; i < params.size(); i++) {
+				if (params.get(i) instanceof String)
+					st.setString(i + 1, (String) params.get(i));
+				else if (params.get(i) instanceof Integer)
+					st.setInt(i + 1, i);
+			}
+			st.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	// ============ CARGA DE TABLAS A MEMORIA ==============
+	
 	public static List<Recurso> cargarRecursos() {
 		String query = "SELECT * FROM RECURSO";
 		
@@ -72,31 +93,58 @@ public class Db {
 		return recursos;
 	}
 	
+	public static List<Instalacion> cargarInstalaciones() {
+		String query = "SELECT * FROM INSTALACION";
+		
+		List<Instalacion> instalaciones = new ArrayList<Instalacion>();
+		ResultSet rs = sqlExecuteSimple(query);
+		try {
+			while (rs.next()) {
+				Recurso tmp = null;
+				if (rs.getObject(2) != null) {
+					for (Recurso r : Main.getInstanceControlador().getRecursosDisponibles()) {
+						if (r.getNombre().equals(rs.getString(2))) {
+							tmp = r;
+							break;
+						}
+					}
+				}
+				instalaciones.add(new Instalacion(rs.getString(1), tmp ));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return instalaciones;
+	}
+	
 	public static List<TipoActividad> cargarTiposDeActividad() {
 		String queryTA = "SELECT * FROM TIPOACTIVIDAD";
-		String queryRC = "SELECT R.RC_NOMBRE, R.RC_CANTIDAD "
-				+ "FROM RECURSO R, UTILIZA U, TIPOACTIVIDAD TA "
-				+ "WHERE U.TA_NOMBRE = ? "
-				+ "AND U.RC_NOMBRE = R.RC_NOMBRE;";
+		String queryRC = "SELECT RECURSO.RC_NOMBRE, RECURSO.RC_CANTIDAD "
+				+ "FROM RECURSO "
+				+ "JOIN UTILIZA ON RECURSO.RC_NOMBRE = UTILIZA.RC_NOMBRE "
+				+ "JOIN TIPOACTIVIDAD ON UTILIZA.TA_NOMBRE = TIPOACTIVIDAD.TA_NOMBRE "
+				+ "WHERE TA_NOMBRE = ?";
 		
 		List<TipoActividad> tiposActividad = new ArrayList<TipoActividad>();
 		ResultSet rsTA = sqlExecuteSimple(queryTA);
 		try {
 			while (rsTA.next()) {
 				ResultSet rsRC = sqlExecuteParam(queryRC, Arrays.asList(rsTA.getString(1)));
-				List<Recurso> rcUsados = new ArrayList<Recurso>();
+				ArrayList<Recurso> rcUsados = new ArrayList<Recurso>();
 				while (rsRC.next())
 				{
 					Recurso tmp = new Recurso(rsRC.getString(1), rsRC.getInt(2));
 					rcUsados.add(tmp);
 				}
-				tiposActividad.add(new TipoActividad(rcUsados, rsTA.getString(1), rsTA.getString(2), rsTA.getString(3)));
+				tiposActividad.add(new TipoActividad(new ArrayList<>(rcUsados), rsTA.getString(1), rsTA.getString(2), rsTA.getString(3)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return tiposActividad;
 	}
+	
+	// =========== CIERRE =============
 	
 	public static void shutdown() {
 		String query = "SHUTDOWN";
