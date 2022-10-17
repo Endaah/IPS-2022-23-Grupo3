@@ -5,6 +5,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import giis.demo.model.ModelSocio;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import javax.swing.JLabel;
@@ -108,7 +110,7 @@ public class VentanaAcceso extends JFrame {
 			btnSocio.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
-						VentanaSocio frame = new VentanaSocio();
+						VentanaSocio frame = new VentanaSocio(new ModelSocio());
 						frame.setVisible(true);
 					} catch (Exception e1) {
 						e1.printStackTrace();
