@@ -3,6 +3,7 @@ package giis.demo.tkrun.igu.Ventanas.dialogs;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
@@ -14,8 +15,9 @@ import javax.swing.JOptionPane;
 
 import com.toedter.calendar.JCalendar;
 
+
 import giis.demo.tkrun.igu.Ventanas.VentanaAdmin;
-import giis.demo.tkrun.logica.Recurso;
+import giis.demo.tkrun.logica.TipoActividad;
 
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
@@ -23,13 +25,13 @@ import java.awt.event.ActionListener;
 import java.util.Date;
 import java.util.List;
 import java.awt.event.ActionEvent;
+import javax.swing.JComboBox;
 
 public class DialogActividad extends JDialog {
 
 	private final JPanel contentPanel = new JPanel();
 	private JTextField txtId;
 	private JLabel lblNewLabel;
-	private JTextField txtNombre;
 	private JLabel lblNewLabel_1;
 	private JCalendar calendar;
 	private JLabel lblNewLabel_2;
@@ -40,6 +42,7 @@ public class DialogActividad extends JDialog {
 	private JSpinner spnPlazas;
 	private JLabel lblNewLabel_5;
 	private VentanaAdmin vA;
+	private JComboBox cmbTipos;
 
 	
 
@@ -47,7 +50,7 @@ public class DialogActividad extends JDialog {
 	 * Create the dialog.
 	 */
 	public DialogActividad(VentanaAdmin v) {
-		setBounds(100, 100, 450, 300);
+		setBounds(100, 100, 586, 300);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBackground(Color.WHITE);
 		this.vA = v;
@@ -56,7 +59,6 @@ public class DialogActividad extends JDialog {
 		contentPanel.setLayout(null);
 		contentPanel.add(getTxtId());
 		contentPanel.add(getLblNewLabel());
-		contentPanel.add(getTxtNombre());
 		contentPanel.add(getLblNewLabel_1());
 		contentPanel.add(getCalendar());
 		contentPanel.add(getLblNewLabel_2());
@@ -65,7 +67,9 @@ public class DialogActividad extends JDialog {
 		contentPanel.add(getLblNewLabel_3());
 		contentPanel.add(getLblNewLabel_4());
 		contentPanel.add(getSpnPlazas());
+		cargarTipos();
 		contentPanel.add(getLblNewLabel_5());
+		contentPanel.add(getCmbTipos());
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -74,7 +78,7 @@ public class DialogActividad extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
-						
+						okConfirmar();
 					}
 				});
 				okButton.setActionCommand("OK");
@@ -83,6 +87,11 @@ public class DialogActividad extends JDialog {
 			}
 			{
 				JButton cancelButton = new JButton("Cancel");
+				cancelButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						dispose();
+					}
+				});
 				cancelButton.setActionCommand("Cancel");
 				buttonPane.add(cancelButton);
 			}
@@ -90,23 +99,34 @@ public class DialogActividad extends JDialog {
 	}
 	
 	private void okConfirmar() {
-		if (getTxtId().getText().isBlank()
-				|| getTxtNombre().getText().isBlank()) {
-			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad e id");
+		if (getTxtId().getText().isBlank()) {
+			JOptionPane.showMessageDialog(this, "Introduzca un id");
 			return;
 		}
 		crearActividad();
 		dispose();
 	}
 	
-private void crearActividad() {
-		
-		String nombre = getTxtNombre().getText();
+	private void cargarTipos() {
+		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(vA.getControlador().getTiposActividadDisponibles().toArray(new TipoActividad[vA.getControlador().getTiposActividadDisponibles().size()])));
+	}
+	
+	private void crearActividad() {
+		TipoActividad ta = (TipoActividad) getCmbTipos().getSelectedItem();
+		String nombre = ta.getNombre();
 		int id = Integer.parseInt(getTxtId().getText());
-		java.sql.Date date = (java.sql.Date)calendar.getDate();
+		java.sql.Date date = new java.sql.Date(calendar.getDayChooser().getDay(),calendar.getMonthChooser().getMonth(),calendar.getYearChooser().getYear());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
-		int plazas = (int)getSpnPlazas().getValue();
+		int plazas = 0;
+		if (!ta.getRecurso().isEmpty()) {
+			int menor = ta.getRecurso().get(0).getCantidad();
+			for (int i = 1; i < ta.getRecurso().size(); i++) {
+				menor = menor > ta.getRecurso().get(i).getCantidad() ? ta.getRecurso().get(i).getCantidad() : menor;
+			} plazas = menor;
+		} else {
+			plazas = (int) getSpnPlazas().getValue();
+		}
 		vA.getControlador().addActividad(id,nombre,date,hini,hfin,plazas);
 	}
 	private JTextField getTxtId() {
@@ -124,14 +144,6 @@ private void crearActividad() {
 			lblNewLabel.setBounds(21, 27, 71, 19);
 		}
 		return lblNewLabel;
-	}
-	private JTextField getTxtNombre() {
-		if (txtNombre == null) {
-			txtNombre = new JTextField();
-			txtNombre.setBounds(282, 27, 114, 19);
-			txtNombre.setColumns(10);
-		}
-		return txtNombre;
 	}
 	private JLabel getLblNewLabel_1() {
 		if (lblNewLabel_1 == null) {
@@ -187,7 +199,8 @@ private void crearActividad() {
 	private JSpinner getSpnPlazas() {
 		if (spnPlazas == null) {
 			spnPlazas = new JSpinner();
-			spnPlazas.setModel(new SpinnerNumberModel(new Integer(-1), new Integer(-1), null, new Integer(1)));
+			spnPlazas.setEnabled(false);
+			spnPlazas.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
 			spnPlazas.setBounds(327, 161, 30, 20);
 		}
 		return spnPlazas;
@@ -195,8 +208,33 @@ private void crearActividad() {
 	private JLabel getLblNewLabel_5() {
 		if (lblNewLabel_5 == null) {
 			lblNewLabel_5 = new JLabel("Plazas:");
+			lblNewLabel_5.setEnabled(false);
 			lblNewLabel_5.setBounds(266, 164, 61, 13);
 		}
 		return lblNewLabel_5;
+	}
+	private JComboBox getCmbTipos() {
+		if (cmbTipos == null) {
+			cmbTipos = new JComboBox();
+			cmbTipos.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					comprobarRecurso();
+				}
+			});
+			cmbTipos.setBounds(266, 26, 281, 20);
+		}
+		return cmbTipos;
+	}
+	private void comprobarRecurso() {
+		TipoActividad ta = (TipoActividad) getCmbTipos().getSelectedItem();
+		if (ta.usaRecurso() && (getSpnPlazas().isEnabled() && getLblNewLabel_5().isEnabled())) {
+			getSpnPlazas().setValue(0);
+			getSpnPlazas().setEnabled(false);
+			getLblNewLabel_5().setEnabled(false);
+		} else if (!ta.usaRecurso() && (!getSpnPlazas().isEnabled() && !getLblNewLabel_5().isEnabled())) {
+			getSpnPlazas().setEnabled(true);
+			getLblNewLabel_5().setEnabled(true);
+		}
+			
 	}
 }

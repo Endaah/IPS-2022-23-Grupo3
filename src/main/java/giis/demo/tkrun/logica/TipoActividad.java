@@ -53,17 +53,17 @@ public class TipoActividad {
 		return tmp;
 	}
 	
+	public boolean usaRecurso() {
+		return !recursosUsados.isEmpty();
+	}
+	
 	public String getInstalacion() {
 		return instalacion;
 	}
 	
 	@Override
 	public String toString() {
-		String res = "";
-		for (Recurso r : recursosUsados) {
-			res = res + r.toString() + " - ";
-		}
-		res = res + nombre + " - " + intensidad + " - " + instalacion;
+		String res = nombre + " - " + intensidad + " - " + instalacion;
 		return res;
 	}
 }

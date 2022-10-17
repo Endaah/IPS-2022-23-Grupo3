@@ -27,6 +27,8 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class DialogTipoActividad extends JDialog {
 
@@ -92,8 +94,21 @@ public class DialogTipoActividad extends JDialog {
 	private void okConfirmar() {
 		if (getTfNombreAct().getText().isBlank()
 				|| getCbIntensidadAct().getSelectedItem().toString().equals("Elegir intensidad")) {
-			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad e instalación");
+			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad y seleccione intensidad de la misma");
 			return;
+		}
+		Instalacion i = (Instalacion) getListInstalaciones().getSelectedValue();
+		if (i == null) {
+			JOptionPane.showMessageDialog(this, "Seleccione una instalación donde llevar a cabo la actividad");
+			return;
+		}
+		else {
+			for (Recurso r : (List<Recurso>) getListRecursos().getSelectedValuesList()) {
+				if (i.getRecurso() != r) {
+					JOptionPane.showMessageDialog(this, "El recurso seleccionado debe estar disponible en la instalación seleccionada");
+					return;
+				}
+			}
 		}
 		crearTipoActividad();
 		dispose();
@@ -109,7 +124,7 @@ public class DialogTipoActividad extends JDialog {
 	private JScrollPane getSpListaRecursos() {
 		if (spListaRecursos == null) {
 			spListaRecursos = new JScrollPane();
-			spListaRecursos.setBounds(10, 27, 324, 92);
+			spListaRecursos.setBounds(10, 145, 324, 92);
 			spListaRecursos.setViewportView(getListRecursos());
 		}
 		return spListaRecursos;
@@ -165,14 +180,14 @@ public class DialogTipoActividad extends JDialog {
 		if (lblRecursos == null) {
 			lblRecursos = new JLabel("Recursos a usar:");
 			lblRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblRecursos.setBounds(10, 13, 162, 14);
+			lblRecursos.setBounds(10, 131, 162, 14);
 		}
 		return lblRecursos;
 	}
 	private JScrollPane getSpListaInstalaciones() {
 		if (spListaInstalaciones == null) {
 			spListaInstalaciones = new JScrollPane();
-			spListaInstalaciones.setBounds(10, 136, 324, 92);
+			spListaInstalaciones.setBounds(10, 28, 324, 92);
 			spListaInstalaciones.setViewportView(getListInstalaciones());
 		}
 		return spListaInstalaciones;
@@ -181,7 +196,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblInstalaciones == null) {
 			lblInstalaciones = new JLabel("Instalacion a usar:");
 			lblInstalaciones.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblInstalaciones.setBounds(10, 121, 162, 14);
+			lblInstalaciones.setBounds(10, 13, 162, 14);
 		}
 		return lblInstalaciones;
 	}

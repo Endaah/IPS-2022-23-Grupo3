@@ -40,7 +40,6 @@ public class GymControlador {
 		TipoActividad t = new TipoActividad(r, nombre, intensidad, instalacion);
 		this.tiposActividadDisponibles.add(t);
 		guardarTipoActividad(t);
-		testDb(); //TODO: QUITAR TESTS
 	}
 	
 	public List<Instalacion> getInstalacionesDisponibles() {
@@ -66,29 +65,7 @@ public class GymControlador {
 	public void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas) {
 		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas);
 		this.actividadesDisponibles.add(t);
-		printAct(); // TODO: QUITAR
-	}
-	
-	// TODO: BORRAR TESTS
-	private void testDb() {
-		System.out.println("---- CARGA DESDE BD ----");
-		String testQuery = "SELECT * FROM TIPOACTIVIDAD";
-		String testQueryU = "SELECT * FROM UTILIZA";
-		ResultSet rsTA = Db.sqlExecuteSimple(testQuery);
-		ResultSet rsU = Db.sqlExecuteSimple(testQueryU);
-		try {
-			System.out.println("=== TABLA UTILIZA ===");
-			while (rsU.next()) {
-				System.out.println(rsU.getString(1) + " - " + rsU.getString(2));
-			}
-			System.out.println("=== TABLA TIPOACTIVIDAD ===");
-			while (rsTA.next()) {
-				System.out.println(rsTA.getString(1) + " - " + rsTA.getString(2) + " - " + rsTA.getString(3));
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		guardarActividad(t);
 	}
 	
 	// TODO: BORRAR
@@ -117,12 +94,10 @@ public class GymControlador {
 	
 	// ============ INTRODUCIR DATOS A LA DB ================
 	private void guardarTipoActividad(TipoActividad ta) {
-		List<Recurso> rcUsados = ta.getRecurso();
-		String query = "INSERT INTO \"TIPOACTIVIDAD\" VALUES(?, ?, ?)" ;
-		Db.sqlInsertParam(query, new ArrayList<Object>(Arrays.asList(ta.getNombre(), ta.getIntensidad().toString().toLowerCase(), ta.getInstalacion())));
-		query = "INSERT INTO \"UTILIZA\" VALUES(?, ?)";
-		for (Recurso r : rcUsados) {
-			Db.sqlInsertParam(query, new ArrayList<Object>(Arrays.asList(r.getNombre(), ta.getNombre())));
-		}
+		Db.dbInsertarTA(ta);
+	}
+	
+	private void guardarActividad(Actividad a) {
+		Db.dbInsertarAct(a);
 	}
 }
