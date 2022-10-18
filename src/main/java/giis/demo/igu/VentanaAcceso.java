@@ -20,6 +20,8 @@ import java.awt.event.ActionEvent;
 
 public class VentanaAcceso extends JFrame {
 	
+  private static final long serialVersionUID = 1L;
+  
 	private JPanel contentPane;
 	private JPanel panel;
 	private JLabel lblNewLabel;
@@ -38,6 +40,8 @@ public class VentanaAcceso extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		contentPane.add(getPanel(), BorderLayout.CENTER);
+    
+		this.setVisible(true);
 	}
 
 	private JPanel getPanel() {
@@ -98,12 +102,7 @@ public class VentanaAcceso extends JFrame {
 			btnSocio = new JButton("Socio");
 			btnSocio.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
-						VentanaSocio frame = new VentanaSocio();
-						frame.setVisible(true);
-					} catch (Exception e1) {
-						e1.printStackTrace();
-					}
+					new VentanaSocio(new ModelSocio());
 				}
 			});
 			btnSocio.setFont(new Font("Tahoma", Font.PLAIN, 14));
