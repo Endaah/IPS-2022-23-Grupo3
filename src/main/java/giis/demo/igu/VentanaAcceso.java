@@ -1,34 +1,31 @@
 package giis.demo.igu;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.EventQueue;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.model.ModelSocio;
+import java.awt.Color;
+import javax.swing.JLabel;
+import java.awt.Font;
+import java.awt.GridLayout;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class VentanaAcceso extends JFrame {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	
+  private static final long serialVersionUID = 1L;
+  
 	private JPanel contentPane;
 	private JPanel panel;
 	private JLabel lblNewLabel;
 	private JPanel panelBotones;
 	private JButton btnAdministrador;
 	private JButton btnSocio;
-
 
 	/**
 	 * Create the frame.
@@ -41,11 +38,9 @@ public class VentanaAcceso extends JFrame {
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		contentPane.add(getPanel(), BorderLayout.CENTER);
-		
+    
 		this.setVisible(true);
-		
 	}
-
 	private JPanel getPanel() {
 		if (panel == null) {
 			panel = new JPanel();
@@ -80,12 +75,24 @@ public class VentanaAcceso extends JFrame {
 			btnAdministrador = new JButton("Administrador");
 			btnAdministrador.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+					abrirVentanaAdmin();
 				}
 			});
 			btnAdministrador.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return btnAdministrador;
+	}
+	private void abrirVentanaAdmin() {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					VentanaAdmin frame = new VentanaAdmin();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 	private JButton getBtnSocio() {
 		if (btnSocio == null) {
