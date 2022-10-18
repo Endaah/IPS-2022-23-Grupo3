@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import com.toedter.calendar.JCalendar;
 
 import giis.demo.igu.VentanaAdmin;
+import giis.demo.model.GymControlador;
 import giis.demo.model.TipoActividad;
 
 import javax.swing.JSpinner;
@@ -107,7 +108,7 @@ public class DialogActividad extends JDialog {
 	}
 	
 	private void cargarTipos() {
-		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(vA.getControlador().getTiposActividadDisponibles().toArray(new TipoActividad[vA.getControlador().getTiposActividadDisponibles().size()])));
+		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(GymControlador.getTiposActividadDisponibles().toArray(new TipoActividad[GymControlador.getTiposActividadDisponibles().size()])));
 	}
 	
 	private void crearActividad() {
@@ -126,7 +127,7 @@ public class DialogActividad extends JDialog {
 		} else {
 			plazas = (int) getSpnPlazas().getValue();
 		}
-		vA.getControlador().addActividad(id,nombre,date,hini,hfin,plazas);
+		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas);
 	}
 	private JTextField getTxtId() {
 		if (txtId == null) {

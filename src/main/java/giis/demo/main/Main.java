@@ -7,17 +7,11 @@ import giis.demo.model.GymControlador;
 import giis.demo.util.Db;
 
 public class Main {
-
-	private static GymControlador gC;
 	
 	public static void main(String[] args) {
 		initializeLogic();
 		initializeDB();
 		initializeGUI();
-	}
-	
-	public static GymControlador getInstanceControlador() {
-		return gC;
 	}
 	
 	private static void crearVentanaAcceso() {
@@ -34,11 +28,10 @@ public class Main {
 	}
 	
 	private static void initializeLogic() {
-		gC = new GymControlador();
-		gC.cargarRecursos();
-		gC.cargarInstalaciones();
-		gC.cargarTiposDeActividad();
-		gC.cargarActividades();
+		GymControlador.cargarRecursos();
+		GymControlador.cargarInstalaciones();
+		GymControlador.cargarTiposDeActividad();
+		GymControlador.cargarActividades();
 	}
 	
 	private static void initializeDB() {

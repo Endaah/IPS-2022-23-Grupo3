@@ -6,8 +6,6 @@ import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.dialogs.DialogActividad;
 import giis.demo.igu.dialogs.DialogTipoActividad;
-import giis.demo.main.Main;
-import giis.demo.model.GymControlador;
 import giis.demo.util.Db;
 
 import javax.swing.JLabel;
@@ -23,17 +21,11 @@ import java.awt.event.WindowEvent;
 public class VentanaAdmin extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-
-	private GymControlador gC;
 	
 	private JPanel contentPane;
 	private JLabel lblAdmin;
 	private JButton btnCrearTipoActividad;
 	private JButton btnCrearActividad;
-	
-	public GymControlador getControlador() {
-		return gC;
-	}
 	
 	/**
 	 * Create the frame.
@@ -45,7 +37,6 @@ public class VentanaAdmin extends JFrame {
 				terminate();
 			}
 		});
-		this.gC = Main.getInstanceControlador();
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setBounds(100, 100, 819, 444);
 		contentPane = new JPanel();
@@ -62,7 +53,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private void abrirDialogoActividad() {
 		try {
-			DialogTipoActividad dialog = new DialogTipoActividad(this);
+			DialogTipoActividad dialog = new DialogTipoActividad();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {

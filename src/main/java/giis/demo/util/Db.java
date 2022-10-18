@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import giis.demo.main.Main;
 import giis.demo.model.Actividad;
+import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
 import giis.demo.model.TipoActividad;
@@ -162,7 +162,7 @@ public class Db {
 			while (rs.next()) {
 				Recurso tmp = null;
 				if (rs.getObject(2) != null) {
-					for (Recurso r : Main.getInstanceControlador().getRecursosDisponibles()) {
+					for (Recurso r : GymControlador.getRecursosDisponibles()) {
 						if (r.getNombre().equals(rs.getString(2))) {
 							tmp = r;
 							break;
@@ -237,7 +237,7 @@ public class Db {
 	
 	// =========== CIERRE =============
 	public static void shutdown() {
-		/* TODO: descomentar cuando esté listo
+		/* TODO: descomentar cuando esté listo */
 		try {
 			if (con != null) {
 				Statement st = con.createStatement();
@@ -245,6 +245,6 @@ public class Db {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}*/
+		}
 	}
 }

@@ -8,7 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.igu.VentanaAdmin;
+import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
 
@@ -31,8 +31,6 @@ import javax.swing.ListSelectionModel;
 public class DialogTipoActividad extends JDialog {
 	
 	private static final long serialVersionUID = 1L;
-
-	private VentanaAdmin vA;
 	
 	private final JPanel contentPanel = new JPanel();
 	private JScrollPane spListaRecursos;
@@ -49,8 +47,7 @@ public class DialogTipoActividad extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public DialogTipoActividad(VentanaAdmin vA) {
-		this.vA = vA;
+	public DialogTipoActividad() {
 		setBounds(100, 100, 666, 320);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -119,7 +116,7 @@ public class DialogTipoActividad extends JDialog {
 		String nombre = getTfNombreAct().getText();
 		String intensidad = getCbIntensidadAct().getSelectedItem().toString();
 		String instalacion = getListInstalaciones().getSelectedValue().getNombre();
-		vA.getControlador().addTipoActividad(selected, nombre, intensidad, instalacion);
+		GymControlador.addTipoActividad(selected, nombre, intensidad, instalacion);
 	}
 	private JScrollPane getSpListaRecursos() {
 		if (spListaRecursos == null) {
@@ -139,7 +136,7 @@ public class DialogTipoActividad extends JDialog {
 	}
 	private DefaultListModel<Recurso> getModelRecursos() {
 		DefaultListModel<Recurso> model = new DefaultListModel<Recurso>();
-		for (Recurso r : vA.getControlador().getRecursosDisponibles()) {
+		for (Recurso r : GymControlador.getRecursosDisponibles()) {
 			model.addElement(r);
 		}
 		return model;
@@ -210,7 +207,7 @@ public class DialogTipoActividad extends JDialog {
 	}
 	private DefaultListModel<Instalacion> getModelInstalaciones() {
 		DefaultListModel<Instalacion> model = new DefaultListModel<Instalacion>();
-		for (Instalacion i : vA.getControlador().getInstalacionesDisponibles()) {
+		for (Instalacion i : GymControlador.getInstalacionesDisponibles()) {
 			model.addElement(i);
 		}
 		return model;

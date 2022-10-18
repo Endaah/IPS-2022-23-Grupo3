@@ -6,13 +6,13 @@ import java.util.List;
 import giis.demo.util.Db;
 
 public class GymControlador {
-
-	private List<Recurso> recursosDisponibles;
-	private List<TipoActividad> tiposActividadDisponibles;
-	private List<Instalacion> instalacionesDisponibles;
-	private List<Actividad> actividadesDisponibles;
 	
-	public List<Recurso> getRecursosDisponibles(){
+	private static List<Recurso> recursosDisponibles;
+	private static List<TipoActividad> tiposActividadDisponibles;
+	private static List<Instalacion> instalacionesDisponibles;
+	private static List<Actividad> actividadesDisponibles;
+	
+	public static List<Recurso> getRecursosDisponibles(){
 		List<Recurso> tmp = new ArrayList<Recurso>();
 		for (Recurso r : recursosDisponibles) {
 			tmp.add(r);
@@ -20,11 +20,11 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public void addRecurso(Recurso r) {
-		this.recursosDisponibles.add(r);
+	public static void addRecurso(Recurso r) {
+		recursosDisponibles.add(r);
 	}
 	
-	public List<TipoActividad> getTiposActividadDisponibles() {
+	public static List<TipoActividad> getTiposActividadDisponibles() {
 		List<TipoActividad> tmp = new ArrayList<TipoActividad>();
 		for (TipoActividad ta : tiposActividadDisponibles) {
 			tmp.add(ta);
@@ -32,13 +32,13 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public void addTipoActividad(List<Recurso> r, String nombre, String intensidad, String instalacion) {
+	public static void addTipoActividad(List<Recurso> r, String nombre, String intensidad, String instalacion) {
 		TipoActividad t = new TipoActividad(r, nombre, intensidad, instalacion);
-		this.tiposActividadDisponibles.add(t);
+		tiposActividadDisponibles.add(t);
 		guardarTipoActividad(t);
 	}
 	
-	public List<Instalacion> getInstalacionesDisponibles() {
+	public static List<Instalacion> getInstalacionesDisponibles() {
 		List<Instalacion> tmp = new ArrayList<Instalacion>();
 		for (Instalacion i : instalacionesDisponibles) {
 			tmp.add(i);
@@ -46,11 +46,11 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public void addInstalacion(Instalacion r) {
-		this.instalacionesDisponibles.add(r);
+	public static void addInstalacion(Instalacion r) {
+		instalacionesDisponibles.add(r);
 	}
 	
-	public List<Actividad> getActividadesDisponibles() {
+	public static List<Actividad> getActividadesDisponibles() {
 		List<Actividad> tmp = new ArrayList<Actividad>();
 		for (Actividad ta : actividadesDisponibles) {
 			tmp.add(ta);
@@ -58,35 +58,35 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas) {
+	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas) {
 		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas);
-		this.actividadesDisponibles.add(t);
+		actividadesDisponibles.add(t);
 		guardarActividad(t);
 	}
 	
 	// ============ CARGAR DATOS DESDE LA DB ================
-	public void cargarRecursos() {
+	public static void cargarRecursos() {
 		recursosDisponibles = Db.cargarRecursos();
 	}
 	
-	public void cargarTiposDeActividad() {
+	public static void cargarTiposDeActividad() {
 		tiposActividadDisponibles = Db.cargarTiposDeActividad();
 	}
 	
-	public void cargarInstalaciones() {
+	public static void cargarInstalaciones() {
 		instalacionesDisponibles = Db.cargarInstalaciones();
 	}
 	
-	public void cargarActividades() {
+	public static void cargarActividades() {
 		actividadesDisponibles = Db.cargarActividades();
 	}
 	
 	// ============ INTRODUCIR DATOS A LA DB ================
-	private void guardarTipoActividad(TipoActividad ta) {
+	private static void guardarTipoActividad(TipoActividad ta) {
 		Db.dbInsertarTA(ta);
 	}
 	
-	private void guardarActividad(Actividad a) {
+	private static void guardarActividad(Actividad a) {
 		Db.dbInsertarAct(a);
 	}
 }
