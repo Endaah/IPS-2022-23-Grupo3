@@ -1,4 +1,4 @@
-package giis.demo.tkrun.igu.Ventanas;
+package giis.demo.igu;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
@@ -7,8 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.tkrun.Main;
-import giis.demo.tkrun.logica.GymControlador;
+import giis.demo.main.Main;
+import giis.demo.model.GymControlador;
 
 import java.awt.Color;
 import javax.swing.JLabel;

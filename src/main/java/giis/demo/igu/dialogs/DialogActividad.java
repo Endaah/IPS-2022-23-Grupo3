@@ -1,4 +1,4 @@
-package giis.demo.tkrun.igu.Ventanas.dialogs;
+package giis.demo.igu.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -15,9 +15,8 @@ import javax.swing.JOptionPane;
 
 import com.toedter.calendar.JCalendar;
 
-
-import giis.demo.tkrun.igu.Ventanas.VentanaAdmin;
-import giis.demo.tkrun.logica.TipoActividad;
+import giis.demo.igu.VentanaAdmin;
+import giis.demo.model.TipoActividad;
 
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;

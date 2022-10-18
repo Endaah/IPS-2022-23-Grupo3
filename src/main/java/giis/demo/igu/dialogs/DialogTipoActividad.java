@@ -1,4 +1,4 @@
-package giis.demo.tkrun.igu.Ventanas.dialogs;
+package giis.demo.igu.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -8,9 +8,9 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.tkrun.igu.Ventanas.VentanaAdmin;
-import giis.demo.tkrun.logica.Instalacion;
-import giis.demo.tkrun.logica.Recurso;
+import giis.demo.igu.VentanaAdmin;
+import giis.demo.model.Instalacion;
+import giis.demo.model.Recurso;
 
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
@@ -27,16 +27,16 @@ import java.awt.event.ActionListener;
 import java.util.List;
 import java.awt.event.ActionEvent;
 import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
 
 public class DialogTipoActividad extends JDialog {
+	
+	private static final long serialVersionUID = 1L;
 
 	private VentanaAdmin vA;
 	
 	private final JPanel contentPanel = new JPanel();
 	private JScrollPane spListaRecursos;
-	private JList listRecursos;
+	private JList<Recurso> listRecursos;
 	private JTextField tfNombreAct;
 	private JLabel lblNombreAct;
 	private JLabel lblIntensidadAct;
@@ -44,7 +44,7 @@ public class DialogTipoActividad extends JDialog {
 	private JLabel lblRecursos;
 	private JScrollPane spListaInstalaciones;
 	private JLabel lblInstalaciones;
-	private JList listInstalaciones;
+	private JList<Instalacion> listInstalaciones;
 
 	/**
 	 * Create the dialog.
@@ -97,13 +97,13 @@ public class DialogTipoActividad extends JDialog {
 			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad y seleccione intensidad de la misma");
 			return;
 		}
-		Instalacion i = (Instalacion) getListInstalaciones().getSelectedValue();
+		Instalacion i = getListInstalaciones().getSelectedValue();
 		if (i == null) {
 			JOptionPane.showMessageDialog(this, "Seleccione una instalación donde llevar a cabo la actividad");
 			return;
 		}
 		else {
-			for (Recurso r : (List<Recurso>) getListRecursos().getSelectedValuesList()) {
+			for (Recurso r : getListRecursos().getSelectedValuesList()) {
 				if (i.getRecurso() != r) {
 					JOptionPane.showMessageDialog(this, "El recurso seleccionado debe estar disponible en la instalación seleccionada");
 					return;
@@ -118,7 +118,7 @@ public class DialogTipoActividad extends JDialog {
 		List<Recurso> selected = getListRecursos().getSelectedValuesList();
 		String nombre = getTfNombreAct().getText();
 		String intensidad = getCbIntensidadAct().getSelectedItem().toString();
-		String instalacion = ((Instalacion) getListInstalaciones().getSelectedValue()).getNombre();
+		String instalacion = getListInstalaciones().getSelectedValue().getNombre();
 		vA.getControlador().addTipoActividad(selected, nombre, intensidad, instalacion);
 	}
 	private JScrollPane getSpListaRecursos() {
@@ -129,9 +129,9 @@ public class DialogTipoActividad extends JDialog {
 		}
 		return spListaRecursos;
 	}
-	private JList getListRecursos() {
+	private JList<Recurso> getListRecursos() {
 		if (listRecursos == null) {
-			listRecursos = new JList();
+			listRecursos = new JList<Recurso>();
 			listRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
 			listRecursos.setModel(getModelRecursos());
 		}
@@ -200,9 +200,9 @@ public class DialogTipoActividad extends JDialog {
 		}
 		return lblInstalaciones;
 	}
-	private JList getListInstalaciones() {
+	private JList<Instalacion> getListInstalaciones() {
 		if (listInstalaciones == null) {
-			listInstalaciones = new JList();
+			listInstalaciones = new JList<Instalacion>();
 			listInstalaciones.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			listInstalaciones.setModel(getModelInstalaciones());
 		}

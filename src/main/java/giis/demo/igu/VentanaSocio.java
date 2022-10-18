@@ -1,4 +1,4 @@
-package giis.demo.tkrun.igu.Ventanas;
+package giis.demo.igu;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;

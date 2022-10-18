@@ -1,16 +1,13 @@
-package giis.demo.tkrun.igu.Ventanas;
-
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
+package giis.demo.igu;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.tkrun.Main;
-import giis.demo.tkrun.igu.Ventanas.dialogs.DialogActividad;
-import giis.demo.tkrun.igu.Ventanas.dialogs.DialogTipoActividad;
-import giis.demo.tkrun.logica.GymControlador;
+import giis.demo.igu.dialogs.DialogActividad;
+import giis.demo.igu.dialogs.DialogTipoActividad;
+import giis.demo.main.Main;
+import giis.demo.model.GymControlador;
 import giis.demo.util.Db;
 
 import javax.swing.JLabel;

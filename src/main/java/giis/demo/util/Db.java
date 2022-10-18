@@ -11,11 +11,11 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import giis.demo.tkrun.Main;
-import giis.demo.tkrun.logica.Actividad;
-import giis.demo.tkrun.logica.Instalacion;
-import giis.demo.tkrun.logica.Recurso;
-import giis.demo.tkrun.logica.TipoActividad;
+import giis.demo.main.Main;
+import giis.demo.model.Actividad;
+import giis.demo.model.Instalacion;
+import giis.demo.model.Recurso;
+import giis.demo.model.TipoActividad;
 
 public class Db {
 
@@ -235,29 +235,16 @@ public class Db {
 		return actividades;
 	}
 	
-	// =========== RESET ============ TODO: QUITAR
-	public static void dbClear() {
-		try {
-			connect();
-			
-			Statement st = con.createStatement();
-			st.execute("DELETE FROM TIPOACTIVIDAD WHERE TA_NOMBRE = ''");
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	// =========== CIERRE =============
-	
 	public static void shutdown() {
+		/* TODO: descomentar cuando esté listo
 		try {
 			if (con != null) {
 				Statement st = con.createStatement();
-				//st.execute("SHUTDOWN"); TODO: descomentar
+				st.execute("SHUTDOWN");
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
-	
 }

@@ -1,10 +1,6 @@
-package giis.demo.tkrun.logica;
+package giis.demo.model;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import giis.demo.util.Db;
@@ -66,13 +62,6 @@ public class GymControlador {
 		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas);
 		this.actividadesDisponibles.add(t);
 		guardarActividad(t);
-	}
-	
-	// TODO: BORRAR
-	public void printAct() {
-		for (TipoActividad t : tiposActividadDisponibles) {
-			System.out.println(t.toString());
-		}
 	}
 	
 	// ============ CARGAR DATOS DESDE LA DB ================

@@ -1,4 +1,4 @@
-package giis.demo.tkrun.logica;
+package giis.demo.model;
 
 import java.sql.Date;
 
