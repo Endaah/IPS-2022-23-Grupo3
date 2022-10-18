@@ -7,9 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.main.Main;
-import giis.demo.model.GymControlador;
-
+import giis.demo.model.ModelSocio;
 import java.awt.Color;
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -43,7 +41,6 @@ public class VentanaAcceso extends JFrame {
     
 		this.setVisible(true);
 	}
-
 	private JPanel getPanel() {
 		if (panel == null) {
 			panel = new JPanel();
