@@ -76,7 +76,7 @@ public class VentanaAcceso extends JFrame {
 		if (panelBotones == null) {
 			panelBotones = new JPanel();
 			panelBotones.setBackground(Color.WHITE);
-			panelBotones.setBounds(89, 111, 249, 81);
+			panelBotones.setBounds(42, 112, 308, 81);
 			panelBotones.setLayout(new GridLayout(0, 2, 0, 0));
 			panelBotones.add(getBtnAdministrador());
 			panelBotones.add(getBtnSocio());

@@ -7,16 +7,10 @@ import giis.demo.util.Db;
 
 public class Main {
 
-	private static GymControlador gC;
-	
 	public static void main(String[] args) {
 		initializeLogic();
 		initializeDB();
 		initializeGUI();
-	}
-	
-	public static GymControlador getInstanceControlador() {
-		return gC;
 	}
 	
 	private static void crearVentanaAcceso() {
@@ -33,17 +27,10 @@ public class Main {
 	}
 	
 	private static void initializeLogic() {
-		gC = new GymControlador();
-		gC.cargarRecursos();
-		gC.cargarTiposDeActividad();
-		System.out.println("--- Recursos cargados ---");
-		for (Recurso r : gC.getRecursosDisponibles()) {
-			System.out.println(r.toString());
-		}
-		System.out.println("--- Actividades cargadas ---");
-		for (TipoActividad ta : gC.getTiposActividadDisponibles()) {
-			System.out.println(ta.toString());
-		}
+		GymControlador.cargarRecursos();
+		GymControlador.cargarInstalaciones();
+		GymControlador.cargarTiposDeActividad();
+		GymControlador.cargarActividades();
 	}
 	
 	private static void initializeDB() {

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class ModelSocio {
 	
-	public static final String url = "jdbc:hsqldb:hsql://localhost:9001/labdb";
+	public static final String url = "jdbc:hsqldb:hsql://localhost:9002/labdb";
 	public static final String user = "SA";
 	public static final String password = "";
 	
@@ -162,11 +162,14 @@ public class ModelSocio {
 		try {
 			Connection c = getConnection();
 			
-			String query = "DELETE FROM RESERVA WHERE EXISTS S_ID == userId AND A_ID == actId";
+			String query = "DELETE FROM RESERVA WHERE S_ID = ? AND A_ID = ?";
+			
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
-		    		    
+		    
+		    pst.setInt(1, userId);
+		    pst.setInt(2, actId);
 		    
 		    int res = pst.executeUpdate();
 		    

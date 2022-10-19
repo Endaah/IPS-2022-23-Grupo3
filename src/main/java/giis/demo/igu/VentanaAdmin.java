@@ -1,19 +1,12 @@
 package giis.demo.igu;
 
-import giis.demo.igu.dialogs.*;
-import giis.demo.main.Main;
-
-import java.awt.BorderLayout;
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.*;
-import giis.demo.igu.*;
-import giis.demo.model.*;
-import giis.demo.main.*;
+import giis.demo.igu.dialogs.DialogActividad;
+import giis.demo.igu.dialogs.DialogTipoActividad;
+import giis.demo.util.Db;
 
 import javax.swing.JLabel;
 import java.awt.Font;
@@ -22,27 +15,30 @@ import javax.swing.JDialog;
 
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class VentanaAdmin extends JFrame {
 
-	private GymControlador gC;
+	private static final long serialVersionUID = 1L;
 	
 	private JPanel contentPane;
 	private JLabel lblAdmin;
 	private JButton btnCrearTipoActividad;
 	private JButton btnCrearActividad;
 	
-	public GymControlador getControlador() {
-		return gC;
-	}
-	
 	/**
 	 * Create the frame.
 	 */
 	public VentanaAdmin() {
-		this.gC = Main.getInstanceControlador();
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 819, 444);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				terminate();
+			}
+		});
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setBounds(100, 100, 747, 474);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -51,7 +47,28 @@ public class VentanaAdmin extends JFrame {
 		contentPane.add(getBtnCrearTipoActividad());
 		contentPane.add(getBtnCrearActividad());
 	}
-
+	private void terminate() {
+		Db.shutdown();
+		System.exit(0);
+	}
+	private void abrirDialogoActividad() {
+		try {
+			DialogTipoActividad dialog = new DialogTipoActividad();
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	private void abrirDialogoCrearActividad() {
+		try {
+			DialogActividad dialog = new DialogActividad(this);
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	private JLabel getLblAdmin() {
 		if (lblAdmin == null) {
 			lblAdmin = new JLabel("ADMIN");
@@ -68,18 +85,9 @@ public class VentanaAdmin extends JFrame {
 					abrirDialogoActividad();
 				}
 			});
-			btnCrearTipoActividad.setBounds(15, 55, 145, 42);
+			btnCrearTipoActividad.setBounds(15, 39, 186, 42);
 		}
 		return btnCrearTipoActividad;
-	}
-	private void abrirDialogoActividad() {
-		try {
-			DialogTipoActividad dialog = new DialogTipoActividad(this);
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 	private JButton getBtnCrearActividad() {
 		if (btnCrearActividad == null) {
@@ -90,18 +98,8 @@ public class VentanaAdmin extends JFrame {
 				}
 
 			});
-			btnCrearActividad.setBounds(15, 107, 145, 35);
+			btnCrearActividad.setBounds(15, 107, 186, 35);
 		}
 		return btnCrearActividad;
-	}
-	
-	private void abrirDialogoCrearActividad() {
-		try {
-			DialogActividad dialog = new DialogActividad(this);
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 }

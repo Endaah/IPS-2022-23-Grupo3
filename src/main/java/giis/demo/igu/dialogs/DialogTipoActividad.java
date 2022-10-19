@@ -8,6 +8,10 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import giis.demo.model.GymControlador;
+import giis.demo.model.Instalacion;
+import giis.demo.model.Recurso;
+
 import javax.swing.JTextField;
 import javax.swing.JScrollPane;
 import javax.swing.JList;
@@ -17,37 +21,34 @@ import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListModel;
+
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.awt.event.ActionEvent;
-import giis.demo.model.*;
-import giis.demo.igu.*;
+import javax.swing.ListSelectionModel;
 
 public class DialogTipoActividad extends JDialog {
-
-	/**
-	 * 
-	 */
+	
 	private static final long serialVersionUID = 1L;
-
-	private VentanaAdmin vA;
 	
 	private final JPanel contentPanel = new JPanel();
 	private JScrollPane spListaRecursos;
-	private JList listRecursos;
+	private JList<Recurso> listRecursos;
 	private JTextField tfNombreAct;
 	private JLabel lblNombreAct;
 	private JLabel lblIntensidadAct;
 	private JComboBox<String> cbIntensidadAct;
-	private JLabel lblInstalacionAct;
-	private JTextField tfInstalacionAct;
+	private JLabel lblRecursos;
+	private JScrollPane spListaInstalaciones;
+	private JLabel lblInstalaciones;
+	private JList<Instalacion> listInstalaciones;
 
 	/**
 	 * Create the dialog.
 	 */
-	public DialogTipoActividad(VentanaAdmin vA) {
-		this.vA = vA;
-		setBounds(100, 100, 450, 300);
+	public DialogTipoActividad() {
+		setBounds(100, 100, 666, 320);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -57,8 +58,9 @@ public class DialogTipoActividad extends JDialog {
 		contentPanel.add(getLblNombreAct());
 		contentPanel.add(getLblIntensidadAct());
 		contentPanel.add(getCbIntensidadAct());
-		contentPanel.add(getLblInstalacionAct());
-		contentPanel.add(getTfInstalacionAct());
+		contentPanel.add(getLblRecursos());
+		contentPanel.add(getSpListaInstalaciones());
+		contentPanel.add(getLblInstalaciones());
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -88,41 +90,61 @@ public class DialogTipoActividad extends JDialog {
 	}
 	private void okConfirmar() {
 		if (getTfNombreAct().getText().isBlank()
-				|| getTfInstalacionAct().getText().isBlank()
 				|| getCbIntensidadAct().getSelectedItem().toString().equals("Elegir intensidad")) {
-			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad e instalación");
+			JOptionPane.showMessageDialog(this, "Introduzca un nombre de actividad y seleccione intensidad de la misma");
 			return;
+		}
+		Instalacion i = getListInstalaciones().getSelectedValue();
+		if (i == null) {
+			JOptionPane.showMessageDialog(this, "Seleccione una instalación donde llevar a cabo la actividad");
+			return;
+		}
+		else {
+			for (Recurso r : getListRecursos().getSelectedValuesList()) {
+				if (i.getRecurso() != r) {
+					JOptionPane.showMessageDialog(this, "El recurso seleccionado debe estar disponible en la instalación seleccionada");
+					return;
+				}
+			}
 		}
 		crearTipoActividad();
 		dispose();
 	}
 	private void crearTipoActividad() {
 		
-		List<Recurso> selected = this.getListRecursos().getSelectedValuesList();
+		List<Recurso> selected = getListRecursos().getSelectedValuesList();
 		String nombre = getTfNombreAct().getText();
 		String intensidad = getCbIntensidadAct().getSelectedItem().toString();
-		String instalacion = getTfInstalacionAct().getText();
-		vA.getControlador().addTipoActividad(selected, nombre, intensidad, instalacion);
+		String instalacion = getListInstalaciones().getSelectedValue().getNombre();
+		GymControlador.addTipoActividad(selected, nombre, intensidad, instalacion);
 	}
 	private JScrollPane getSpListaRecursos() {
 		if (spListaRecursos == null) {
 			spListaRecursos = new JScrollPane();
-			spListaRecursos.setBounds(10, 11, 162, 206);
+			spListaRecursos.setBounds(10, 145, 324, 92);
 			spListaRecursos.setViewportView(getListRecursos());
 		}
 		return spListaRecursos;
 	}
-	private JList getListRecursos() {
+	private JList<Recurso> getListRecursos() {
 		if (listRecursos == null) {
-			listRecursos = new JList();
+			listRecursos = new JList<Recurso>();
 			listRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
+			listRecursos.setModel(getModelRecursos());
 		}
 		return listRecursos;
+	}
+	private DefaultListModel<Recurso> getModelRecursos() {
+		DefaultListModel<Recurso> model = new DefaultListModel<Recurso>();
+		for (Recurso r : GymControlador.getRecursosDisponibles()) {
+			model.addElement(r);
+		}
+		return model;
 	}
 	private JTextField getTfNombreAct() {
 		if (tfNombreAct == null) {
 			tfNombreAct = new JTextField();
-			tfNombreAct.setBounds(182, 27, 242, 20);
+			tfNombreAct.setBounds(367, 75, 242, 20);
 			tfNombreAct.setColumns(10);
 		}
 		return tfNombreAct;
@@ -131,7 +153,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblNombreAct == null) {
 			lblNombreAct = new JLabel("Nombre de la actividad:");
 			lblNombreAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblNombreAct.setBounds(182, 13, 162, 14);
+			lblNombreAct.setBounds(367, 50, 162, 14);
 		}
 		return lblNombreAct;
 	}
@@ -139,7 +161,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblIntensidadAct == null) {
 			lblIntensidadAct = new JLabel("Intensidad de la actividad:");
 			lblIntensidadAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblIntensidadAct.setBounds(182, 79, 162, 14);
+			lblIntensidadAct.setBounds(367, 142, 162, 14);
 		}
 		return lblIntensidadAct;
 	}
@@ -147,24 +169,47 @@ public class DialogTipoActividad extends JDialog {
 		if (cbIntensidadAct == null) {
 			cbIntensidadAct = new JComboBox<String>();
 			cbIntensidadAct.setModel(new DefaultComboBoxModel<String>(new String[] {"Elegir intensidad", "Alta", "Media", "Baja"}));
-			cbIntensidadAct.setBounds(182, 97, 242, 22);
+			cbIntensidadAct.setBounds(367, 167, 242, 22);
 		}
 		return cbIntensidadAct;
 	}
-	private JLabel getLblInstalacionAct() {
-		if (lblInstalacionAct == null) {
-			lblInstalacionAct = new JLabel("Nombre de la instalación:");
-			lblInstalacionAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblInstalacionAct.setBounds(182, 169, 146, 14);
+	private JLabel getLblRecursos() {
+		if (lblRecursos == null) {
+			lblRecursos = new JLabel("Recursos a usar:");
+			lblRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
+			lblRecursos.setBounds(10, 131, 162, 14);
 		}
-		return lblInstalacionAct;
+		return lblRecursos;
 	}
-	private JTextField getTfInstalacionAct() {
-		if (tfInstalacionAct == null) {
-			tfInstalacionAct = new JTextField();
-			tfInstalacionAct.setBounds(182, 186, 242, 20);
-			tfInstalacionAct.setColumns(10);
+	private JScrollPane getSpListaInstalaciones() {
+		if (spListaInstalaciones == null) {
+			spListaInstalaciones = new JScrollPane();
+			spListaInstalaciones.setBounds(10, 28, 324, 92);
+			spListaInstalaciones.setViewportView(getListInstalaciones());
 		}
-		return tfInstalacionAct;
+		return spListaInstalaciones;
+	}
+	private JLabel getLblInstalaciones() {
+		if (lblInstalaciones == null) {
+			lblInstalaciones = new JLabel("Instalacion a usar:");
+			lblInstalaciones.setFont(new Font("Arial", Font.PLAIN, 12));
+			lblInstalaciones.setBounds(10, 13, 162, 14);
+		}
+		return lblInstalaciones;
+	}
+	private JList<Instalacion> getListInstalaciones() {
+		if (listInstalaciones == null) {
+			listInstalaciones = new JList<Instalacion>();
+			listInstalaciones.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			listInstalaciones.setModel(getModelInstalaciones());
+		}
+		return listInstalaciones;
+	}
+	private DefaultListModel<Instalacion> getModelInstalaciones() {
+		DefaultListModel<Instalacion> model = new DefaultListModel<Instalacion>();
+		for (Instalacion i : GymControlador.getInstalacionesDisponibles()) {
+			model.addElement(i);
+		}
+		return model;
 	}
 }

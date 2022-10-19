@@ -9,11 +9,12 @@ import giis.demo.util.Db;
 
 public class GymControlador {
 
-	private List<Recurso> recursosDisponibles;
-	private List<TipoActividad> tiposActividadDisponibles;
-	private List<Actividad> ActividadesDisponibles = new ArrayList<Actividad>();
+	private static List<Recurso> recursosDisponibles;
+	private static List<TipoActividad> tiposActividadDisponibles;
+	private static List<Actividad> ActividadesDisponibles = new ArrayList<Actividad>();
+	private static List<Instalacion> instalacionesDisponibles;
 	
-	public List<Recurso> getRecursosDisponibles(){
+	public static List<Recurso> getRecursosDisponibles(){
 		List<Recurso> tmp = new ArrayList<Recurso>();
 		for (Recurso r : recursosDisponibles) {
 			tmp.add(r);
@@ -21,11 +22,11 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public void addRecurso(Recurso r) {
-		this.recursosDisponibles.add(r);
+	public static void addRecurso(Recurso r) {
+		recursosDisponibles.add(r);
 	}
 	
-	public List<TipoActividad> getTiposActividadDisponibles() {
+	public static List<TipoActividad> getTiposActividadDisponibles() {
 		List<TipoActividad> tmp = new ArrayList<TipoActividad>();
 		for (TipoActividad ta : tiposActividadDisponibles) {
 			tmp.add(ta);
@@ -33,7 +34,7 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public List<Actividad> getActividadesDisponibles() {
+	public static List<Actividad> getActividadesDisponibles() {
 		List<Actividad> tmp = new ArrayList<Actividad>();
 		for (Actividad ta : ActividadesDisponibles) {
 			tmp.add(ta);
@@ -41,57 +42,61 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public void addTipoActividad(List<Recurso> r, String nombre, String intensidad, String instalacion) {
+	public static List<Instalacion> getInstalacionesDisponibles() {
+		List<Instalacion> tmp = new ArrayList<Instalacion>();
+		for (Instalacion i : instalacionesDisponibles) {
+			tmp.add(i);
+		}
+		return tmp;
+	}
+	
+	public static void addTipoActividad(List<Recurso> r, String nombre, String intensidad, String instalacion) {
 		TipoActividad t = new TipoActividad(r, nombre, intensidad, instalacion);
-		this.tiposActividadDisponibles.add(t);
-		printAct();
+		tiposActividadDisponibles.add(t);
+		guardarTipoActividad(t);
 	}
 	
-	public void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas) {
+	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas) {
 		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas);
-		this.ActividadesDisponibles.add(t);
-		printAct2();
+		ActividadesDisponibles.add(t);
+		guardarActividad(t);
 	}
 	
-	public void printAct() {
+	public static void printAct() {
 		for (TipoActividad t : tiposActividadDisponibles) {
 			System.out.println(t.toString());
 		}
 	}
 	
-	public void printAct2() {
+	public static void printAct2() {
 		for (Actividad t : ActividadesDisponibles) {
 			System.out.println(t.toString());
 		}
 	}
 	
 	// ============ CARGAR DATOS DESDE LA DB ================
-	public void cargarRecursos() {
+	public static void cargarRecursos() {
 		recursosDisponibles = Db.cargarRecursos();
 	}
 	
-	public void cargarTiposDeActividad() {
+	public static void cargarInstalaciones() {
+		instalacionesDisponibles = Db.cargarInstalaciones();
+	}
+	
+	public static void cargarTiposDeActividad() {
 		tiposActividadDisponibles = Db.cargarTiposDeActividad();
 	}
 	
-	public void cargarActividades() {
+	public static void cargarActividades() {
 		ActividadesDisponibles = Db.cargarActividades();
 	}
 	
 	// ============ INTRODUCIR DATOS A LA DB ================
-		private void guardarTipoActividad(TipoActividad ta) {
-			List<Recurso> rcUsados = ta.getRecurso();
-			String query = "INSERT INTO \"TIPOACTIVIDAD\" VALUES(?, ?, ?)" ;
-			Db.sqlInsertParam(query, new ArrayList<Object>(Arrays.asList(ta.getNombre(), ta.getIntensidad().toString().toLowerCase(), ta.getInstalacion())));
-			query = "INSERT INTO \"UTILIZA\" VALUES(?, ?)";
-			for (Recurso r : rcUsados) {
-				Db.sqlInsertParam(query, new ArrayList<Object>(Arrays.asList(r.getNombre(), ta.getNombre())));
-			}
+		private static void guardarTipoActividad(TipoActividad ta) {
+			Db.dbInsertarTA(ta);
 		}
 		
-		private void guardarActividad(Actividad ta) {
-			String query = "INSERT INTO \"ACTIVIDAD\" VALUES (?, ?, ?)" ;
-			Db.sqlInsertParam(query , new ArrayList<Object>(Arrays.asList(ta.getId(),ta.getNombre(),ta.getDia(),ta.getIni(),ta.getFin(),ta.getPlazas())));
-			System.out.println(Db.cargarActividades());
+		private static void guardarActividad(Actividad a) {
+			Db.dbInsertarAct(a);
 		}
 }

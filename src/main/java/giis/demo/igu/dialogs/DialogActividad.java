@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import com.toedter.calendar.JCalendar;
 
 import giis.demo.igu.VentanaAdmin;
+import giis.demo.model.GymControlador;
 import giis.demo.model.Recurso;
 import giis.demo.model.TipoActividad;
 
@@ -108,17 +109,17 @@ public class DialogActividad extends JDialog {
 	}
 	
 	private void cargarTipos() {
-		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(vA.getControlador().getTiposActividadDisponibles().toArray(new TipoActividad[vA.getControlador().getTiposActividadDisponibles().size()])));
+		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(GymControlador.getTiposActividadDisponibles().toArray(new TipoActividad[GymControlador.getTiposActividadDisponibles().size()])));
 	}
 	
 private void crearActividad() {
-		String nombre = getCmbTipos().getSelectedItem()+"";
+		String nombre = ((TipoActividad)getCmbTipos().getSelectedItem()).getNombre();
 		int id = Integer.parseInt(getTxtId().getText());
-		java.sql.Date date = new java.sql.Date(calendar.getDayChooser().getDay(),calendar.getMonthChooser().getMonth(),calendar.getYearChooser().getYear());
+		java.sql.Date date = new java.sql.Date(calendar.getDate().getTime());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
-		int plazas = (int)getSpnPlazas().getValue();
-		vA.getControlador().addActividad(id,nombre,date,hini,hfin,plazas);
+		int plazas = (int)getSpnPlazas().getValue(); 
+		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas);
 	}
 	private JTextField getTxtId() {
 		if (txtId == null) {
