@@ -88,7 +88,7 @@ public class Db {
 				else if (params.get(i) instanceof Integer)
 					st.setInt(i + 1, (Integer) params.get(i));
 				else if (params.get(i) instanceof Date)
-					st.setDate(i + 1, (java.sql.Date) params.get(i));
+					st.setDate(i + 1, new java.sql.Date(((java.util.Date) params.get(i)).getTime()));
 			}
 			st.execute();
 		} catch (SQLException e) {
@@ -237,7 +237,7 @@ public class Db {
 	
 	// =========== CIERRE =============
 	public static void shutdown() {
-		/* TODO: descomentar cuando esté listo */
+		/* TODO: descomentar cuando esté listo 
 		try {
 			if (con != null) {
 				Statement st = con.createStatement();
@@ -245,6 +245,6 @@ public class Db {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 }

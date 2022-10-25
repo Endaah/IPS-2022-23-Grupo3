@@ -115,7 +115,7 @@ public class DialogActividad extends JDialog {
 		TipoActividad ta = (TipoActividad) getCmbTipos().getSelectedItem();
 		String nombre = ta.getNombre();
 		int id = Integer.parseInt(getTxtId().getText());
-		java.sql.Date date = new java.sql.Date(calendar.getDayChooser().getDay(),calendar.getMonthChooser().getMonth(),calendar.getYearChooser().getYear());
+		java.sql.Date date = new java.sql.Date(calendar.getDate().getTime());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
 		int plazas = 0;
