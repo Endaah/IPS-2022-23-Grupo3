@@ -47,7 +47,6 @@ public class ModelSocio {
 				fin = rs.getInt(5);
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
-				
 				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion)));
 			}
 		    
@@ -154,6 +153,39 @@ public class ModelSocio {
 			e.printStackTrace();
 		}
 		return c;
+	}
+
+  // TODO: Cambiar el nombre del metodo para evitar lios, por el cambio de nombre de la tabla
+	public void eliminarReserva(int userId, int actId) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "DELETE FROM SEAPUNTA WHERE S_ID = ? AND A_ID = ?";
+			
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    pst.setInt(1, userId);
+		    pst.setInt(2, actId);
+		    
+		    int res = pst.executeUpdate();
+		    
+		    if (res == 1) {
+				System.out.println("Datos insertados correctamente");
+			}
+			else {
+				System.out.println("ERROR insertando los datos");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error obteniendo las actividades");
+		}
+		
 	}
 
 }

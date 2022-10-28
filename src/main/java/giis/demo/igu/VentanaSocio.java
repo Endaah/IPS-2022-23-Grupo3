@@ -53,6 +53,8 @@ public class VentanaSocio extends JFrame {
 	private JList<Actividad> actList;
 	private DefaultListModel<Actividad> modelList;
 	private JButton btnReserva;
+	private JButton btnBorrar;
+	private JButton btnMisActividades;
 
 	/**
 	 * Create the frame.
@@ -83,6 +85,8 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getBtnFecha());
 		contentPane.add(getScPaneList());
 		contentPane.add(getBtnReserva());
+		contentPane.add(getBtnBorrar());
+		contentPane.add(getBtnMisActividades());
 		
 		this.setVisible(true);
 	}
@@ -98,7 +102,7 @@ public class VentanaSocio extends JFrame {
 		if (lblDia == null) {
 			lblDia = new JLabel("Selecciona un dia:");
 			lblDia.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDia.setBounds(456, 51, 127, 27);
+			lblDia.setBounds(456, 215, 127, 27);
 		}
 		return lblDia;
 	}
@@ -106,7 +110,7 @@ public class VentanaSocio extends JFrame {
 		if (spDay == null) {
 			spDay = new JSpinner();
 			spDay.setModel(new SpinnerNumberModel(INITIALDAY, 1, 31, 1));
-			spDay.setBounds(584, 56, 41, 20);
+			spDay.setBounds(584, 221, 41, 20);
 		}
 		return spDay;
 	}
@@ -114,7 +118,7 @@ public class VentanaSocio extends JFrame {
 		if (lblMonth == null) {
 			lblMonth = new JLabel("Selecciona un mes:");
 			lblMonth.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblMonth.setBounds(455, 91, 127, 27);
+			lblMonth.setBounds(456, 252, 127, 27);
 		}
 		return lblMonth;
 	}
@@ -122,7 +126,7 @@ public class VentanaSocio extends JFrame {
 		if (spMonth == null) {
 			spMonth = new JSpinner();
 			spMonth.setModel(new SpinnerNumberModel(INITIALMONTH, 1, 12, 1));
-			spMonth.setBounds(584, 96, 41, 20);
+			spMonth.setBounds(584, 258, 41, 20);
 		}
 		return spMonth;
 	}
@@ -131,7 +135,7 @@ public class VentanaSocio extends JFrame {
 		if (spYear == null) {
 			spYear = new JSpinner();
 			spYear.setModel(new SpinnerNumberModel(INITIALYEAR, INITIALYEAR, 2023, 1));
-			spYear.setBounds(568, 134, 57, 20);
+			spYear.setBounds(568, 295, 57, 20);
 		}
 		return spYear;
 	}
@@ -139,7 +143,7 @@ public class VentanaSocio extends JFrame {
 		if (lblYear == null) {
 			lblYear = new JLabel("Año:");
 			lblYear.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblYear.setBounds(456, 129, 41, 27);
+			lblYear.setBounds(456, 289, 41, 27);
 		}
 		return lblYear;
 	}
@@ -155,7 +159,7 @@ public class VentanaSocio extends JFrame {
 				}
 			});
 			btnFecha.setBackground(Color.WHITE);
-			btnFecha.setBounds(456, 167, 107, 23);
+			btnFecha.setBounds(456, 326, 107, 23);
 		}
 		return btnFecha;
 	}
@@ -245,5 +249,37 @@ public class VentanaSocio extends JFrame {
 		}
 		
 		return result;
+	}
+	private JButton getBtnBorrar() {
+		if (btnBorrar == null) {
+			btnBorrar = new JButton("Borrarme");
+			btnBorrar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					eliminar();
+				}
+			});
+			btnBorrar.setBackground(Color.RED);
+			btnBorrar.setBounds(442, 46, 142, 34);
+		}
+		return btnBorrar;
+	}
+	
+	private void eliminar() {
+		if (actList.getSelectedValue() == null ||
+				actList.getSelectedValue().getPlazas() == Actividad.ACTIVIDADILIMITADA) {
+			showMessage("Asegurese de que ha escogido una actividad con limite de plazas.",
+					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		int actId = actList.getSelectedValue().getId();
+		int userId = askForIdSocio();
+		model.eliminarReserva(userId, actId);
+	}
+	private JButton getBtnMisActividades() {
+		if (btnMisActividades == null) {
+			btnMisActividades = new JButton("Mis Actividades");
+			btnMisActividades.setBounds(456, 358, 107, 20);
+		}
+		return btnMisActividades;
 	}
 }
