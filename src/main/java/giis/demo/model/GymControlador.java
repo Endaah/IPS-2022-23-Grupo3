@@ -42,8 +42,8 @@ public class GymControlador {
 		return actividadesDisponibles;
 	}
 	
-	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas, Instalacion instalacion) {
-		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, instalacion);
+	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas, String nombreInstalacion) {
+		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, GymControlador.getInstalacionesDisponibles().get(nombreInstalacion));
 		actividadesDisponibles.put(id, t);
 		guardarActividad(t);
 	}
