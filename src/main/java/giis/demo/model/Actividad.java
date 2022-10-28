@@ -11,14 +11,16 @@ public final static int ACTIVIDADILIMITADA = 0;
 	private int ini;
 	private int fin;
 	private int plazas;
+	private Instalacion instalacion;
 	
-	public Actividad(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas) {
+	public Actividad(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas, Instalacion instalacion) {
 		this.id = a_id;
 		this.nombre = ta_nombre;
 		this.dia = a_dia;
 		this.ini = a_ini;
 		this.fin = a_fin;
 		this.plazas = plazas;
+		this.instalacion = instalacion;
 	}
 
 	@Override
@@ -46,6 +48,7 @@ public final static int ACTIVIDADILIMITADA = 0;
 	public int getIni() {return ini;}
 	public int getFin() {return fin;}
 	public int getPlazas() {return plazas;}
+	public Instalacion getInstalacion() {return instalacion;}
 	public void setId(int id) {this.id = id;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
 	public void setDia(Date dia) {this.dia = dia;}

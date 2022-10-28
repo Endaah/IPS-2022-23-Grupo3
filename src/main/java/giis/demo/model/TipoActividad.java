@@ -14,13 +14,11 @@ public class TipoActividad {
 	private List<Recurso> recursosUsados = new ArrayList<Recurso>();
 	private String nombre;
 	private Intensidad intensidad;
-	private String instalacion;
 	
-	public TipoActividad(List<Recurso> recursos, String nombre, String intensidad, String instalacion) {
+	public TipoActividad(List<Recurso> recursos, String nombre, String intensidad) {
 		this.recursosUsados = recursos;
 		this.nombre = nombre;
 		this.setIntensidad(intensidad);
-		this.instalacion = instalacion;
 	}
 	
 	private void setIntensidad(String intensidad) {
@@ -57,13 +55,9 @@ public class TipoActividad {
 		return !recursosUsados.isEmpty();
 	}
 	
-	public String getInstalacion() {
-		return instalacion;
-	}
-	
 	@Override
 	public String toString() {
-		String res = nombre + " - " + intensidad + " - " + instalacion;
+		String res = nombre + " - " + intensidad;
 		return res;
 	}
 }

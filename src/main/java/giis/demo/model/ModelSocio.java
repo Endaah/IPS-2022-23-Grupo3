@@ -16,13 +16,13 @@ public class ModelSocio {
 	public static final String user = "SA";
 	public static final String password = "";
 	
-	public List<Activity> getListActivitiesFor(Date date) {
-		List<Activity> activities = new ArrayList<>(); 
+	public List<Actividad> getListActivitiesFor(Date date) {
+		List<Actividad> activities = new ArrayList<>(); 
 		
 		try {
 			Connection c = getConnection();
 			
-			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS "
+			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE "
 					+ "FROM actividad WHERE A_DIA = ? ORDER BY A_INI";
 			
 			PreparedStatement pst = null;
@@ -38,6 +38,7 @@ public class ModelSocio {
 		    int ini;
 		    int fin;
 		    int plazas;
+		    String instalacion;
 		    while(rs.next()) {
 		    	id = rs.getInt(1);
 				nombre = rs.getString(2);
@@ -45,8 +46,9 @@ public class ModelSocio {
 				ini = rs.getInt(4);
 				fin = rs.getInt(5);
 				plazas = rs.getInt(6);
+				instalacion = rs.getString(7);
 				
-				activities.add(new Activity(id, nombre, dia, ini, fin, plazas));
+				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion)));
 			}
 		    
 		    rs.close();
@@ -115,7 +117,7 @@ public class ModelSocio {
 		try {
 			Connection c = getConnection();
 			
-			String query = "INSERT INTO RESERVA VALUES(?,?)";
+			String query = "INSERT INTO SEAPUNTA VALUES(?,?)";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);

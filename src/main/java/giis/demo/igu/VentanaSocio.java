@@ -21,9 +21,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.model.Activity;
+import giis.demo.model.Actividad;
 import giis.demo.model.ModelSocio;
-import javax.swing.ScrollPaneConstants;
 
 public class VentanaSocio extends JFrame {
 
@@ -51,8 +50,8 @@ public class VentanaSocio extends JFrame {
 	private JLabel lblYear;
 	private JButton btnFecha;
 	private JScrollPane scPaneList;
-	private JList<Activity> actList;
-	private DefaultListModel<Activity> modelList;
+	private JList<Actividad> actList;
+	private DefaultListModel<Actividad> modelList;
 	private JButton btnReserva;
 
 	/**
@@ -169,7 +168,7 @@ public class VentanaSocio extends JFrame {
 		else {
 			//Actualizar lista de actividades
 			Date date = new Date(year-YEARCORRECTION, month-MONTHCORRECTION, day);
-			List <Activity> activities = model.getListActivitiesFor(date);
+			List <Actividad> activities = model.getListActivitiesFor(date);
 			modelList.clear();
 			modelList.addAll(activities);
 		}
@@ -191,9 +190,9 @@ public class VentanaSocio extends JFrame {
 		}
 		return scPaneList;
 	}
-	private JList<Activity> getActList() {
+	private JList<Actividad> getActList() {
 		if (actList == null) {
-			actList = new JList<Activity>();
+			actList = new JList<Actividad>();
 			Date date = new Date(INITIALYEAR-YEARCORRECTION, 
 					INITIALMONTH-MONTHCORRECTION, INITIALDAY);
 			
@@ -221,7 +220,7 @@ public class VentanaSocio extends JFrame {
 	
 	private void reservar() {
 		if (actList.getSelectedValue() == null ||
-				actList.getSelectedValue().getPlazas() == Activity.ACTIVIDADILIMITADA) {
+				actList.getSelectedValue().getPlazas() == Actividad.ACTIVIDADILIMITADA) {
 			showMessage("Asegurese de que ha escogido una actividad con limite de plazas.",
 					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
 			return;

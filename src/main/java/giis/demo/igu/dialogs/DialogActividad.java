@@ -22,8 +22,7 @@ import giis.demo.model.TipoActividad;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import java.awt.event.ActionListener;
-import java.util.Date;
-import java.util.List;
+import java.util.Collection;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 
@@ -108,7 +107,8 @@ public class DialogActividad extends JDialog {
 	}
 	
 	private void cargarTipos() {
-		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(GymControlador.getTiposActividadDisponibles().toArray(new TipoActividad[GymControlador.getTiposActividadDisponibles().size()])));
+		Collection<TipoActividad> tipos = GymControlador.getTiposActividadDisponibles().values();
+		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(tipos.toArray(new TipoActividad[tipos.size()])));
 	}
 	
 	private void crearActividad() {
@@ -127,7 +127,8 @@ public class DialogActividad extends JDialog {
 		} else {
 			plazas = (int) getSpnPlazas().getValue();
 		}
-		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas);
+		// TODO: Añadir seleccion de instalacion y sustituir el null por el nombre en este método addActividad() v
+		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas, null);
 	}
 	private JTextField getTxtId() {
 		if (txtId == null) {
