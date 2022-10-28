@@ -23,7 +23,6 @@ import javax.swing.border.EmptyBorder;
 
 import giis.demo.model.Actividad;
 import giis.demo.model.ModelSocio;
-import javax.swing.ScrollPaneConstants;
 
 public class VentanaSocio extends JFrame {
 

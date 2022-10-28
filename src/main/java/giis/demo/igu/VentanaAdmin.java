@@ -38,7 +38,7 @@ public class VentanaAdmin extends JFrame {
 			}
 		});
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		setBounds(100, 100, 747, 474);
+		setBounds(100, 100, 819, 444);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -85,7 +85,7 @@ public class VentanaAdmin extends JFrame {
 					abrirDialogoActividad();
 				}
 			});
-			btnCrearTipoActividad.setBounds(15, 39, 186, 42);
+			btnCrearTipoActividad.setBounds(15, 39, 145, 42);
 		}
 		return btnCrearTipoActividad;
 	}
@@ -98,7 +98,7 @@ public class VentanaAdmin extends JFrame {
 				}
 
 			});
-			btnCrearActividad.setBounds(15, 107, 186, 35);
+			btnCrearActividad.setBounds(15, 107, 145, 35);
 		}
 		return btnCrearActividad;
 	}

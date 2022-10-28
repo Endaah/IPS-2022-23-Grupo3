@@ -22,7 +22,7 @@ public class ModelSocio {
 		try {
 			Connection c = getConnection();
 			
-			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS "
+			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE "
 					+ "FROM actividad WHERE A_DIA = ? ORDER BY A_INI";
 			
 			PreparedStatement pst = null;
@@ -38,6 +38,7 @@ public class ModelSocio {
 		    int ini;
 		    int fin;
 		    int plazas;
+		    String instalacion;
 		    while(rs.next()) {
 		    	id = rs.getInt(1);
 				nombre = rs.getString(2);
@@ -45,8 +46,8 @@ public class ModelSocio {
 				ini = rs.getInt(4);
 				fin = rs.getInt(5);
 				plazas = rs.getInt(6);
-				
-				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas));
+				instalacion = rs.getString(7);
+				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion)));
 			}
 		    
 		    rs.close();
@@ -60,8 +61,6 @@ public class ModelSocio {
 		
 		return activities;
 	}
-	
-	
 	
 	public boolean comprobarFecha(int day, int month, int year) {
 		if(day <= 28) {
@@ -117,7 +116,7 @@ public class ModelSocio {
 		try {
 			Connection c = getConnection();
 			
-			String query = "INSERT INTO RESERVA VALUES(?,?)";
+			String query = "INSERT INTO SEAPUNTA VALUES(?,?)";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
@@ -156,13 +155,12 @@ public class ModelSocio {
 		return c;
 	}
 
-
-
+  // TODO: Cambiar el nombre del metodo para evitar lios, por el cambio de nombre de la tabla
 	public void eliminarReserva(int userId, int actId) {
 		try {
 			Connection c = getConnection();
 			
-			String query = "DELETE FROM RESERVA WHERE S_ID = ? AND A_ID = ?";
+			String query = "DELETE FROM SEAPUNTA WHERE S_ID = ? AND A_ID = ?";
 			
 			
 			PreparedStatement pst = null;
