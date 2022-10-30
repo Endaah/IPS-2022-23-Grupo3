@@ -46,6 +46,10 @@ public class VentanaAdmin extends JFrame {
 		contentPane.add(getLblAdmin());
 		contentPane.add(getBtnCrearTipoActividad());
 		contentPane.add(getBtnCrearActividad());
+		
+		JButton btnReservarInstalacion = new JButton("Gestionar Instalaciones");
+		btnReservarInstalacion.setBounds(15, 170, 186, 42);
+		contentPane.add(btnReservarInstalacion);
 	}
 	private void terminate() {
 		Db.shutdown();
