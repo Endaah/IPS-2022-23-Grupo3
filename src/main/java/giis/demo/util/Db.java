@@ -221,14 +221,14 @@ public class Db {
 	 * Carga las actividades desde la base de datos a listas en memoria
 	 * @return Lista con todas las actividades de la bd
 	 */
-	public static HashMap<Integer, Actividad> cargarActividades() {
+	public static List<Actividad> cargarActividades() {
 		String query = "SELECT * FROM ACTIVIDAD";
 		
-		HashMap<Integer, Actividad> actividades = new HashMap<Integer, Actividad>();
+		List<Actividad> actividades = new ArrayList<Actividad>();
 		ResultSet rs = sqlExecuteSimple(query);
 		try {
 			while (rs.next()) {
-				actividades.put(rs.getInt(1), new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7))));
+				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7))));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

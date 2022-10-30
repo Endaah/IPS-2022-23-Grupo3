@@ -10,7 +10,7 @@ public class GymControlador {
 	private static HashMap<String, Recurso> recursosDisponibles;
 	private static HashMap<String, TipoActividad> tiposActividadDisponibles;
 	private static HashMap<String, Instalacion> instalacionesDisponibles;
-	private static HashMap<Integer, Actividad> actividadesDisponibles;
+	private static List<Actividad> actividadesDisponibles;
 	
 	public static HashMap<String, Recurso> getRecursosDisponibles(){
 		return recursosDisponibles;
@@ -38,13 +38,13 @@ public class GymControlador {
 		instalacionesDisponibles.put(i.getNombre(), i);
 	}
 	
-	public static HashMap<Integer, Actividad> getActividadesDisponibles() {
+	public static List<Actividad> getActividadesDisponibles() {
 		return actividadesDisponibles;
 	}
 	
 	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas, String nombreInstalacion) {
 		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, GymControlador.getInstalacionesDisponibles().get(nombreInstalacion));
-		actividadesDisponibles.put(id, t);
+		actividadesDisponibles.add(t);
 		guardarActividad(t);
 	}
 	
