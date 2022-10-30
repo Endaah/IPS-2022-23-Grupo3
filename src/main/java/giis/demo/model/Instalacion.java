@@ -1,30 +1,32 @@
 package giis.demo.model;
 
+import java.util.List;
+
 public class Instalacion {
 
 	private String nombre;
-	private Recurso recurso;
+	private List<Recurso> recursos;
 	
-	public Instalacion(String nombre, Recurso recurso) {
+	public Instalacion(String nombre, List<Recurso> recurso) {
 		this.nombre = nombre;
-		this.recurso = recurso;
+		this.recursos = recurso;
 	}
 	
 	public String getNombre() {
 		return nombre;
 	}
 	
-	public Recurso getRecurso() {
-		return recurso;
+	public Recurso[] getRecurso() {
+		return recursos.toArray(new Recurso[recursos.size()]);
 	}
 	
 	@Override
 	public String toString() {
 		String res = nombre + " - ";
-		if (recurso == null) {
+		if (recursos == null) {
 			res += "Sin recurso asignado";
 		} else {
-			res += recurso.toString();
+			res += recursos.toString();
 		} return res;
 	}
 	
