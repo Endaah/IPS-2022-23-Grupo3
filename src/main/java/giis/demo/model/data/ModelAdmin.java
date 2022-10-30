@@ -1,4 +1,4 @@
-package giis.demo.model;
+package giis.demo.model.data;
 
 import java.sql.Connection;
 import java.sql.Date;

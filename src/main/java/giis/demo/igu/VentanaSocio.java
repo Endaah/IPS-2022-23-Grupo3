@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -22,7 +24,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.model.Actividad;
-import giis.demo.model.ModelSocio;
+import giis.demo.model.data.ModelSocio;
 
 public class VentanaSocio extends JFrame {
 
@@ -31,12 +33,14 @@ public class VentanaSocio extends JFrame {
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	private static final int INITIALDAY = 19;
-	private static final int INITIALMONTH = 10;
-	private static final int INITIALYEAR = 2022;
+	Calendar today = Calendar.getInstance();
 	
-	private static final int MONTHCORRECTION = 1;
-	private static final int YEARCORRECTION = 1900;
+//	private static final int INITIALDAY = 19;
+//	private static final int INITIALMONTH = 10;
+//	private static final int INITIALYEAR = 2022;
+	
+	public static final int MONTHCORRECTION = 1;
+	public static final int YEARCORRECTION = 1900;
 	
 	private JPanel contentPane;
 	
@@ -54,7 +58,6 @@ public class VentanaSocio extends JFrame {
 	private DefaultListModel<Actividad> modelList;
 	private JButton btnReserva;
 	private JButton btnBorrar;
-	private JButton btnMisActividades;
 
 	/**
 	 * Create the frame.
@@ -67,6 +70,8 @@ public class VentanaSocio extends JFrame {
 		else {
 			model = ms;
 		}
+		
+		today.setTime(new Date(System.currentTimeMillis()));
 		
 		setTitle("Aplicacion del gimnasio - Socio");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -86,7 +91,6 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getScPaneList());
 		contentPane.add(getBtnReserva());
 		contentPane.add(getBtnBorrar());
-		contentPane.add(getBtnMisActividades());
 		
 		this.setVisible(true);
 	}
@@ -102,15 +106,15 @@ public class VentanaSocio extends JFrame {
 		if (lblDia == null) {
 			lblDia = new JLabel("Selecciona un dia:");
 			lblDia.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDia.setBounds(456, 215, 127, 27);
+			lblDia.setBounds(456, 92, 127, 27);
 		}
 		return lblDia;
 	}
 	private JSpinner getSpDay() {
 		if (spDay == null) {
 			spDay = new JSpinner();
-			spDay.setModel(new SpinnerNumberModel(INITIALDAY, 1, 31, 1));
-			spDay.setBounds(584, 221, 41, 20);
+			spDay.setModel(new SpinnerNumberModel(today.getTime().getDate(), 1, 31, 1));
+			spDay.setBounds(584, 98, 41, 20);
 		}
 		return spDay;
 	}
@@ -118,15 +122,15 @@ public class VentanaSocio extends JFrame {
 		if (lblMonth == null) {
 			lblMonth = new JLabel("Selecciona un mes:");
 			lblMonth.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblMonth.setBounds(456, 252, 127, 27);
+			lblMonth.setBounds(456, 129, 127, 27);
 		}
 		return lblMonth;
 	}
 	private JSpinner getSpMonth() {
 		if (spMonth == null) {
 			spMonth = new JSpinner();
-			spMonth.setModel(new SpinnerNumberModel(INITIALMONTH, 1, 12, 1));
-			spMonth.setBounds(584, 258, 41, 20);
+			spMonth.setModel(new SpinnerNumberModel(today.getTime().getMonth()+MONTHCORRECTION, 1, 12, 1));
+			spMonth.setBounds(584, 135, 41, 20);
 		}
 		return spMonth;
 	}
@@ -134,8 +138,9 @@ public class VentanaSocio extends JFrame {
 	private JSpinner getSpYear() {
 		if (spYear == null) {
 			spYear = new JSpinner();
-			spYear.setModel(new SpinnerNumberModel(INITIALYEAR, INITIALYEAR, 2023, 1));
-			spYear.setBounds(568, 295, 57, 20);
+			spYear.setModel(new SpinnerNumberModel(today.getTime().getYear()+YEARCORRECTION,
+					today.getTime().getYear()+YEARCORRECTION, 2023, 1));
+			spYear.setBounds(568, 172, 57, 20);
 		}
 		return spYear;
 	}
@@ -143,7 +148,7 @@ public class VentanaSocio extends JFrame {
 		if (lblYear == null) {
 			lblYear = new JLabel("Año:");
 			lblYear.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblYear.setBounds(456, 289, 41, 27);
+			lblYear.setBounds(456, 166, 41, 27);
 		}
 		return lblYear;
 	}
@@ -159,20 +164,42 @@ public class VentanaSocio extends JFrame {
 				}
 			});
 			btnFecha.setBackground(Color.WHITE);
-			btnFecha.setBounds(456, 326, 107, 23);
+			btnFecha.setBounds(290, 55, 142, 23);
 		}
 		return btnFecha;
 	}
 	
+	
+	private JScrollPane getScPaneList() {
+		if (scPaneList == null) {
+			scPaneList = new JScrollPane();
+			scPaneList.setBounds(34, 95, 398, 108);
+			scPaneList.setViewportView(getActList());
+		}
+		return scPaneList;
+	}
+	private JList<Actividad> getActList() {
+		if (actList == null) {
+			actList = new JList<Actividad>();
+			Date date = today.getTime();
+			
+			modelList = new DefaultListModel<>();
+			actList.setModel(modelList);
+			
+			actList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			showActivities(date.getYear()+YEARCORRECTION, date.getMonth()+MONTHCORRECTION, date.getDate());
+		}
+		return actList;
+	}
 	private void showActivities(int year, int month, int day) {
-		if (!model.comprobarFecha(day, month, year)) {
+		if (!model.comprobarFechaCorrecta(day, month, year)) {
 			showMessage("Esta fecha no existe, Introduce una fecha correcta",
 					"Aviso - Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
 		}
 		else {
 			//Actualizar lista de actividades
-			Date date = new Date(year-YEARCORRECTION, month-MONTHCORRECTION, day);
-			List <Actividad> activities = model.getListActivitiesFor(date);
+			LocalDate date = LocalDate.of(year, month, day);
+			List <Actividad> activities = model.getListActivitiesFor(java.sql.Date.valueOf(date));
 			modelList.clear();
 			modelList.addAll(activities);
 		}
@@ -186,28 +213,6 @@ public class VentanaSocio extends JFrame {
 	    d.setLocation(200,200);
 	    d.setVisible(true);
 	}
-	private JScrollPane getScPaneList() {
-		if (scPaneList == null) {
-			scPaneList = new JScrollPane();
-			scPaneList.setBounds(34, 95, 398, 356);
-			scPaneList.setViewportView(getActList());
-		}
-		return scPaneList;
-	}
-	private JList<Actividad> getActList() {
-		if (actList == null) {
-			actList = new JList<Actividad>();
-			Date date = new Date(INITIALYEAR-YEARCORRECTION, 
-					INITIALMONTH-MONTHCORRECTION, INITIALDAY);
-			
-			modelList = new DefaultListModel<>();
-			actList.setModel(modelList);
-			
-			actList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			showActivities(INITIALYEAR, INITIALMONTH, INITIALDAY);
-		}
-		return actList;
-	}
 	private JButton getBtnReserva() {
 		if (btnReserva == null) {
 			btnReserva = new JButton("Reservar actividad");
@@ -217,7 +222,7 @@ public class VentanaSocio extends JFrame {
 				}
 			});
 			btnReserva.setBackground(Color.GREEN);
-			btnReserva.setBounds(290, 46, 142, 35);
+			btnReserva.setBounds(34, 238, 142, 35);
 		}
 		return btnReserva;
 	}
@@ -229,9 +234,23 @@ public class VentanaSocio extends JFrame {
 					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		Actividad actividad = actList.getSelectedValue();
+		if (!model.checkPuedoApuntarme(actividad.getDia(), actividad.getIni())) {
+			showMessage("No puedes apuntarte a esta actividad, debe ser maximo un "
+					+ "dia antes y minimo una hora antes de comenzar", 
+					"Aviso - Imposible apuntar", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 		int actId = actList.getSelectedValue().getId();
 		int userId = askForIdSocio();
+		if (!model.checkSocioPuedeApuntarse(actividad.getDia(), actividad.getIni(), 
+				actividad.getFin(), userId)) {
+			showMessage("No puedes apuntarte a esta actividad, estas opcupado!!!", 
+					"Aviso - Imposible apuntar", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 		model.reservarActividad(actId, userId);
+		model.restarPlaza(actId);
 	}
 	
 	private int askForIdSocio(){
@@ -259,7 +278,7 @@ public class VentanaSocio extends JFrame {
 				}
 			});
 			btnBorrar.setBackground(Color.RED);
-			btnBorrar.setBounds(442, 46, 142, 34);
+			btnBorrar.setBounds(290, 238, 142, 34);
 		}
 		return btnBorrar;
 	}
@@ -274,12 +293,5 @@ public class VentanaSocio extends JFrame {
 		int actId = actList.getSelectedValue().getId();
 		int userId = askForIdSocio();
 		model.eliminarReserva(userId, actId);
-	}
-	private JButton getBtnMisActividades() {
-		if (btnMisActividades == null) {
-			btnMisActividades = new JButton("Mis Actividades");
-			btnMisActividades.setBounds(456, 358, 107, 20);
-		}
-		return btnMisActividades;
 	}
 }
