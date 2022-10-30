@@ -1,4 +1,4 @@
-package giis.demo.model;
+package giis.demo.model.data;
 
 import java.sql.Connection;
 import java.sql.Date;
@@ -6,8 +6,14 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+
+import giis.demo.igu.VentanaSocio;
+import giis.demo.model.Actividad;
+import giis.demo.model.GymControlador;
 
 
 public class ModelSocio {
@@ -62,7 +68,7 @@ public class ModelSocio {
 		return activities;
 	}
 	
-	public boolean comprobarFecha(int day, int month, int year) {
+	public boolean comprobarFechaCorrecta(int day, int month, int year) {
 		if(day <= 28) {
 			return true;
 		}
@@ -172,6 +178,67 @@ public class ModelSocio {
 		    int res = pst.executeUpdate();
 		    
 		    if (res == 1) {
+				System.out.println("Datos borrados correctamente");
+			}
+			else {
+				System.out.println("ERROR borrando los datos");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error obteniendo las actividades");
+		}
+		
+	}
+	
+	public boolean hayPlazas(int actId) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT * FROM ACTIVIDAD WHERE a_id = ? AND a_plazas > 0";
+			
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    pst.setInt(1, actId);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    while(rs.next()) {
+		    	return true;
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error restando plaza actividades");
+		}
+		return false;
+	}
+
+	//Resta una plaza a esa actividad
+	public void restarPlaza(int actId) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "UPDATE ACTIVIDAD SET a_plazas = a_plazas - 1 WHERE A_ID = ?";
+			
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    pst.setInt(1, actId);
+		    
+		    int res = pst.executeUpdate();
+		    
+		    if (res == 1) {
 				System.out.println("Datos insertados correctamente");
 			}
 			else {
@@ -183,9 +250,100 @@ public class ModelSocio {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			System.err.println("Error obteniendo las actividades");
+			System.err.println("Error restando plaza actividades");
+		}
+	}
+
+	public boolean checkPuedoApuntarme(Date dia, int ini) {
+		
+		Calendar now = Calendar.getInstance();
+		now.setTime(new Date(System.currentTimeMillis()));
+		
+		Calendar act = Calendar.getInstance();
+		act.setTime(dia);
+		
+		//Mirar si coincide fecha
+		if (act.getTime().getYear() == now.getTime().getYear() && 
+				act.getTime().getMonth() == now.getTime().getMonth() &&
+				act.getTime().getDate() == now.getTime().getDate()) {
+			//Return true o false segun la hora
+			if (now.getTime().getHours() < ini - 1) {
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
 		
+		act.add(act.DAY_OF_YEAR, -1);
+		//Y luego el dia anterior vale tbn
+		
+		if (act.getTime().getYear() == now.getTime().getYear() && 
+				act.getTime().getMonth() == now.getTime().getMonth() &&
+				act.getTime().getDate() == now.getTime().getDate()) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	public boolean checkSocioPuedeApuntarse(Date dia, int ini, int fin, int userId) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT s_id FROM SEAPUNTA a, Actividad ac "
+					+ "WHERE a.a_id = ac.a_id AND a.s_id = ?"
+					+ "AND ac.a_dia = ?"
+					+ "AND ac.a_ini <= ?"
+					+ "AND ac.a_fin > ?";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, userId);
+		    pst.setDate(2, dia);
+		    pst.setInt(3, ini);
+		    pst.setInt(4, ini);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    while(rs.next()) {
+		    	return false;
+			}
+		    
+		    rs.close();
+			pst.close();
+			
+			query = "SELECT s_id FROM SEAPUNTA a, Actividad ac "
+					+ "WHERE a.a_id = ac.a_id AND a.s_id = ?"
+					+ "AND ac.a_dia = ?"
+					+ "AND ac.a_ini < ?"
+					+ "AND ac.a_fin >= ?";
+			
+			PreparedStatement pst2 = null;
+		    pst2 = c.prepareStatement(query);
+		    		    
+		    pst2.setInt(1, userId);
+		    pst2.setDate(2, dia);
+		    pst2.setInt(3, fin);
+		    pst2.setInt(4, fin);
+		    
+		    ResultSet rs2 = pst2.executeQuery();
+		    
+		    while(rs2.next()) {
+		    	return false;
+			}
+		    
+		    rs2.close();
+			pst2.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error comprobando disponibilidad del socio");
+			e.printStackTrace();
+		}
+		return true;
 	}
 
 }
