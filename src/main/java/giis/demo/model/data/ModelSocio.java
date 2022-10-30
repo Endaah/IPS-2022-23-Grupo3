@@ -262,11 +262,6 @@ public class ModelSocio {
 		Calendar act = Calendar.getInstance();
 		act.setTime(dia);
 		
-		System.out.println(act.getTime().getYear() + " " + now.getTime().getYear());
-		System.out.println(act.getTime().getMonth() + " " + now.getTime().getMonth());
-		System.out.println(act.getTime().getDate() + " " + now.getTime().getDate());
-		System.out.println(ini + " " + now.getTime().getHours());
-		
 		//Mirar si coincide fecha
 		if (act.getTime().getYear() == now.getTime().getYear() && 
 				act.getTime().getMonth() == now.getTime().getMonth() &&
