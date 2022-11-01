@@ -6,14 +6,16 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.swing.JOptionPane;
+
 import giis.demo.igu.VentanaSocio;
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
+import giis.demo.model.Instalacion;
 
 
 public class ModelSocio {
@@ -21,6 +23,23 @@ public class ModelSocio {
 	public static final String url = "jdbc:hsqldb:hsql://localhost:9002/labdb";
 	public static final String user = "SA";
 	public static final String password = "";
+	
+	public int askForIdSocio(){
+		String input;
+		do {
+			input = JOptionPane.showInputDialog("Introduzca su ID de socio (Número)");
+		} while (input == null || input.isEmpty() || !checkIsInt(input));
+		
+		int result = Integer.parseInt(input);
+		
+		if (!existsIdSocio(result)) {
+			VentanaSocio.showMessage("No exixte ningun socio con id " + result,
+					"Aviso - Socio no válido", JOptionPane.WARNING_MESSAGE);
+			return askForIdSocio();
+		}
+		
+		return result;
+	}
 	
 	public List<Actividad> getListActivitiesFor(Date date) {
 		List<Actividad> activities = new ArrayList<>(); 
@@ -144,7 +163,7 @@ public class ModelSocio {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			System.err.println("Error obteniendo las actividades");
+			System.err.println("Error apuntandose a actividad");
 		}
 	}
 
@@ -340,10 +359,152 @@ public class ModelSocio {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			System.err.println("Error comprobando disponibilidad del socio");
+			System.err.println("Error comprobando disponibilidad del socio - actividades");
 			e.printStackTrace();
 		}
 		return true;
+	}
+	
+	public boolean checkSocioTieneOtrasReservas(Date dia, int ini, int userId){
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT s_id FROM RESERVA a WHERE s_id = ? "
+					+ "AND r_dia = ? AND r_hora = ? AND r_cancelada = ?";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, userId);
+		    pst.setDate(2, dia);
+		    pst.setInt(3, ini);
+		    pst.setInt(4, Instalacion.VALIDA);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    while(rs.next()) {
+		    	return true;
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error comprobando disponibilidad del socio - reservas");
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	public boolean checkInstalacionLibre(Instalacion inst, Date dia, int hora) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT * FROM RESERVA WHERE I_nombre = ? AND r_dia = ? "
+					+ "AND r_hora = ? AND r_cancelada = ?";
+			
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    pst.setString(1, inst.getNombre());
+		    pst.setDate(2, dia);
+		    pst.setInt(3, hora);
+		    pst.setInt(4, Instalacion.VALIDA);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    while(rs.next()) {
+		    	return true;
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error comprobando disponibilidad de instalacion");
+		}
+		return false;
+	}
+	
+	public boolean checkPuedoReservar(Date dia, int ini) {
+		
+		Calendar now = Calendar.getInstance();
+		now.setTime(new Date(System.currentTimeMillis()));
+		
+		Calendar act = Calendar.getInstance();
+		act.setTime(dia);
+		
+		//Mirar si coincide fecha
+		if (act.getTime().getYear() == now.getTime().getYear() && 
+				act.getTime().getMonth() == now.getTime().getMonth() &&
+				act.getTime().getDate() == now.getTime().getDate()) {
+			//Return true o false segun la hora
+			if (now.getTime().getHours() < ini - 1) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		//Si es mas tarde no se puede
+		if (now.getTime().after(act.getTime())) {
+			return false;
+		}
+		
+		act.add(act.DAY_OF_YEAR, -7);
+		//Y luego siete dias antes vale tbn
+		
+		if (act.getTime().getYear() == now.getTime().getYear() && 
+				act.getTime().getMonth() == now.getTime().getMonth() &&
+				act.getTime().getDate() == now.getTime().getDate()) {
+			return true;
+		}
+		
+		if (now.getTime().after(act.getTime())) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	public void reservarInstalacion(Instalacion instalacion, 
+			Date dia, int hora, int socioId) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "INSERT INTO RESERVA VALUES(?,?,?,?,?)";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, socioId);
+		    pst.setString(2, instalacion.getNombre());
+		    pst.setDate(3, dia);
+		    pst.setInt(4, hora);
+		    pst.setInt(5, Instalacion.VALIDA);
+		    
+		    int res = pst.executeUpdate();
+		    
+		    if (res == 1) {
+				System.out.println("Datos insertados correctamente");
+			}
+			else {
+				System.out.println("ERROR insertando los datos");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error reservando instalacion");
+		}
 	}
 
 }
