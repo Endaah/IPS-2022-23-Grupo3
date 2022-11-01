@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
+import giis.demo.util.Db;
+
 public class Instalacion {
 
 	private String nombre;
@@ -28,7 +30,7 @@ public class Instalacion {
 		return reservas.toArray(new Integer[reservas.size()]);
 	}
 	
-	public void reservar(int idSocio, LocalDate fecha, int hora) {
+	public void reservar(int idSocio, LocalDate fecha, int hora, boolean larga) {
 		if (fecha.getDayOfYear() - LocalDate.now().getDayOfYear() >= 8) {		// Si la reserva se ha hecho más de 7 días antes
 			System.err.println("No se ha realizado la reserva, "				// Avisar de que no se ha realizado
 					+ "las resrvas se deben hacer como mucho 7 días antes");
@@ -36,7 +38,9 @@ public class Instalacion {
 		}
 		
 		for (ReservaInstalacion ri : reservas) {						// Por cada reserva
-			if (ri.getFecha().equals(fecha) && ri.getHora() == hora) { 	// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
+			if (ri.getFecha().equals(fecha)
+					&& (ri.getHora() == hora
+						|| (larga && ri.getHora() == hora + 1))) { 	// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
 				System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
 						+ "la instalación ya estaba reservada");
 				return;
@@ -49,7 +53,9 @@ public class Instalacion {
 			}
 		}
 		
-		reservas.add(new ReservaInstalacion(idSocio, fecha, hora));
+		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre);
+		reservas.add(reserva);
+		Db.dbInsertarReserva(reserva);
 	}
 	
 	@Override

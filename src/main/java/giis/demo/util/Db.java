@@ -5,9 +5,10 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -127,6 +128,13 @@ public class Db {
 		
 	}
 	
+	public static void dbInsertarReserva(ReservaInstalacion r) {
+		String query = "INSERT INTO \"RESRVA\" VALUES (?, ?, ?, ?, ?)";
+		
+		List<Object> params = Arrays.asList(r.getIdSocio(), r.getInstalacion().getNombre(), Date.valueOf(r.getFecha()), r.getHora(), 0);
+		sqlInsertParam(query, params);
+	}
+	
 	// ============ CARGA DE TABLAS A MEMORIA ==============
 	
 	/**
@@ -161,13 +169,16 @@ public class Db {
 				+ "JOIN TIENE ON RECURSO.RC_NOMBRE = TIENE.RC_NOMBRE "
 				+ "JOIN INSTALACION ON TIENE.I_NOMBRE = INSTALACION.I_NOMBRE "
 				+ "WHERE I_NOMBRE = ?";
-		String queryRes = "SELECT * FROM RESERVA "
+		String queryRes = "SELECT * FROM RESERVA, "
+				+ "WHERE I_NOMBRE = ?";
+		String queryAct = "SELECT A_DIA, A_INI, A_FIN FROM ACTIVIDAD "
 				+ "WHERE I_NOMBRE = ?";
 		
 		HashMap<String, Instalacion> instalaciones = new HashMap<String, Instalacion>();
 		ResultSet rsI = sqlExecuteSimple(queryI);
 		ResultSet rsRC = null;
 		ResultSet rsRes = null;
+		ResultSet rsAct = null;
 		try {
 			while (rsI.next()) {
 				rsRC = sqlExecuteParam(queryRC, Arrays.asList(rsI.getString(1)));
@@ -179,8 +190,15 @@ public class Db {
 				rsRes = sqlExecuteParam(queryRes, Arrays.asList(rsI.getString(1)));
 				List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
 				while (rsRes.next()) {
-					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4));
+					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1));
 					reservas.add(rI);
+				}
+				rsAct = sqlExecuteParam(queryAct, Arrays.asList(rsAct.getString(1)));
+				while(rsAct.next()) {
+					for (int i = 0; i < rsAct.getInt(3) - rsAct.getInt(2); i++) {
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1));
+						reservas.add(rI);
+					}
 				}
 				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp, reservas));
 			}
