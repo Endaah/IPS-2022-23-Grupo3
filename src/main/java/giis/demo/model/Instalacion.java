@@ -7,6 +7,9 @@ public class Instalacion {
 	private String nombre;
 	private List<Recurso> recursos;
 	
+	public static final int CANCELADA = 1;
+	public static final int VALIDA = 0;
+	
 	public Instalacion(String nombre, List<Recurso> recurso) {
 		this.nombre = nombre;
 		this.recursos = recurso;
