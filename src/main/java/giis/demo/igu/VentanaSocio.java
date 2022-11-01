@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +24,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
+import giis.demo.igu.dialogs.DialogReservaInstalacionSocio;
 import giis.demo.model.Actividad;
+import giis.demo.model.Instalacion;
+import giis.demo.model.Recurso;
 import giis.demo.model.data.ModelSocio;
 
 public class VentanaSocio extends JFrame {
@@ -34,10 +38,6 @@ public class VentanaSocio extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	Calendar today = Calendar.getInstance();
-	
-//	private static final int INITIALDAY = 19;
-//	private static final int INITIALMONTH = 10;
-//	private static final int INITIALYEAR = 2022;
 	
 	public static final int MONTHCORRECTION = 1;
 	public static final int YEARCORRECTION = 1900;
@@ -56,8 +56,9 @@ public class VentanaSocio extends JFrame {
 	private JScrollPane scPaneList;
 	private JList<Actividad> actList;
 	private DefaultListModel<Actividad> modelList;
-	private JButton btnReserva;
+	private JButton btnApuntarse;
 	private JButton btnBorrar;
+	private JButton btnReservarInstalacion;
 
 	/**
 	 * Create the frame.
@@ -89,8 +90,9 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getLblYear());
 		contentPane.add(getBtnFecha());
 		contentPane.add(getScPaneList());
-		contentPane.add(getBtnReserva());
+		contentPane.add(getBtnApuntarse());
 		contentPane.add(getBtnBorrar());
+		contentPane.add(getBtnReservarInstalacion());
 		
 		this.setVisible(true);
 	}
@@ -206,25 +208,25 @@ public class VentanaSocio extends JFrame {
 	}
 
 	
-	private static void showMessage(String message, String title, int type) {
+	public static void showMessage(String message, String title, int type) {
 	    JOptionPane pane = new JOptionPane(message,type,JOptionPane.DEFAULT_OPTION);
 	    pane.setOptions(new Object[] {"ACEPTAR"}); //fija este valor para que no dependa del idioma
 	    JDialog d = pane.createDialog(pane, title);
 	    d.setLocation(200,200);
 	    d.setVisible(true);
 	}
-	private JButton getBtnReserva() {
-		if (btnReserva == null) {
-			btnReserva = new JButton("Reservar actividad");
-			btnReserva.addActionListener(new ActionListener() {
+	private JButton getBtnApuntarse() {
+		if (btnApuntarse == null) {
+			btnApuntarse = new JButton("Apuntarse");
+			btnApuntarse.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					reservar();
 				}
 			});
-			btnReserva.setBackground(Color.GREEN);
-			btnReserva.setBounds(34, 238, 142, 35);
+			btnApuntarse.setBackground(Color.GREEN);
+			btnApuntarse.setBounds(34, 238, 142, 35);
 		}
-		return btnReserva;
+		return btnApuntarse;
 	}
 	
 	private void reservar() {
@@ -242,7 +244,7 @@ public class VentanaSocio extends JFrame {
 			return;
 		}
 		int actId = actList.getSelectedValue().getId();
-		int userId = askForIdSocio();
+		int userId = model.askForIdSocio();
 		if (!model.checkSocioPuedeApuntarse(actividad.getDia(), actividad.getIni(), 
 				actividad.getFin(), userId)) {
 			showMessage("No puedes apuntarte a esta actividad, estas opcupado!!!", 
@@ -253,22 +255,6 @@ public class VentanaSocio extends JFrame {
 		model.restarPlaza(actId);
 	}
 	
-	private int askForIdSocio(){
-		String input;
-		do {
-			input = JOptionPane.showInputDialog("Introduzca su ID de socio (Número)");
-		} while (input == null || input.isEmpty() || !model.checkIsInt(input));
-		
-		int result = Integer.parseInt(input);
-		
-		if (!model.existsIdSocio(result)) {
-			showMessage("No exixte ningun socio con id " + result,
-					"Aviso - Socio no válido", JOptionPane.WARNING_MESSAGE);
-			return askForIdSocio();
-		}
-		
-		return result;
-	}
 	private JButton getBtnBorrar() {
 		if (btnBorrar == null) {
 			btnBorrar = new JButton("Borrarme");
@@ -291,7 +277,34 @@ public class VentanaSocio extends JFrame {
 			return;
 		}
 		int actId = actList.getSelectedValue().getId();
-		int userId = askForIdSocio();
+		int userId = model.askForIdSocio();
 		model.eliminarReserva(userId, actId);
+	}
+	private JButton getBtnReservarInstalacion() {
+		if (btnReservarInstalacion == null) {
+			btnReservarInstalacion = new JButton("Reservar Instalación");
+			btnReservarInstalacion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						int userId = model.askForIdSocio();
+						//Mario, cuando hagas el ver instalaciones, conecta esto 
+						//a la instalación seleccionada, dia y hora de los spinners
+						DialogReservaInstalacionSocio dialog = 
+								new DialogReservaInstalacionSocio(model, 
+										new Instalacion("Prueba", new ArrayList<Recurso>()),
+										today.getTime(), 20, userId);
+						dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+						dialog.setLocationRelativeTo(contentPane);
+						dialog.setModal(true);
+						dialog.setVisible(true);
+					} catch (Exception exc) {
+						exc.printStackTrace();
+					}
+				}
+			});
+			btnReservarInstalacion.setBackground(Color.GREEN);
+			btnReservarInstalacion.setBounds(34, 444, 142, 35);
+		}
+		return btnReservarInstalacion;
 	}
 }
