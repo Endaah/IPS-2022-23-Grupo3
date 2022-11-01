@@ -29,6 +29,7 @@ import giis.demo.model.Actividad;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
 import giis.demo.model.data.ModelSocio;
+import giis.demo.model.ReservaInstalacion;
 
 public class VentanaSocio extends JFrame {
 
@@ -291,7 +292,7 @@ public class VentanaSocio extends JFrame {
 						//a la instalación seleccionada, dia y hora de los spinners
 						DialogReservaInstalacionSocio dialog = 
 								new DialogReservaInstalacionSocio(model, 
-										new Instalacion("Prueba", new ArrayList<Recurso>()),
+										new Instalacion("Prueba", new ArrayList<Recurso>(), new ArrayList<ReservaInstalacion>()),
 										today.getTime(), 20, userId);
 						dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 						dialog.setLocationRelativeTo(contentPane);

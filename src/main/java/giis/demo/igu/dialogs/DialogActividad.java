@@ -49,6 +49,7 @@ public class DialogActividad extends JDialog {
 	 * Create the dialog.
 	 */
 	public DialogActividad(VentanaAdmin v) {
+		setResizable(false);
 		setBounds(100, 100, 586, 300);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBackground(Color.WHITE);

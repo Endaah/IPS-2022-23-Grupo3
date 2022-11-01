@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.dialogs.DialogActividad;
+import giis.demo.igu.dialogs.DialogReservarInstalacion;
 import giis.demo.igu.dialogs.DialogTipoActividad;
 import giis.demo.util.Db;
 
@@ -26,6 +27,7 @@ public class VentanaAdmin extends JFrame {
 	private JLabel lblAdmin;
 	private JButton btnCrearTipoActividad;
 	private JButton btnCrearActividad;
+	private JButton btnReservarInstalacion;
 	
 	/**
 	 * Create the frame.
@@ -38,7 +40,7 @@ public class VentanaAdmin extends JFrame {
 			}
 		});
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		setBounds(100, 100, 819, 444);
+		setBounds(100, 100, 747, 474);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -46,6 +48,7 @@ public class VentanaAdmin extends JFrame {
 		contentPane.add(getLblAdmin());
 		contentPane.add(getBtnCrearTipoActividad());
 		contentPane.add(getBtnCrearActividad());
+		contentPane.add(getBtnReservarInstalacion());
 	}
 	private void terminate() {
 		Db.shutdown();
@@ -69,6 +72,15 @@ public class VentanaAdmin extends JFrame {
 			e.printStackTrace();
 		}
 	}
+	private void abrirDialogoReservaInstalacionSocio() {
+		try {
+			DialogReservarInstalacion dialog = new DialogReservarInstalacion();
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 	private JLabel getLblAdmin() {
 		if (lblAdmin == null) {
 			lblAdmin = new JLabel("ADMIN");
@@ -85,7 +97,7 @@ public class VentanaAdmin extends JFrame {
 					abrirDialogoActividad();
 				}
 			});
-			btnCrearTipoActividad.setBounds(15, 39, 145, 42);
+			btnCrearTipoActividad.setBounds(15, 39, 186, 42);
 		}
 		return btnCrearTipoActividad;
 	}
@@ -98,8 +110,20 @@ public class VentanaAdmin extends JFrame {
 				}
 
 			});
-			btnCrearActividad.setBounds(15, 107, 145, 35);
+			btnCrearActividad.setBounds(15, 107, 186, 35);
 		}
 		return btnCrearActividad;
+	}
+	private JButton getBtnReservarInstalacion() {
+		if (btnReservarInstalacion == null) {
+			btnReservarInstalacion = new JButton("Reservar Instalacion");
+			btnReservarInstalacion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					abrirDialogoReservaInstalacionSocio();
+				}
+			});
+			btnReservarInstalacion.setBounds(20, 166, 181, 35);
+		}
+		return btnReservarInstalacion;
 	}
 }

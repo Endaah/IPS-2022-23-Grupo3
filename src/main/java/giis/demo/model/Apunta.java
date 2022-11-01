@@ -4,6 +4,7 @@ public class Apunta {
 	
 	private Actividad actividad;
 	private int id;
+	
 	public Apunta(int id, Actividad a) {
 		this.id = id;
 		actividad = a;
