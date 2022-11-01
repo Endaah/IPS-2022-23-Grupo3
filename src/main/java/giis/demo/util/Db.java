@@ -5,16 +5,18 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
+import giis.demo.model.ReservaInstalacion;
 import giis.demo.model.TipoActividad;
 
 public class Db {
@@ -88,7 +90,7 @@ public class Db {
 				else if (params.get(i) instanceof Integer)
 					st.setInt(i + 1, (Integer) params.get(i));
 				else if (params.get(i) instanceof Date)
-					st.setDate(i + 1, (java.sql.Date) params.get(i));
+					st.setDate(i + 1, new java.sql.Date(((java.util.Date) params.get(i)).getTime()));
 			}
 			st.execute();
 		} catch (SQLException e) {
@@ -103,8 +105,8 @@ public class Db {
 	public static void dbInsertarTA(TipoActividad ta) {
 		List<Recurso> rcUsados = ta.getRecurso();
 		List<Object> params;
-		String query = "INSERT INTO \"TIPOACTIVIDAD\" VALUES(?, ?, ?)";
-		params = Arrays.asList(ta.getNombre(), ta.getIntensidad().toString().toLowerCase(), ta.getInstalacion());
+		String query = "INSERT INTO \"TIPOACTIVIDAD\" VALUES(?, ?)";
+		params = Arrays.asList(ta.getNombre(), ta.getIntensidad().toString().toLowerCase());
 		Db.sqlInsertParam(query, params);
 		query = "INSERT INTO \"UTILIZA\" VALUES(?, ?)";
 		for (Recurso r : rcUsados) {
@@ -118,12 +120,19 @@ public class Db {
 	 * @param act Actividad a insertar a la bd
 	 */
 	public static void dbInsertarAct(Actividad act) {
-		String query = "INSERT INTO actividad "
+		String query = "INSERT INTO actividad (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS) "
 				+ "VALUES (?, ?, ?, ?, ?, ?)";
 		
 		List<Object> params = Arrays.asList(act.getId(), act.getNombre(), act.getDia(), act.getIni(), act.getFin(), act.getPlazas());
 		sqlInsertParam(query, params);
 		
+	}
+	
+	public static void dbInsertarReserva(ReservaInstalacion r) {
+		String query = "INSERT INTO \"RESRVA\" VALUES (?, ?, ?, ?, ?)";
+		
+		List<Object> params = Arrays.asList(r.getIdSocio(), r.getInstalacion().getNombre(), Date.valueOf(r.getFecha()), r.getHora(), 0);
+		sqlInsertParam(query, params);
 	}
 	
 	// ============ CARGA DE TABLAS A MEMORIA ==============
@@ -132,14 +141,14 @@ public class Db {
 	 * Carga los recursos desde la base de datos a listas en memoria
 	 * @return Lista con todas las instalaciones de la bd
 	 */
-	public static List<Recurso> cargarRecursos() {
+	public static HashMap<String, Recurso> cargarRecursos() {
 		String query = "SELECT * FROM RECURSO";
 		
-		List<Recurso> recursos = new ArrayList<Recurso>();
+		HashMap<String, Recurso> recursos = new HashMap<String, Recurso>();
 		ResultSet rs = sqlExecuteSimple(query);
 		try {
 			while (rs.next()) {
-				recursos.add(new Recurso(rs.getString(1), rs.getInt(2)));
+				recursos.put(rs.getString(1), new Recurso(rs.getString(1), rs.getInt(2)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -153,28 +162,51 @@ public class Db {
 	 * Carga las instalaciones desde la base de datos a listas en memoria
 	 * @return Lista con todas las instalaciones de la bd
 	 */
-	public static List<Instalacion> cargarInstalaciones() {
-		String query = "SELECT * FROM INSTALACION";
+	public static HashMap<String, Instalacion> cargarInstalaciones() {
+		String queryI = "SELECT * FROM INSTALACION";
+		String queryRC = "SELECT RECURSO.RC_NOMBRE, RECURSO.RC_CANTIDAD "
+				+ "FROM RECURSO "
+				+ "JOIN TIENE ON RECURSO.RC_NOMBRE = TIENE.RC_NOMBRE "
+				+ "JOIN INSTALACION ON TIENE.I_NOMBRE = INSTALACION.I_NOMBRE "
+				+ "WHERE I_NOMBRE = ?";
+		String queryRes = "SELECT * FROM RESERVA, "
+				+ "WHERE I_NOMBRE = ?";
+		String queryAct = "SELECT A_DIA, A_INI, A_FIN FROM ACTIVIDAD "
+				+ "WHERE I_NOMBRE = ?";
 		
-		List<Instalacion> instalaciones = new ArrayList<Instalacion>();
-		ResultSet rs = sqlExecuteSimple(query);
+		HashMap<String, Instalacion> instalaciones = new HashMap<String, Instalacion>();
+		ResultSet rsI = sqlExecuteSimple(queryI);
+		ResultSet rsRC = null;
+		ResultSet rsRes = null;
+		ResultSet rsAct = null;
 		try {
-			while (rs.next()) {
-				Recurso tmp = null;
-				if (rs.getObject(2) != null) {
-					for (Recurso r : GymControlador.getRecursosDisponibles()) {
-						if (r.getNombre().equals(rs.getString(2))) {
-							tmp = r;
-							break;
-						}
+			while (rsI.next()) {
+				rsRC = sqlExecuteParam(queryRC, Arrays.asList(rsI.getString(1)));
+				List<Recurso> tmp = new ArrayList<Recurso>();
+				while (rsRC.next()) {
+					Recurso r = GymControlador.getRecursosDisponibles().get(rsI.getString(1));
+					tmp.add(r);
+				}
+				rsRes = sqlExecuteParam(queryRes, Arrays.asList(rsI.getString(1)));
+				List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
+				while (rsRes.next()) {
+					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1));
+					reservas.add(rI);
+				}
+				rsAct = sqlExecuteParam(queryAct, Arrays.asList(rsAct.getString(1)));
+				while(rsAct.next()) {
+					for (int i = 0; i < rsAct.getInt(3) - rsAct.getInt(2); i++) {
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1));
+						reservas.add(rI);
 					}
 				}
-				instalaciones.add(new Instalacion(rs.getString(1), tmp ));
+				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp, reservas));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
-			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
+			try {rsI.close();} catch (SQLException e) {e.printStackTrace();}
+			try {rsRC.close();} catch (SQLException e) {e.printStackTrace();}
 		}
 		return instalaciones;
 	}
@@ -183,7 +215,7 @@ public class Db {
 	 * Carga los tipos de actividad desde la base de datos a listas en memoria
 	 * @return Lista con todos los tipos de actividad de la bd
 	 */
-	public static List<TipoActividad> cargarTiposDeActividad() {
+	public static HashMap<String, TipoActividad> cargarTiposDeActividad() {
 		String queryTA = "SELECT * FROM TIPOACTIVIDAD";
 		String queryRC = "SELECT RECURSO.RC_NOMBRE, RECURSO.RC_CANTIDAD "
 				+ "FROM RECURSO "
@@ -191,19 +223,18 @@ public class Db {
 				+ "JOIN TIPOACTIVIDAD ON UTILIZA.TA_NOMBRE = TIPOACTIVIDAD.TA_NOMBRE "
 				+ "WHERE TA_NOMBRE = ?";
 		
-		List<TipoActividad> tiposActividad = new ArrayList<TipoActividad>();
+		HashMap<String, TipoActividad> tiposActividad = new HashMap<String, TipoActividad>();
 		ResultSet rsTA = sqlExecuteSimple(queryTA);
 		ResultSet rsRC = null;
 		try {
 			while (rsTA.next()) {
 				rsRC = sqlExecuteParam(queryRC, Arrays.asList(rsTA.getString(1)));
-				ArrayList<Recurso> rcUsados = new ArrayList<Recurso>();
+				List<Recurso> rcUsados = new ArrayList<Recurso>();
 				while (rsRC.next())
 				{
-					Recurso tmp = new Recurso(rsRC.getString(1), rsRC.getInt(2));
-					rcUsados.add(tmp);
+					rcUsados.add(GymControlador.getRecursosDisponibles().get(rsRC.getString(1)));
 				}
-				tiposActividad.add(new TipoActividad(new ArrayList<>(rcUsados), rsTA.getString(1), rsTA.getString(2), rsTA.getString(3)));
+				tiposActividad.put(rsTA.getString(1), new TipoActividad(new ArrayList<>(rcUsados), rsTA.getString(1), rsTA.getString(2)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -225,7 +256,7 @@ public class Db {
 		ResultSet rs = sqlExecuteSimple(query);
 		try {
 			while (rs.next()) {
-				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6)));
+				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7))));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -237,14 +268,14 @@ public class Db {
 	
 	// =========== CIERRE =============
 	public static void shutdown() {
-//		/* TODO: descomentar cuando esté listo */
-//		try {
-//			if (con != null) {
-//				Statement st = con.createStatement();
-//				st.execute("SHUTDOWN");
-//			}
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
+		/* TODO: descomentar cuando esté listo 
+		try {
+			if (con != null) {
+				Statement st = con.createStatement();
+				st.execute("SHUTDOWN");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}*/
 	}
 }

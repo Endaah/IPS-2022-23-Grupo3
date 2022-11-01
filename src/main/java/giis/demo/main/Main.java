@@ -1,12 +1,13 @@
 package giis.demo.main;
+
 import java.awt.EventQueue;
 
 import giis.demo.igu.VentanaAcceso;
-import giis.demo.model.*;
+import giis.demo.model.GymControlador;
 import giis.demo.util.Db;
 
 public class Main {
-
+	
 	public static void main(String[] args) {
 		initializeLogic();
 		initializeDB();

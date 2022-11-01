@@ -17,14 +17,12 @@ import com.toedter.calendar.JCalendar;
 
 import giis.demo.igu.VentanaAdmin;
 import giis.demo.model.GymControlador;
-import giis.demo.model.Recurso;
 import giis.demo.model.TipoActividad;
 
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import java.awt.event.ActionListener;
-import java.util.Date;
-import java.util.List;
+import java.util.Collection;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
 
@@ -51,6 +49,7 @@ public class DialogActividad extends JDialog {
 	 * Create the dialog.
 	 */
 	public DialogActividad(VentanaAdmin v) {
+		setResizable(false);
 		setBounds(100, 100, 586, 300);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBackground(Color.WHITE);
@@ -109,17 +108,28 @@ public class DialogActividad extends JDialog {
 	}
 	
 	private void cargarTipos() {
-		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(GymControlador.getTiposActividadDisponibles().toArray(new TipoActividad[GymControlador.getTiposActividadDisponibles().size()])));
+		Collection<TipoActividad> tipos = GymControlador.getTiposActividadDisponibles().values();
+		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(tipos.toArray(new TipoActividad[tipos.size()])));
 	}
 	
-private void crearActividad() {
-		String nombre = ((TipoActividad)getCmbTipos().getSelectedItem()).getNombre();
+	private void crearActividad() {
+		TipoActividad ta = (TipoActividad) getCmbTipos().getSelectedItem();
+		String nombre = ta.getNombre();
 		int id = Integer.parseInt(getTxtId().getText());
 		java.sql.Date date = new java.sql.Date(calendar.getDate().getTime());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
-		int plazas = (int)getSpnPlazas().getValue(); 
-		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas);
+		int plazas = 0;
+		if (!ta.getRecurso().isEmpty()) {
+			int menor = ta.getRecurso().get(0).getCantidad();
+			for (int i = 1; i < ta.getRecurso().size(); i++) {
+				menor = menor > ta.getRecurso().get(i).getCantidad() ? ta.getRecurso().get(i).getCantidad() : menor;
+			} plazas = menor;
+		} else {
+			plazas = (int) getSpnPlazas().getValue();
+		}
+		// TODO: Añadir seleccion de instalacion y sustituir el null por el nombre en este método addActividad() v
+		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas, null);
 	}
 	private JTextField getTxtId() {
 		if (txtId == null) {
@@ -191,6 +201,7 @@ private void crearActividad() {
 	private JSpinner getSpnPlazas() {
 		if (spnPlazas == null) {
 			spnPlazas = new JSpinner();
+			spnPlazas.setEnabled(false);
 			spnPlazas.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
 			spnPlazas.setBounds(327, 161, 30, 20);
 		}
@@ -199,6 +210,7 @@ private void crearActividad() {
 	private JLabel getLblNewLabel_5() {
 		if (lblNewLabel_5 == null) {
 			lblNewLabel_5 = new JLabel("Plazas:");
+			lblNewLabel_5.setEnabled(false);
 			lblNewLabel_5.setBounds(266, 164, 61, 13);
 		}
 		return lblNewLabel_5;
@@ -206,8 +218,25 @@ private void crearActividad() {
 	private JComboBox getCmbTipos() {
 		if (cmbTipos == null) {
 			cmbTipos = new JComboBox();
+			cmbTipos.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					comprobarRecurso();
+				}
+			});
 			cmbTipos.setBounds(266, 26, 281, 20);
 		}
 		return cmbTipos;
+	}
+	private void comprobarRecurso() {
+		TipoActividad ta = (TipoActividad) getCmbTipos().getSelectedItem();
+		if (ta.usaRecurso() && (getSpnPlazas().isEnabled() && getLblNewLabel_5().isEnabled())) {
+			getSpnPlazas().setValue(0);
+			getSpnPlazas().setEnabled(false);
+			getLblNewLabel_5().setEnabled(false);
+		} else if (!ta.usaRecurso() && (!getSpnPlazas().isEnabled() && !getLblNewLabel_5().isEnabled())) {
+			getSpnPlazas().setEnabled(true);
+			getLblNewLabel_5().setEnabled(true);
+		}
+			
 	}
 }
