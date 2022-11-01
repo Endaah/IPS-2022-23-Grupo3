@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.sql.Date;
@@ -58,18 +57,21 @@ public class Db {
 	}
 
 	/**
-	 * Ejecuta una query SQL con parámetros
+	 * Ejecuta una query SQL con parámetros de tipo String
 	 * @param query Query SQL a ejecutar
 	 * @param params Lista de strings que serán los parámetros de la query
 	 * @return ResultSet con los elementos buscados
 	 */
-	private static ResultSet sqlExecute(String query, List<String> params) {
+	private static ResultSet sqlExecute(String query, List<Object> params) {
 		connect();
 		ResultSet rs = null;
 		try {
 			PreparedStatement st = con.prepareStatement(query);
 			for (int i = 1; i <= params.size(); i++) {
-				st.setString(i, params.get(i - 1));
+				if (params.get(i - 1) instanceof String)
+					st.setString(i, (String) params.get(i - 1));
+				else if (params.get(i - 1) instanceof Integer)
+					st.setInt(i, (int) params.get(i - 1));
 			}
 			rs = st.executeQuery();
 		} catch (SQLException e) {
@@ -92,6 +94,34 @@ public class Db {
 			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
 		}
 		return socios;
+	}
+	
+	/**
+	 * Devuelve las actividades a las que está apuntado el socio dado
+	 * @param idSocio Socio a consultar
+	 * @return Lista de las actividades a las que está apuntado el socio
+	 */
+	public static List<Actividad> getActividadesDe(int idSocio) {
+		String query = "SELECT A_ID FROM SEAPUNTA "
+				+ "WHERE S_ID = ?";
+		
+		ResultSet rs = sqlExecute(query, Arrays.asList(idSocio));
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		try {
+			while(rs.next()) {
+				for (Actividad a : GymControlador.getActividadesDisponibles()) {
+					if (a.getId() == rs.getInt(1)) {
+						actividades.add(a);
+						break;
+					}
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
+		}
+		return actividades;
 	}
 	
 	// ============ INSERCIÓN DE DATOS ==============

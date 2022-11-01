@@ -16,6 +16,13 @@ public class ReservaInstalacion {
 		this.instalacion = instalacion;
 	}
 	
+	public ReservaInstalacion(ReservaInstalacion reserva) {
+		this.idSocio = reserva.getIdSocio();
+		this.fecha = reserva.getFecha();
+		this.hora = reserva.getHora() + 1;
+		this.instalacion = reserva.getInstalacion();
+	}
+	
 	public int getIdSocio() {
 		return idSocio;
 	}
