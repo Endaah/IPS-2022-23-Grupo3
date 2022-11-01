@@ -75,6 +75,10 @@ public class Instalacion {
 		return true;
 	}
 	
+	public void anularReserva(LocalDate fecha, int hora) {
+		
+	}
+	
 	@Override
 	public String toString() {
 		String res = nombre + " - ";
