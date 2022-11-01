@@ -75,6 +75,38 @@ public class Instalacion {
 		return true;
 	}
 	
+	public boolean reservarEmpresa(int idSocio, LocalDate fecha, int hora,boolean larga) {
+		for (ReservaInstalacion ri : reservas) {						// Por cada reserva
+			if (ri.getFecha().equals(fecha)
+					&& (ri.getHora() == hora
+						|| (larga ))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
+				System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+						+ "la instalación ya estaba reservada");
+				return false;
+			}
+			
+			if (ri.getIdSocio() == idSocio && (ri.getHora() == hora
+					|| (larga))) {			// Si el socio ya tiene una reserva de instalación
+				System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+						+ "este socio ya tiene una reserva a esta hora");
+				return false;
+			}
+		}
+		
+		
+		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre);
+		reservas.add(reserva);
+		Db.dbInsertarReserva(reserva);
+		if (larga) {
+			for(int i = 9 ; i < 23; i++) {
+				ReservaInstalacion tmp = new ReservaInstalacion(reserva);
+				reservas.add(tmp);
+				Db.dbInsertarReserva(tmp);
+			}
+		}
+		return true;
+	}
+	
 	@Override
 	public String toString() {
 		String res = nombre + " - ";

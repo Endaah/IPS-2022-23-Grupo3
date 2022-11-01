@@ -6,6 +6,7 @@ import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.dialogs.DialogActividad;
 import giis.demo.igu.dialogs.DialogReservarInstalacion;
+import giis.demo.igu.dialogs.DialogReservarInstalacionAdmin;
 import giis.demo.igu.dialogs.DialogTipoActividad;
 import giis.demo.util.Db;
 
@@ -28,6 +29,7 @@ public class VentanaAdmin extends JFrame {
 	private JButton btnCrearTipoActividad;
 	private JButton btnCrearActividad;
 	private JButton btnReservarInstalacion;
+	private JButton btnNewButton;
 	
 	/**
 	 * Create the frame.
@@ -49,6 +51,7 @@ public class VentanaAdmin extends JFrame {
 		contentPane.add(getBtnCrearTipoActividad());
 		contentPane.add(getBtnCrearActividad());
 		contentPane.add(getBtnReservarInstalacion());
+		contentPane.add(getBtnNewButton());
 	}
 	private void terminate() {
 		Db.shutdown();
@@ -75,6 +78,16 @@ public class VentanaAdmin extends JFrame {
 	private void abrirDialogoReservaInstalacionSocio() {
 		try {
 			DialogReservarInstalacion dialog = new DialogReservarInstalacion();
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void abrirDialogoReservaInstalacionTerceros() {
+		try {
+			DialogReservarInstalacionAdmin dialog = new DialogReservarInstalacionAdmin();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -116,14 +129,26 @@ public class VentanaAdmin extends JFrame {
 	}
 	private JButton getBtnReservarInstalacion() {
 		if (btnReservarInstalacion == null) {
-			btnReservarInstalacion = new JButton("Reservar Instalacion");
+			btnReservarInstalacion = new JButton("Reservar Instalacion socio");
 			btnReservarInstalacion.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					abrirDialogoReservaInstalacionSocio();
 				}
 			});
-			btnReservarInstalacion.setBounds(20, 166, 181, 35);
+			btnReservarInstalacion.setBounds(21, 166, 180, 35);
 		}
 		return btnReservarInstalacion;
+	}
+	private JButton getBtnNewButton() {
+		if (btnNewButton == null) {
+			btnNewButton = new JButton("Reservar Instalacion terceros");
+			btnNewButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					abrirDialogoReservaInstalacionTerceros();
+				}
+			});
+			btnNewButton.setBounds(228, 166, 170, 35);
+		}
+		return btnNewButton;
 	}
 }
