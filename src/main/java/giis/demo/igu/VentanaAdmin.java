@@ -5,6 +5,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.dialogs.DialogActividad;
+import giis.demo.igu.dialogs.DialogReservarInstalacion;
 import giis.demo.igu.dialogs.DialogTipoActividad;
 import giis.demo.util.Db;
 
@@ -26,6 +27,7 @@ public class VentanaAdmin extends JFrame {
 	private JLabel lblAdmin;
 	private JButton btnCrearTipoActividad;
 	private JButton btnCrearActividad;
+	private JButton btnReservarInstalacion;
 	
 	/**
 	 * Create the frame.
@@ -46,10 +48,7 @@ public class VentanaAdmin extends JFrame {
 		contentPane.add(getLblAdmin());
 		contentPane.add(getBtnCrearTipoActividad());
 		contentPane.add(getBtnCrearActividad());
-		
-		JButton btnReservarInstalacion = new JButton("Gestionar Instalaciones");
-		btnReservarInstalacion.setBounds(15, 170, 186, 42);
-		contentPane.add(btnReservarInstalacion);
+		contentPane.add(getBtnReservarInstalacion());
 	}
 	private void terminate() {
 		Db.shutdown();
@@ -67,6 +66,15 @@ public class VentanaAdmin extends JFrame {
 	private void abrirDialogoCrearActividad() {
 		try {
 			DialogActividad dialog = new DialogActividad(this);
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	private void abrirDialogoReservaInstalacionSocio() {
+		try {
+			DialogReservarInstalacion dialog = new DialogReservarInstalacion();
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -105,5 +113,17 @@ public class VentanaAdmin extends JFrame {
 			btnCrearActividad.setBounds(15, 107, 186, 35);
 		}
 		return btnCrearActividad;
+	}
+	private JButton getBtnReservarInstalacion() {
+		if (btnReservarInstalacion == null) {
+			btnReservarInstalacion = new JButton("Reservar Instalacion");
+			btnReservarInstalacion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					abrirDialogoReservaInstalacionSocio();
+				}
+			});
+			btnReservarInstalacion.setBounds(20, 166, 181, 35);
+		}
+		return btnReservarInstalacion;
 	}
 }

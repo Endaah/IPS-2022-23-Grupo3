@@ -7,13 +7,13 @@ public class ReservaInstalacion {
 	private int idSocio;
 	private LocalDate fecha;
 	private int hora;
-	private Instalacion instalacion;
+	private String instalacion;
 	
 	public ReservaInstalacion(int idSocio, LocalDate fecha, int hora, String instalacion) {
 		this.idSocio = idSocio;
 		this.fecha = fecha;
 		this.hora = hora;
-		this.instalacion = GymControlador.getInstalacionesDisponibles().get(instalacion);
+		this.instalacion = instalacion;
 	}
 	
 	public int getIdSocio() {
@@ -28,8 +28,12 @@ public class ReservaInstalacion {
 		return hora;
 	}
 	
-	public Instalacion getInstalacion() {
+	public String getInstalacion() {
 		return instalacion;
 	}
 	
+	@Override
+	public String toString() {
+		return idSocio + " - " + instalacion + " - " + fecha.toString();
+	}
 }
