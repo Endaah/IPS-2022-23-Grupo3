@@ -1,10 +1,11 @@
 package giis.demo.model;
 
-public class ReservaActividad {
+public class Apunta {
 	
 	private Actividad actividad;
 	private int id;
-	public ReservaActividad(int id, Actividad a) {
+	
+	public Apunta(int id, Actividad a) {
 		this.id = id;
 		actividad = a;
 	}

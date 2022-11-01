@@ -7,7 +7,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.model.ModelSocio;
+import giis.demo.model.data.ModelSocio;
+
 import java.awt.Color;
 import javax.swing.JLabel;
 import java.awt.Font;
