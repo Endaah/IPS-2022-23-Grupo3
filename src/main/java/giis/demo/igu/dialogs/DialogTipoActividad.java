@@ -43,7 +43,8 @@ public class DialogTipoActividad extends JDialog {
 	 * Create the dialog.
 	 */
 	public DialogTipoActividad() {
-		setBounds(100, 100, 666, 320);
+		setResizable(false);
+		setBounds(100, 100, 666, 211);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -100,7 +101,7 @@ public class DialogTipoActividad extends JDialog {
 	private JScrollPane getSpListaRecursos() {
 		if (spListaRecursos == null) {
 			spListaRecursos = new JScrollPane();
-			spListaRecursos.setBounds(10, 145, 324, 92);
+			spListaRecursos.setBounds(316, 25, 324, 92);
 			spListaRecursos.setViewportView(getListRecursos());
 		}
 		return spListaRecursos;
@@ -123,7 +124,7 @@ public class DialogTipoActividad extends JDialog {
 	private JTextField getTfNombreAct() {
 		if (tfNombreAct == null) {
 			tfNombreAct = new JTextField();
-			tfNombreAct.setBounds(367, 75, 242, 20);
+			tfNombreAct.setBounds(20, 36, 242, 20);
 			tfNombreAct.setColumns(10);
 		}
 		return tfNombreAct;
@@ -132,7 +133,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblNombreAct == null) {
 			lblNombreAct = new JLabel("Nombre de la actividad:");
 			lblNombreAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblNombreAct.setBounds(367, 50, 162, 14);
+			lblNombreAct.setBounds(20, 11, 162, 14);
 		}
 		return lblNombreAct;
 	}
@@ -140,7 +141,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblIntensidadAct == null) {
 			lblIntensidadAct = new JLabel("Intensidad de la actividad:");
 			lblIntensidadAct.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblIntensidadAct.setBounds(367, 142, 162, 14);
+			lblIntensidadAct.setBounds(20, 67, 162, 14);
 		}
 		return lblIntensidadAct;
 	}
@@ -148,7 +149,7 @@ public class DialogTipoActividad extends JDialog {
 		if (cbIntensidadAct == null) {
 			cbIntensidadAct = new JComboBox<String>();
 			cbIntensidadAct.setModel(new DefaultComboBoxModel<String>(new String[] {"Elegir intensidad", "Alta", "Media", "Baja"}));
-			cbIntensidadAct.setBounds(367, 167, 242, 22);
+			cbIntensidadAct.setBounds(20, 92, 242, 22);
 		}
 		return cbIntensidadAct;
 	}
@@ -156,7 +157,7 @@ public class DialogTipoActividad extends JDialog {
 		if (lblRecursos == null) {
 			lblRecursos = new JLabel("Recursos a usar:");
 			lblRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
-			lblRecursos.setBounds(10, 131, 162, 14);
+			lblRecursos.setBounds(316, 11, 162, 14);
 		}
 		return lblRecursos;
 	}

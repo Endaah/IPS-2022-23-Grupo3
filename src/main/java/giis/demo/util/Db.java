@@ -15,6 +15,7 @@ import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
+import giis.demo.model.ReservaInstalacion;
 import giis.demo.model.TipoActividad;
 
 public class Db {
@@ -160,10 +161,13 @@ public class Db {
 				+ "JOIN TIENE ON RECURSO.RC_NOMBRE = TIENE.RC_NOMBRE "
 				+ "JOIN INSTALACION ON TIENE.I_NOMBRE = INSTALACION.I_NOMBRE "
 				+ "WHERE I_NOMBRE = ?";
+		String queryRes = "SELECT * FROM RESERVA "
+				+ "WHERE I_NOMBRE = ?";
 		
 		HashMap<String, Instalacion> instalaciones = new HashMap<String, Instalacion>();
 		ResultSet rsI = sqlExecuteSimple(queryI);
 		ResultSet rsRC = null;
+		ResultSet rsRes = null;
 		try {
 			while (rsI.next()) {
 				rsRC = sqlExecuteParam(queryRC, Arrays.asList(rsI.getString(1)));
@@ -172,7 +176,13 @@ public class Db {
 					Recurso r = GymControlador.getRecursosDisponibles().get(rsI.getString(1));
 					tmp.add(r);
 				}
-				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp ));
+				rsRes = sqlExecuteParam(queryRes, Arrays.asList(rsI.getString(1)));
+				List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
+				while (rsRes.next()) {
+					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4));
+					reservas.add(rI);
+				}
+				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp, reservas));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
