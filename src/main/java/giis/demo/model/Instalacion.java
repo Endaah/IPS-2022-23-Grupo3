@@ -85,12 +85,7 @@ public class Instalacion {
 				return false;
 			}
 			
-			if (ri.getIdSocio() == idSocio && (ri.getHora() == hora
-					|| (larga))) {			// Si el socio ya tiene una reserva de instalación
-				System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-						+ "este socio ya tiene una reserva a esta hora");
-				return false;
-			}
+			
 		}
 		
 		
