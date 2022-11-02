@@ -6,9 +6,6 @@ import java.util.List;
 import giis.demo.util.Db;
 
 public class Instalacion {
-
-	public static final int CANCELADA = 1;
-	public static final int VALIDA = 0;
 	
 	private String nombre;
 	private List<Recurso> recursos;

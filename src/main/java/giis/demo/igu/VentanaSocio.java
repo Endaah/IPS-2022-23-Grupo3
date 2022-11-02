@@ -25,11 +25,12 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.dialogs.DialogReservaInstalacionSocio;
+import giis.demo.igu.dialogs.DialogVerReservasSocio;
 import giis.demo.model.Actividad;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
-import giis.demo.model.data.ModelSocio;
 import giis.demo.model.ReservaInstalacion;
+import giis.demo.model.data.ModelSocio;
 
 public class VentanaSocio extends JFrame {
 
@@ -60,6 +61,7 @@ public class VentanaSocio extends JFrame {
 	private JButton btnApuntarse;
 	private JButton btnBorrar;
 	private JButton btnReservarInstalacion;
+	private JButton btnVerReservas;
 
 	/**
 	 * Create the frame.
@@ -94,6 +96,7 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getBtnApuntarse());
 		contentPane.add(getBtnBorrar());
 		contentPane.add(getBtnReservarInstalacion());
+		contentPane.add(getBtnVerReservas());
 		
 		this.setVisible(true);
 	}
@@ -279,7 +282,7 @@ public class VentanaSocio extends JFrame {
 		}
 		int actId = actList.getSelectedValue().getId();
 		int userId = model.askForIdSocio();
-		model.eliminarReserva(userId, actId);
+		model.eliminarReservaActividad(userId, actId);
 	}
 	private JButton getBtnReservarInstalacion() {
 		if (btnReservarInstalacion == null) {
@@ -307,5 +310,23 @@ public class VentanaSocio extends JFrame {
 			btnReservarInstalacion.setBounds(34, 444, 142, 35);
 		}
 		return btnReservarInstalacion;
+	}
+	private JButton getBtnVerReservas() {
+		if (btnVerReservas == null) {
+			btnVerReservas = new JButton("Ver mis reservas");
+			btnVerReservas.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int userId = model.askForIdSocio();
+					DialogVerReservasSocio dialog = new DialogVerReservasSocio(model, userId);
+					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					dialog.setLocationRelativeTo(contentPane);
+					dialog.setModal(true);
+					dialog.setVisible(true);
+				}
+			});
+			btnVerReservas.setBackground(Color.WHITE);
+			btnVerReservas.setBounds(456, 374, 169, 35);
+		}
+		return btnVerReservas;
 	}
 }
