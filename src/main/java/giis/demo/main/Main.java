@@ -19,6 +19,7 @@ public class Main {
 			public void run() {
 				try {
 					VentanaAcceso frame = new VentanaAcceso();
+					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

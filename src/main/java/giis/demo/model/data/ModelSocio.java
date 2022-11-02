@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -16,6 +17,7 @@ import giis.demo.igu.VentanaSocio;
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
+import giis.demo.model.ReservaInstalacion;
 
 
 public class ModelSocio {
@@ -24,6 +26,10 @@ public class ModelSocio {
 	public static final String user = "SA";
 	public static final String password = "";
 	
+	/**
+	 * Metodo que pregunta al socio por su id
+	 * @return
+	 */
 	public int askForIdSocio(){
 		String input;
 		do {
@@ -41,6 +47,11 @@ public class ModelSocio {
 		return result;
 	}
 	
+	/**
+	 * Devuelve una lista de actividades para mostrar
+	 * @param date
+	 * @return
+	 */
 	public List<Actividad> getListActivitiesFor(Date date) {
 		List<Actividad> activities = new ArrayList<>(); 
 		
@@ -87,6 +98,13 @@ public class ModelSocio {
 		return activities;
 	}
 	
+	/**
+	 * Comprueba que la fecha es válida
+	 * @param day
+	 * @param month
+	 * @param year
+	 * @return
+	 */
 	public boolean comprobarFechaCorrecta(int day, int month, int year) {
 		if(day <= 28) {
 			return true;
@@ -100,6 +118,11 @@ public class ModelSocio {
 		return false;
 	}
 	
+	/**
+	 * Comprueba que los datos introducidos por el usuario son digitos
+	 * @param s
+	 * @return
+	 */
 	public boolean checkIsInt(String s) {
 		for (char c : s.toCharArray()) {
 			if (!Character.isDigit(c)) {
@@ -109,6 +132,11 @@ public class ModelSocio {
 		return true;
 	}
 	
+	/**
+	 * Comprueba que el id está registrado en la aplicación
+	 * @param id
+	 * @return
+	 */
 	public boolean existsIdSocio(int id) {
 		try {
 			Connection c = getConnection();
@@ -137,6 +165,11 @@ public class ModelSocio {
 		return false;
 	}
 	
+	/**
+	 * Introduce a la bd, una reserva de actividad por un socio
+	 * @param actId
+	 * @param userId
+	 */
 	public void reservarActividad(int actId, int userId) {
 		try {
 			Connection c = getConnection();
@@ -167,6 +200,10 @@ public class ModelSocio {
 		}
 	}
 
+	/**
+	 * Proporciona una instancia de connection
+	 * @return
+	 */
 	public Connection getConnection() {
 		Connection c = null;
 		try {
@@ -181,7 +218,7 @@ public class ModelSocio {
 	}
 
   // TODO: Cambiar el nombre del metodo para evitar lios, por el cambio de nombre de la tabla
-	public void eliminarReserva(int userId, int actId) {
+	public void eliminarReservaActividad(int userId, int actId) {
 		try {
 			Connection c = getConnection();
 			
@@ -213,6 +250,11 @@ public class ModelSocio {
 		
 	}
 	
+	/**
+	 * Comprueba que una actividad a la que se quiera apuntar un socio, tenga plazas libres
+	 * @param actId
+	 * @return
+	 */
 	public boolean hayPlazas(int actId) {
 		try {
 			Connection c = getConnection();
@@ -242,7 +284,10 @@ public class ModelSocio {
 		return false;
 	}
 
-	//Resta una plaza a esa actividad
+	/**
+	 * Resta una plaza a esa actividad
+	 * @param actId
+	 */
 	public void restarPlaza(int actId) {
 		try {
 			Connection c = getConnection();
@@ -273,6 +318,13 @@ public class ModelSocio {
 		}
 	}
 
+	/**
+	 * Comprueba que la hora a la que se solicita una reserva de actividad, 
+	 * esté recogida dentro del rango de los criterios de aceptacion (dia anterior - hora antes)
+	 * @param dia
+	 * @param ini
+	 * @return
+	 */
 	public boolean checkPuedoApuntarme(Date dia, int ini) {
 		
 		Calendar now = Calendar.getInstance();
@@ -306,6 +358,14 @@ public class ModelSocio {
 		return false;
 	}
 
+	/**
+	 * Checkea que el socio que desea reservar o apuntarse no tenga ninguna otra actividad a esas horas
+	 * @param dia
+	 * @param ini
+	 * @param fin
+	 * @param userId
+	 * @return
+	 */
 	public boolean checkSocioPuedeApuntarse(Date dia, int ini, int fin, int userId) {
 		try {
 			Connection c = getConnection();
@@ -365,6 +425,13 @@ public class ModelSocio {
 		return true;
 	}
 	
+	/**
+	 * Checkea que el socio que desea reservar o apuntarse no tenga una reserva de instalacion a esa hora
+	 * @param dia
+	 * @param ini
+	 * @param userId
+	 * @return
+	 */
 	public boolean checkSocioTieneOtrasReservas(Date dia, int ini, int userId){
 		try {
 			Connection c = getConnection();
@@ -378,7 +445,7 @@ public class ModelSocio {
 		    pst.setInt(1, userId);
 		    pst.setDate(2, dia);
 		    pst.setInt(3, ini);
-		    pst.setInt(4, Instalacion.VALIDA);
+		    pst.setInt(4, ReservaInstalacion.VALIDA);
 		    
 		    ResultSet rs = pst.executeQuery();
 		    
@@ -398,6 +465,13 @@ public class ModelSocio {
 		return false;
 	}
 	
+	/**
+	 * Comprueba que una instalacion este libre un dia a una hora en concreto
+	 * @param inst
+	 * @param dia
+	 * @param hora
+	 * @return
+	 */
 	public boolean checkInstalacionLibre(Instalacion inst, Date dia, int hora) {
 		try {
 			Connection c = getConnection();
@@ -412,7 +486,7 @@ public class ModelSocio {
 		    pst.setString(1, inst.getNombre());
 		    pst.setDate(2, dia);
 		    pst.setInt(3, hora);
-		    pst.setInt(4, Instalacion.VALIDA);
+		    pst.setInt(4, ReservaInstalacion.VALIDA);
 		    
 		    ResultSet rs = pst.executeQuery();
 		    
@@ -431,6 +505,13 @@ public class ModelSocio {
 		return false;
 	}
 	
+	/**
+	 * Comprueba que la hora a la que se solicita una reserva de instalacion, 
+	 * esté recogida dentro del rango de los criterios de aceptacion (7 dias antes - hora antes)
+	 * @param dia
+	 * @param ini
+	 * @return
+	 */
 	public boolean checkPuedoReservar(Date dia, int ini) {
 		
 		Calendar now = Calendar.getInstance();
@@ -473,6 +554,13 @@ public class ModelSocio {
 		return false;
 	}
 	
+	/**
+	 * Inserta en la bd una nueva reserva de una instalación
+	 * @param instalacion
+	 * @param dia
+	 * @param hora
+	 * @param socioId
+	 */
 	public void reservarInstalacion(Instalacion instalacion, 
 			Date dia, int hora, int socioId) {
 		try {
@@ -487,7 +575,7 @@ public class ModelSocio {
 		    pst.setString(2, instalacion.getNombre());
 		    pst.setDate(3, dia);
 		    pst.setInt(4, hora);
-		    pst.setInt(5, Instalacion.VALIDA);
+		    pst.setInt(5, ReservaInstalacion.VALIDA);
 		    
 		    int res = pst.executeUpdate();
 		    
@@ -505,6 +593,87 @@ public class ModelSocio {
 			// TODO Auto-generated catch block
 			System.err.println("Error reservando instalacion");
 		}
+	}
+	
+	/**
+	 * Devuelve el nombre del socio con id especificado
+	 * @param userId
+	 * @return
+	 */
+	public String getNombreSocio(int userId) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT s_nombre FROM socio WHERE s_id = ?";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, userId);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    while(rs.next()) {
+		    	return rs.getString("s_nombre");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error obteniendo nombre de socio");
+		}
+		return "";
+	}
+	
+	
+	/**
+	 * Devuelve una lista de reservas posteriores a la fecha actual para un socio
+	 * @param date
+	 * @return
+	 */
+	public List<ReservaInstalacion> getListReservasFor(int socioId) {
+		List<ReservaInstalacion> reservas = new ArrayList<>(); 
+		
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT * "
+					+ "FROM reserva WHERE R_DIA >= ? ORDER BY R_dia, r_hora";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    Calendar today = Calendar.getInstance();
+		    		    
+		    pst.setDate(1, new Date(System.currentTimeMillis()));
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    int id;
+		    String nombre;
+		    Date dia;
+		    int hora;
+		    while(rs.next()) {
+		    	id = rs.getInt(1);
+				nombre = rs.getString(2);
+				dia = rs.getDate(3);
+				java.util.Date diaJava = new java.util.Date(dia.getTime());
+				hora = rs.getInt(4);
+				reservas.add(new ReservaInstalacion(id, diaJava.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), hora, nombre));
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			System.err.println("Error obteniendo las actividades");
+		}
+		
+		return reservas;
 	}
 
 }

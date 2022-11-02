@@ -88,6 +88,7 @@ public class VentanaAcceso extends JFrame {
 			public void run() {
 				try {
 					VentanaAdmin frame = new VentanaAdmin();
+					frame.setLocationRelativeTo(null);
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -102,6 +103,7 @@ public class VentanaAcceso extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					try {
 						VentanaSocio frame = new VentanaSocio(new ModelSocio());
+						frame.setLocationRelativeTo(null);
 						frame.setVisible(true);
 					} catch (Exception e1) {
 						e1.printStackTrace();
