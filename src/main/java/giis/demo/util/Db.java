@@ -271,13 +271,13 @@ public class Db {
 				rsRes = sqlExecute(queryRes, Arrays.asList(rsI.getString(1)));
 				List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
 				while (rsRes.next()) {
-					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1));
+					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5));
 					reservas.add(rI);
 				}
 				rsAct = sqlExecute(queryAct, Arrays.asList(rsI.getString(1)));
 				while(rsAct.next()) {
 					for (int i = 0; i < rsAct.getInt(3) - rsAct.getInt(2); i++) {
-						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1));
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1), 0);
 						reservas.add(rI);
 					}
 				}

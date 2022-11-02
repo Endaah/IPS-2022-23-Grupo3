@@ -18,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.BorderLayout;
 
 public class VentanaAdmin extends JFrame {
 
@@ -28,6 +29,10 @@ public class VentanaAdmin extends JFrame {
 	private JButton btnCrearTipoActividad;
 	private JButton btnCrearActividad;
 	private JButton btnReservarInstalacion;
+	private JPanel pnPrincipal;
+	private JPanel pnActividades;
+	private JPanel pnInstalaciones;
+	private JPanel pnAlquileres;
 	
 	/**
 	 * Create the frame.
@@ -44,11 +49,9 @@ public class VentanaAdmin extends JFrame {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
-		contentPane.setLayout(null);
-		contentPane.add(getLblAdmin());
-		contentPane.add(getBtnCrearTipoActividad());
-		contentPane.add(getBtnCrearActividad());
-		contentPane.add(getBtnReservarInstalacion());
+		contentPane.setLayout(new BorderLayout(0, 0));
+		contentPane.add(getLblAdmin(), BorderLayout.NORTH);
+		contentPane.add(getPnPrincipal());
 	}
 	private void terminate() {
 		Db.shutdown();
@@ -85,7 +88,6 @@ public class VentanaAdmin extends JFrame {
 		if (lblAdmin == null) {
 			lblAdmin = new JLabel("ADMIN");
 			lblAdmin.setFont(new Font("Arial Black", Font.BOLD, 16));
-			lblAdmin.setBounds(5, 5, 72, 23);
 		}
 		return lblAdmin;
 	}
@@ -97,7 +99,6 @@ public class VentanaAdmin extends JFrame {
 					abrirDialogoActividad();
 				}
 			});
-			btnCrearTipoActividad.setBounds(15, 39, 186, 42);
 		}
 		return btnCrearTipoActividad;
 	}
@@ -110,7 +111,6 @@ public class VentanaAdmin extends JFrame {
 				}
 
 			});
-			btnCrearActividad.setBounds(15, 107, 186, 35);
 		}
 		return btnCrearActividad;
 	}
@@ -122,8 +122,37 @@ public class VentanaAdmin extends JFrame {
 					abrirDialogoReservaInstalacionSocio();
 				}
 			});
-			btnReservarInstalacion.setBounds(20, 166, 181, 35);
 		}
 		return btnReservarInstalacion;
+	}
+	private JPanel getPnPrincipal() {
+		if (pnPrincipal == null) {
+			pnPrincipal = new JPanel();
+			pnPrincipal.add(getPnActividades());
+			pnPrincipal.add(getPnInstalaciones());
+			pnPrincipal.add(getPnAlquileres());
+		}
+		return pnPrincipal;
+	}
+	private JPanel getPnActividades() {
+		if (pnActividades == null) {
+			pnActividades = new JPanel();
+			pnPrincipal.add(getBtnCrearTipoActividad());
+			pnPrincipal.add(getBtnCrearActividad());
+		}
+		return pnActividades;
+	}
+	private JPanel getPnInstalaciones() {
+		if (pnInstalaciones == null) {
+			pnInstalaciones = new JPanel();
+			pnPrincipal.add(getBtnReservarInstalacion());
+		}
+		return pnInstalaciones;
+	}
+	private JPanel getPnAlquileres() {
+		if (pnAlquileres == null) {
+			pnAlquileres = new JPanel();
+		}
+		return pnAlquileres;
 	}
 }

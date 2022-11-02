@@ -4,16 +4,21 @@ import java.time.LocalDate;
 
 public class ReservaInstalacion {
 
+	public static final int CANCELADA = 1;
+	public static final int VALIDA = 0;
+	
 	private int idSocio;
 	private LocalDate fecha;
 	private int hora;
 	private String instalacion;
+	private int anulada;
 	
-	public ReservaInstalacion(int idSocio, LocalDate fecha, int hora, String instalacion) {
+	public ReservaInstalacion(int idSocio, LocalDate fecha, int hora, String instalacion, int anulada) {
 		this.idSocio = idSocio;
 		this.fecha = fecha;
 		this.hora = hora;
 		this.instalacion = instalacion;
+		this.anulada = anulada;
 	}
 	
 	public ReservaInstalacion(ReservaInstalacion reserva) {
@@ -21,6 +26,7 @@ public class ReservaInstalacion {
 		this.fecha = reserva.getFecha();
 		this.hora = reserva.getHora() + 1;
 		this.instalacion = reserva.getInstalacion();
+		this.anulada = reserva.getAnulada();
 	}
 	
 	public int getIdSocio() {
@@ -35,6 +41,9 @@ public class ReservaInstalacion {
 		return hora;
 	}
 	
+	public int getAnulada() {
+		return anulada;
+	}
 	public String getInstalacion() {
 		return instalacion;
 	}
