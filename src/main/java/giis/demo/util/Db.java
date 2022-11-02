@@ -188,6 +188,35 @@ public class Db {
 		sqlInsertParam(query, params);
 	}
 	
+	// ============ ACTUALIZAR DATOS ==============
+	private static void sqlUpdate(String query, List<Object> params) {
+		connect();
+		try {
+			PreparedStatement st = con.prepareStatement(query);
+			for (int i = 0; i < params.size(); i++) {
+				if (params.get(i) instanceof String)
+					st.setString(i + 1, (String) params.get(i));
+				else if (params.get(i) instanceof Integer)
+					st.setInt(i + 1, (Integer) params.get(i));
+				else if (params.get(i) instanceof Date)
+					st.setDate(i + 1, new java.sql.Date(((java.util.Date) params.get(i)).getTime()));
+			}
+			st.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void dbAnularReserva(java.sql.Date fecha, int hora, String instalacion) {
+		String query = "UPDATE RESERVA "
+				+ "SET R_CANCELADA = 1 "
+				+ "WHERE I_NOMBRE = ? "
+				+ "AND R_DIA = ? "
+				+ "AND R_HORA = ?";
+		
+		sqlUpdate(query, Arrays.asList(instalacion, fecha, hora));
+	}
+	
 	// ============ CARGA DE TABLAS A MEMORIA ==============
 	
 	/**

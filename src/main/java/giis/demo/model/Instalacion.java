@@ -76,7 +76,16 @@ public class Instalacion {
 	}
 	
 	public void anularReserva(LocalDate fecha, int hora) {
-		
+		ReservaInstalacion rI = null;
+		for (ReservaInstalacion reserva : reservas) {
+			if (reserva.getFecha().equals(fecha) && reserva.getHora() == hora) {
+				rI = reserva;
+				break;
+			}
+		}
+		reservas.remove(rI);
+		if (rI != null)
+			Db.dbAnularReserva(java.sql.Date.valueOf(fecha), hora, nombre);
 	}
 	
 	@Override
