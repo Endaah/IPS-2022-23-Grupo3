@@ -7,7 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
+import java.sql.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -15,6 +15,8 @@ import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
+import giis.demo.model.ReservaInstalacion;
+import giis.demo.model.Socio;
 import giis.demo.model.TipoActividad;
 
 public class Db {
@@ -37,12 +39,13 @@ public class Db {
 		if (con == null) try { con = DriverManager.getConnection(URL, USER, PWD); } catch (SQLException e) { e.printStackTrace(); };
 	}
 	
+	// ============= EXTRAER DATOS DE LA BD =============
 	/**
 	 * Ejecuta una query SQL simple, sin parámetros
 	 * @param query Query SQL a ejecutar
 	 * @return ResultSet con los elementos buscados
 	 */
-	private static ResultSet sqlExecuteSimple(String query) {
+	private static ResultSet sqlExecute(String query) {
 		connect();
 		ResultSet rs = null;
 		try {
@@ -54,23 +57,71 @@ public class Db {
 	}
 
 	/**
-	 * Ejecuta una query SQL con parámetros
+	 * Ejecuta una query SQL con parámetros de tipo String
 	 * @param query Query SQL a ejecutar
 	 * @param params Lista de strings que serán los parámetros de la query
 	 * @return ResultSet con los elementos buscados
 	 */
-	private static ResultSet sqlExecuteParam(String query, List<String> params) {
+	private static ResultSet sqlExecute(String query, List<Object> params) {
 		connect();
 		ResultSet rs = null;
 		try {
 			PreparedStatement st = con.prepareStatement(query);
 			for (int i = 1; i <= params.size(); i++) {
-				st.setString(i, params.get(i - 1));
+				if (params.get(i - 1) instanceof String)
+					st.setString(i, (String) params.get(i - 1));
+				else if (params.get(i - 1) instanceof Integer)
+					st.setInt(i, (int) params.get(i - 1));
 			}
 			rs = st.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} return rs;
+	}
+	
+	public static List<Socio> getSocios() {
+		String query = "SELECT * FROM SOCIO";
+		ResultSet rs = sqlExecute(query);
+		List<Socio> socios = new ArrayList<Socio>();
+		try {
+			while(rs.next()) {
+				socios.add(new Socio(rs.getInt(1), rs.getString(2)));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
+		}
+		return socios;
+	}
+	
+	/**
+	 * Devuelve las actividades a las que está apuntado el socio dado
+	 * @param idSocio Socio a consultar
+	 * @return Lista de las actividades a las que está apuntado el socio
+	 */
+	public static List<Actividad> getActividadesDe(int idSocio) {
+		String query = "SELECT A_ID FROM SEAPUNTA "
+				+ "WHERE S_ID = ?";
+		
+		ResultSet rs = sqlExecute(query, Arrays.asList(idSocio));
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		try {
+			while(rs.next()) {
+				for (Actividad a : GymControlador.getActividadesDisponibles()) {
+					if (a.getId() == rs.getInt(1)) {
+						actividades.add(a);
+						break;
+					}
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
+		}
+		return actividades;
 	}
 	
 	// ============ INSERCIÓN DE DATOS ==============
@@ -126,6 +177,17 @@ public class Db {
 		
 	}
 	
+	/**
+	 * Inserta una reserva de instalación a la base de datos, en la tabla Reserva
+	 * @param r Reserva a insertar en la bd
+	 */
+	public static void dbInsertarReserva(ReservaInstalacion r) {
+		String query = "INSERT INTO \"RESERVA\" VALUES (?, ?, ?, ?, ?)";
+		
+		List<Object> params = Arrays.asList(r.getIdSocio(), r.getInstalacion(), Date.valueOf(r.getFecha()), r.getHora(), 0);
+		sqlInsertParam(query, params);
+	}
+	
 	// ============ CARGA DE TABLAS A MEMORIA ==============
 	
 	/**
@@ -136,7 +198,7 @@ public class Db {
 		String query = "SELECT * FROM RECURSO";
 		
 		HashMap<String, Recurso> recursos = new HashMap<String, Recurso>();
-		ResultSet rs = sqlExecuteSimple(query);
+		ResultSet rs = sqlExecute(query);
 		try {
 			while (rs.next()) {
 				recursos.put(rs.getString(1), new Recurso(rs.getString(1), rs.getInt(2)));
@@ -155,30 +217,50 @@ public class Db {
 	 */
 	public static HashMap<String, Instalacion> cargarInstalaciones() {
 		String queryI = "SELECT * FROM INSTALACION";
-		String queryRC = "SELECT RECURSO.RC_NOMBRE, RECURSO.RC_CANTIDAD "
-				+ "FROM RECURSO "
-				+ "JOIN TIENE ON RECURSO.RC_NOMBRE = TIENE.RC_NOMBRE "
-				+ "JOIN INSTALACION ON TIENE.I_NOMBRE = INSTALACION.I_NOMBRE "
+		String queryRC = "SELECT RC_NOMBRE "
+				+ "FROM TIENE "
+				+ "WHERE I_NOMBRE = ?";
+		String queryRes = "SELECT * FROM RESERVA "
+				+ "WHERE I_NOMBRE = ?";
+		String queryAct = "SELECT A_DIA, A_INI, A_FIN FROM ACTIVIDAD "
 				+ "WHERE I_NOMBRE = ?";
 		
 		HashMap<String, Instalacion> instalaciones = new HashMap<String, Instalacion>();
-		ResultSet rsI = sqlExecuteSimple(queryI);
+		ResultSet rsI = sqlExecute(queryI);
 		ResultSet rsRC = null;
+		ResultSet rsRes = null;
+		ResultSet rsAct = null;
 		try {
 			while (rsI.next()) {
-				rsRC = sqlExecuteParam(queryRC, Arrays.asList(rsI.getString(1)));
+				rsRC = sqlExecute(queryRC, Arrays.asList(rsI.getString(1)));
 				List<Recurso> tmp = new ArrayList<Recurso>();
 				while (rsRC.next()) {
-					Recurso r = GymControlador.getRecursosDisponibles().get(rsI.getString(1));
-					tmp.add(r);
+					Recurso r = GymControlador.getRecursosDisponibles().get(rsRC.getString(1));
+					if (r != null)
+						tmp.add(r);
 				}
-				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp ));
+				rsRes = sqlExecute(queryRes, Arrays.asList(rsI.getString(1)));
+				List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
+				while (rsRes.next()) {
+					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1));
+					reservas.add(rI);
+				}
+				rsAct = sqlExecute(queryAct, Arrays.asList(rsI.getString(1)));
+				while(rsAct.next()) {
+					for (int i = 0; i < rsAct.getInt(3) - rsAct.getInt(2); i++) {
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1));
+						reservas.add(rI);
+					}
+				}
+				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp, reservas));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 			try {rsI.close();} catch (SQLException e) {e.printStackTrace();}
 			try {rsRC.close();} catch (SQLException e) {e.printStackTrace();}
+			try {rsRes.close();} catch (SQLException e) {e.printStackTrace();}
+			try {rsAct.close();} catch (SQLException e) {e.printStackTrace();}
 		}
 		return instalaciones;
 	}
@@ -189,18 +271,16 @@ public class Db {
 	 */
 	public static HashMap<String, TipoActividad> cargarTiposDeActividad() {
 		String queryTA = "SELECT * FROM TIPOACTIVIDAD";
-		String queryRC = "SELECT RECURSO.RC_NOMBRE, RECURSO.RC_CANTIDAD "
-				+ "FROM RECURSO "
-				+ "JOIN UTILIZA ON RECURSO.RC_NOMBRE = UTILIZA.RC_NOMBRE "
-				+ "JOIN TIPOACTIVIDAD ON UTILIZA.TA_NOMBRE = TIPOACTIVIDAD.TA_NOMBRE "
+		String queryRC = "SELECT RC_NOMBRE "
+				+ "FROM UTILIZA "
 				+ "WHERE TA_NOMBRE = ?";
 		
 		HashMap<String, TipoActividad> tiposActividad = new HashMap<String, TipoActividad>();
-		ResultSet rsTA = sqlExecuteSimple(queryTA);
+		ResultSet rsTA = sqlExecute(queryTA);
 		ResultSet rsRC = null;
 		try {
 			while (rsTA.next()) {
-				rsRC = sqlExecuteParam(queryRC, Arrays.asList(rsTA.getString(1)));
+				rsRC = sqlExecute(queryRC, Arrays.asList(rsTA.getString(1)));
 				List<Recurso> rcUsados = new ArrayList<Recurso>();
 				while (rsRC.next())
 				{
@@ -221,14 +301,14 @@ public class Db {
 	 * Carga las actividades desde la base de datos a listas en memoria
 	 * @return Lista con todas las actividades de la bd
 	 */
-	public static HashMap<Integer, Actividad> cargarActividades() {
+	public static List<Actividad> cargarActividades() {
 		String query = "SELECT * FROM ACTIVIDAD";
 		
-		HashMap<Integer, Actividad> actividades = new HashMap<Integer, Actividad>();
-		ResultSet rs = sqlExecuteSimple(query);
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		ResultSet rs = sqlExecute(query);
 		try {
 			while (rs.next()) {
-				actividades.put(rs.getInt(1), new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7))));
+				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7))));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
