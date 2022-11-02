@@ -19,6 +19,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import javax.swing.SwingConstants;
 
 public class VentanaAdmin extends JFrame {
 
@@ -30,9 +32,13 @@ public class VentanaAdmin extends JFrame {
 	private JButton btnCrearActividad;
 	private JButton btnReservarInstalacion;
 	private JPanel pnPrincipal;
-	private JPanel pnActividades;
-	private JPanel pnInstalaciones;
-	private JPanel pnAlquileres;
+	private JPanel pnAdminIzquierda;
+	private JPanel pnAmdinCentro;
+	private JPanel pnAdminDerecha;
+	private JLabel lblActividades;
+	private JPanel panel;
+	private JPanel panel_1;
+	private JPanel panel_2;
 	
 	/**
 	 * Create the frame.
@@ -86,7 +92,8 @@ public class VentanaAdmin extends JFrame {
 	}
 	private JLabel getLblAdmin() {
 		if (lblAdmin == null) {
-			lblAdmin = new JLabel("ADMIN");
+			lblAdmin = new JLabel("ADMINISTRADOR");
+			lblAdmin.setHorizontalAlignment(SwingConstants.CENTER);
 			lblAdmin.setFont(new Font("Arial Black", Font.BOLD, 16));
 		}
 		return lblAdmin;
@@ -128,31 +135,64 @@ public class VentanaAdmin extends JFrame {
 	private JPanel getPnPrincipal() {
 		if (pnPrincipal == null) {
 			pnPrincipal = new JPanel();
-			pnPrincipal.add(getPnActividades());
-			pnPrincipal.add(getPnInstalaciones());
-			pnPrincipal.add(getPnAlquileres());
+			pnPrincipal.add(getPnAdminIzquierda());
+			pnPrincipal.add(getPnAmdinCentro());
+			pnPrincipal.add(getPnAdminDerecha());
 		}
 		return pnPrincipal;
 	}
-	private JPanel getPnActividades() {
-		if (pnActividades == null) {
-			pnActividades = new JPanel();
-			pnPrincipal.add(getBtnCrearTipoActividad());
-			pnPrincipal.add(getBtnCrearActividad());
+	private JPanel getPnAdminIzquierda() {
+		if (pnAdminIzquierda == null) {
+			pnAdminIzquierda = new JPanel();
+			pnAdminIzquierda.setLayout(new BorderLayout(0, 0));
+			pnAdminIzquierda.add(getLblActividades(), BorderLayout.NORTH);
+			pnAdminIzquierda.add(getPanel(), BorderLayout.CENTER);
+			getPnPrincipal().setLayout(new GridLayout(0, 3, 0, 0));
 		}
-		return pnActividades;
+		return pnAdminIzquierda;
 	}
-	private JPanel getPnInstalaciones() {
-		if (pnInstalaciones == null) {
-			pnInstalaciones = new JPanel();
-			pnPrincipal.add(getBtnReservarInstalacion());
+	private JPanel getPnAmdinCentro() {
+		if (pnAmdinCentro == null) {
+			pnAmdinCentro = new JPanel();
+			pnAmdinCentro.add(getBtnReservarInstalacion());
+			pnAmdinCentro.add(getBtnCrearActividad());
+			pnAmdinCentro.add(getBtnCrearTipoActividad());
 		}
-		return pnInstalaciones;
+		return pnAmdinCentro;
 	}
-	private JPanel getPnAlquileres() {
-		if (pnAlquileres == null) {
-			pnAlquileres = new JPanel();
+	private JPanel getPnAdminDerecha() {
+		if (pnAdminDerecha == null) {
+			pnAdminDerecha = new JPanel();
 		}
-		return pnAlquileres;
+		return pnAdminDerecha;
+	}
+	private JLabel getLblActividades() {
+		if (lblActividades == null) {
+			lblActividades = new JLabel("Actividades");
+			lblActividades.setHorizontalAlignment(SwingConstants.CENTER);
+			lblActividades.setFont(new Font("Arial Black", Font.BOLD, 14));
+		}
+		return lblActividades;
+	}
+	private JPanel getPanel() {
+		if (panel == null) {
+			panel = new JPanel();
+			panel.setLayout(new GridLayout(2, 0, 0, 0));
+			panel.add(getPanel_1());
+			panel.add(getPanel_2());
+		}
+		return panel;
+	}
+	private JPanel getPanel_1() {
+		if (panel_1 == null) {
+			panel_1 = new JPanel();
+		}
+		return panel_1;
+	}
+	private JPanel getPanel_2() {
+		if (panel_2 == null) {
+			panel_2 = new JPanel();
+		}
+		return panel_2;
 	}
 }
