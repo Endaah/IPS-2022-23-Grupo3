@@ -6,6 +6,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -640,7 +641,8 @@ public class ModelSocio {
 			Connection c = getConnection();
 			
 			String query = "SELECT * "
-					+ "FROM reserva WHERE R_DIA >= ? ORDER BY R_dia, r_hora";
+					+ "FROM reserva WHERE R_DIA >= ? AND "
+					+ "r_cancelada = ? ORDER BY R_dia, r_hora";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
@@ -648,6 +650,7 @@ public class ModelSocio {
 		    Calendar today = Calendar.getInstance();
 		    		    
 		    pst.setDate(1, new Date(System.currentTimeMillis()));
+		    pst.setInt(2, ReservaInstalacion.VALIDA);
 		    
 		    ResultSet rs = pst.executeQuery();
 		    
@@ -674,6 +677,54 @@ public class ModelSocio {
 		}
 		
 		return reservas;
+	}
+	
+	
+	public boolean checkPuedoBorrarReserva(LocalDate dia) {
+		Calendar now = Calendar.getInstance();
+		now.setTime(new Date(System.currentTimeMillis()));
+		
+		Calendar act = Calendar.getInstance();
+		act.setTime(Date.from(dia.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
+		
+		if (act.getTime().before(now.getTime())) {
+			return false;
+		}
+		return true;
+	}
+	
+	public void anularReservaInstalacion(String nombreInst, LocalDate dia, int hora) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "UPDATE RESERVA SET r_cancelada = ? WHERE "
+					+ "i_nombre = ? AND r_dia = ? AND r_hora = ?";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, ReservaInstalacion.CANCELADA);
+		    pst.setString(2, nombreInst);
+		    pst.setDate(3, Date.valueOf(dia));
+		    pst.setInt(4, hora);
+		    
+		    int res = pst.executeUpdate();
+		    
+		    if (res == 1) {
+				System.out.println("La reserva se anulo");
+			}
+			else {
+				System.out.println("No se pudo anular la reserva de instalacion");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+//			System.err.println("Error anulando reserva");
+		}
 	}
 
 }

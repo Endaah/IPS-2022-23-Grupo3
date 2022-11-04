@@ -3,9 +3,8 @@ package giis.demo.igu.dialogs;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -13,12 +12,13 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.model.Actividad;
+import giis.demo.igu.VentanaSocio;
 import giis.demo.model.ReservaInstalacion;
 import giis.demo.model.data.ModelSocio;
 
@@ -29,11 +29,12 @@ public class DialogVerReservasSocio extends JDialog {
 	private int userId;
 	private ModelSocio model;
 	private JScrollPane scPaneLista;
-	private JList listReservas;
+	private JList<ReservaInstalacion> listReservas;
 	private JLabel lblTitulo;
 	private JButton btnEliminarReserva;
 	
 	private DefaultListModel<ReservaInstalacion> modelList;
+	private JButton btnVolver;
 
 	/**
 	 * Create the dialog.
@@ -50,6 +51,7 @@ public class DialogVerReservasSocio extends JDialog {
 		contentPanel.add(getScPaneLista());
 		contentPanel.add(getLblTitulo());
 		contentPanel.add(getBtnEliminarReserva());
+		contentPanel.add(getBtnVolver());
 	}
 	private JScrollPane getScPaneLista() {
 		if (scPaneLista == null) {
@@ -59,9 +61,9 @@ public class DialogVerReservasSocio extends JDialog {
 		}
 		return scPaneLista;
 	}
-	private JList getListReservas() {
+	private JList<ReservaInstalacion> getListReservas() {
 		if (listReservas == null) {
-			listReservas = new JList();
+			listReservas = new JList<>();
 			
 			modelList = new DefaultListModel<>();
 			listReservas.setModel(modelList);
@@ -89,10 +91,51 @@ public class DialogVerReservasSocio extends JDialog {
 	private JButton getBtnEliminarReserva() {
 		if (btnEliminarReserva == null) {
 			btnEliminarReserva = new JButton("Anular Reserva");
+			btnEliminarReserva.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					borrarReserva();
+					showReservas();
+				}
+			});
 			btnEliminarReserva.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			btnEliminarReserva.setBackground(Color.WHITE);
 			btnEliminarReserva.setBounds(379, 126, 185, 57);
 		}
 		return btnEliminarReserva;
+	}
+	
+	
+	private void borrarReserva() {
+		int res = JOptionPane.showConfirmDialog(
+				rootPane, "¿Está seguro que quiere anular su reserva?");
+		if (res != JOptionPane.YES_OPTION) {
+			return;
+		}
+		ReservaInstalacion reserva = listReservas.getSelectedValue();
+		
+		if (!model.checkPuedoBorrarReserva(reserva.getFecha())) {
+			VentanaSocio.showMessage("Puede anular como muy tarde el dia anterior a la reserva", 
+					"No puede anular la reserva", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		
+		model.anularReservaInstalacion(
+				reserva.getInstalacion(), reserva.getFecha(), reserva.getHora());
+	}
+	
+	
+	private JButton getBtnVolver() {
+		if (btnVolver == null) {
+			btnVolver = new JButton("Volver");
+			btnVolver.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					dispose();
+				}
+			});
+			btnVolver.setFont(new Font("Tahoma", Font.PLAIN, 18));
+			btnVolver.setBackground(Color.RED);
+			btnVolver.setBounds(379, 268, 185, 57);
+		}
+		return btnVolver;
 	}
 }
