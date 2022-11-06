@@ -7,7 +7,9 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -25,11 +27,14 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.dialogs.DialogReservaInstalacionSocio;
+import giis.demo.igu.dialogs.DialogVerReservasSocio;
 import giis.demo.model.Actividad;
+import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
-import giis.demo.model.data.ModelSocio;
 import giis.demo.model.ReservaInstalacion;
+import giis.demo.model.data.ModelSocio;
+import javax.swing.border.LineBorder;
 
 public class VentanaSocio extends JFrame {
 
@@ -60,6 +65,14 @@ public class VentanaSocio extends JFrame {
 	private JButton btnApuntarse;
 	private JButton btnBorrar;
 	private JButton btnReservarInstalacion;
+	private JButton btnVerReservas;
+	private JLabel lblInstalacionesDisponibles;
+	private JScrollPane scPaneList_1;
+	private JList<Instalacion> actList1;
+	private DefaultListModel<Instalacion> modelList1;
+	private JButton btnVerInstalaciones;
+	private JLabel lblNewLabel;
+	private JSpinner spnHora;
 
 	/**
 	 * Create the frame.
@@ -94,6 +107,12 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getBtnApuntarse());
 		contentPane.add(getBtnBorrar());
 		contentPane.add(getBtnReservarInstalacion());
+		contentPane.add(getBtnVerReservas());
+		contentPane.add(getLblInstalacionesDisponibles());
+		contentPane.add(getScPaneList_1());
+		contentPane.add(getBtnVerInstalaciones());
+		contentPane.add(getLblNewLabel());
+		contentPane.add(getSpnHora());
 		
 		this.setVisible(true);
 	}
@@ -225,7 +244,7 @@ public class VentanaSocio extends JFrame {
 				}
 			});
 			btnApuntarse.setBackground(Color.GREEN);
-			btnApuntarse.setBounds(34, 238, 142, 35);
+			btnApuntarse.setBounds(34, 213, 142, 35);
 		}
 		return btnApuntarse;
 	}
@@ -265,7 +284,7 @@ public class VentanaSocio extends JFrame {
 				}
 			});
 			btnBorrar.setBackground(Color.RED);
-			btnBorrar.setBounds(290, 238, 142, 34);
+			btnBorrar.setBounds(290, 213, 142, 34);
 		}
 		return btnBorrar;
 	}
@@ -279,7 +298,7 @@ public class VentanaSocio extends JFrame {
 		}
 		int actId = actList.getSelectedValue().getId();
 		int userId = model.askForIdSocio();
-		model.eliminarReserva(userId, actId);
+		model.eliminarReservaActividad(userId, actId);
 	}
 	private JButton getBtnReservarInstalacion() {
 		if (btnReservarInstalacion == null) {
@@ -290,10 +309,11 @@ public class VentanaSocio extends JFrame {
 						int userId = model.askForIdSocio();
 						//Mario, cuando hagas el ver instalaciones, conecta esto 
 						//a la instalación seleccionada, dia y hora de los spinners
+						Date d = new Date((int)spDay.getValue(),(int)spMonth.getValue(),(int)spYear.getValue());
+						
 						DialogReservaInstalacionSocio dialog = 
 								new DialogReservaInstalacionSocio(model, 
-										new Instalacion("Prueba", new ArrayList<Recurso>(), new ArrayList<ReservaInstalacion>()),
-										today.getTime(), 20, userId);
+										getActList1().getSelectedValue(),d,(int)spnHora.getValue(),userId);
 						dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 						dialog.setLocationRelativeTo(contentPane);
 						dialog.setModal(true);
@@ -307,5 +327,102 @@ public class VentanaSocio extends JFrame {
 			btnReservarInstalacion.setBounds(34, 444, 142, 35);
 		}
 		return btnReservarInstalacion;
+	}
+	private JButton getBtnVerReservas() {
+		if (btnVerReservas == null) {
+			btnVerReservas = new JButton("Ver mis reservas");
+			btnVerReservas.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int userId = model.askForIdSocio();
+					DialogVerReservasSocio dialog = new DialogVerReservasSocio(model, userId);
+					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					dialog.setLocationRelativeTo(contentPane);
+					dialog.setModal(true);
+					dialog.setVisible(true);
+				}
+			});
+			btnVerReservas.setBackground(Color.WHITE);
+			btnVerReservas.setBounds(456, 374, 169, 35);
+		}
+		return btnVerReservas;
+	}
+	private JLabel getLblInstalacionesDisponibles() {
+		if (lblInstalacionesDisponibles == null) {
+			lblInstalacionesDisponibles = new JLabel("Instalaciones disponibles");
+			lblInstalacionesDisponibles.setFont(new Font("Tahoma", Font.BOLD, 18));
+			lblInstalacionesDisponibles.setBounds(34, 261, 245, 35);
+		}
+		return lblInstalacionesDisponibles;
+	}
+	private JScrollPane getScPaneList_1() {
+		if (scPaneList_1 == null) {
+			scPaneList_1 = new JScrollPane();
+			scPaneList_1.setBounds(34, 306, 398, 108);
+			scPaneList_1.setViewportView(getActList1());
+		}
+		return scPaneList_1;
+	}
+	private JList<Instalacion> getActList1() {
+		if (actList1 == null) {
+			Date date = today.getTime();
+			actList1 = new JList<Instalacion>();
+			modelList1 = new DefaultListModel<>();
+			actList1.setModel(modelList1);
+			
+			actList1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			showInstalaciones(date.getYear()+YEARCORRECTION, date.getMonth()+MONTHCORRECTION, date.getDate(),8);
+		}
+		return actList1;
+	}
+	private JButton getBtnVerInstalaciones() {
+		if (btnVerInstalaciones == null) {
+			btnVerInstalaciones = new JButton("Ver instalaciones");
+			btnVerInstalaciones.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					showInstalaciones((int)spYear.getValue(), (int)spMonth.getValue(),(int)spDay.getValue(), (int)spnHora.getValue());
+				}
+			});
+			btnVerInstalaciones.setBackground(Color.WHITE);
+			btnVerInstalaciones.setBounds(290, 270, 142, 23);
+		}
+		return btnVerInstalaciones;
+	}
+	
+	private void showInstalaciones(int year, int month, int day,int h1) {
+		if (!model.comprobarFechaCorrecta(day, month, year)) {
+			showMessage("Esta fecha no existe, Introduce una fecha correcta",
+					"Aviso - Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
+		}
+		else {
+			LocalDate date = LocalDate.of(year, month, day);
+			List<Instalacion> ins = new ArrayList<Instalacion>();
+			Instalacion[] instalaciones =  GymControlador.getInstalacionesDisponibles().values().toArray(
+					new Instalacion[GymControlador.getInstalacionesDisponibles().values().size()]);
+			for(int i =0; i < instalaciones.length; i++) {
+				if(instalaciones[i].comprobarReserva(date, h1)) {
+					ins.add(instalaciones[i]);
+				}
+			}
+			modelList1.clear();
+			modelList1.addAll(ins);
+			
+			
+		}
+	}
+	private JLabel getLblNewLabel() {
+		if (lblNewLabel == null) {
+			lblNewLabel = new JLabel("Hora:");
+			lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			lblNewLabel.setBounds(456, 218, 75, 20);
+		}
+		return lblNewLabel;
+	}
+	private JSpinner getSpnHora() {
+		if (spnHora == null) {
+			spnHora = new JSpinner();
+			spnHora.setModel(new SpinnerNumberModel(8, 8, 22, 1));
+			spnHora.setBounds(566, 221, 48, 17);
+		}
+		return spnHora;
 	}
 }

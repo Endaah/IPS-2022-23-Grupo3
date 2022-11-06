@@ -75,6 +75,31 @@ public class Instalacion {
 		return true;
 	}
 	
+	public boolean comprobarReserva(LocalDate fecha, int hora) {
+		if (fecha.getDayOfYear() - LocalDate.now().getDayOfYear() >= 8) {		// Si la reserva se ha hecho más de 7 días antes
+			System.err.println("No se ha realizado la reserva, "				// Avisar de que no se ha realizado
+					+ "las resrvas se deben hacer como mucho 7 días antes");
+			return false;
+		}
+		
+		for (ReservaInstalacion ri : reservas) {						// Por cada reserva
+			if (ri.getFecha().equals(fecha)
+					&& (ri.getHora() == hora
+						|| ( ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
+				System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+						+ "la instalación ya estaba reservada");
+				return false;
+			}
+			
+			
+		}
+		
+		
+		
+		
+		return true;
+	}
+	
 	public boolean reservarEmpresa(int idSocio, LocalDate fecha, int hora,boolean larga) {
 		for (ReservaInstalacion ri : reservas) {						// Por cada reserva
 			if (ri.getFecha().equals(fecha)

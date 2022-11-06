@@ -4,10 +4,15 @@ import java.time.LocalDate;
 
 public class ReservaInstalacion {
 
+	public static final int CANCELADA = 1;
+	public static final int VALIDA = 0;
+
 	private int idSocio;
 	private LocalDate fecha;
 	private int hora;
 	private String instalacion;
+	private int anulada;
+	private int precio = 2;
 	
 	public ReservaInstalacion(int idSocio, LocalDate fecha, int hora, String instalacion) {
 		this.idSocio = idSocio;
@@ -27,6 +32,10 @@ public class ReservaInstalacion {
 		return idSocio;
 	}
 	
+	public int getPrecio() {
+		return precio;
+	}
+	
 	public LocalDate getFecha() {
 		return fecha;
 	}
@@ -35,12 +44,16 @@ public class ReservaInstalacion {
 		return hora;
 	}
 	
+	public int getAnulada() {
+		return anulada;
+	}
+	
 	public String getInstalacion() {
 		return instalacion;
 	}
 	
 	@Override
 	public String toString() {
-		return idSocio + " - " + instalacion + " - " + fecha.toString();
+		return idSocio + " - " + instalacion + " - " + fecha.toString() + " - a las: " + hora;
 	}
 }
