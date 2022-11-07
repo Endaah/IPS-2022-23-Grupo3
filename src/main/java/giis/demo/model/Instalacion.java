@@ -28,8 +28,8 @@ public class Instalacion {
 		return recursos.toArray(new Recurso[recursos.size()]);
 	}
 	
-	public Integer[] getReservas() {
-		return reservas.toArray(new Integer[reservas.size()]);
+	public ReservaInstalacion[] getReservas() {
+		return reservas.toArray(new ReservaInstalacion[reservas.size()]);
 	}
 	
 	public boolean reservar(int idSocio, LocalDate fecha, int hora, boolean larga) {

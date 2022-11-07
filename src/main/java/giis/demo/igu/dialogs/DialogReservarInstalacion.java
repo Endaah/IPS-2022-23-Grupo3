@@ -1,6 +1,7 @@
 package giis.demo.igu.dialogs;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 
 import javax.swing.DefaultComboBoxModel;
@@ -15,55 +16,56 @@ import java.awt.Font;
 import javax.swing.JComboBox;
 import com.toedter.calendar.JCalendar;
 
-import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
+import giis.demo.model.ReservaInstalacion;
 import giis.demo.model.Socio;
 import giis.demo.util.Db;
 
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import java.awt.event.ActionListener;
+import java.sql.Date;
 import java.time.LocalDate;
+import java.time.format.TextStyle;
+import java.util.Locale;
 import java.awt.event.ActionEvent;
 import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
+import javax.swing.JScrollPane;
+import java.awt.GridLayout;
 
 public class DialogReservarInstalacion extends JDialog {
 
 	private static final long serialVersionUID = 1L;
 	
 	private final JPanel contentPanel = new JPanel();
-	private JCalendar calendar;
-	private JLabel lblHora;
-	private JSpinner spnHora;
-	private JLabel lblSocios;
-	private JComboBox<Socio> cbSocios;
-	private JLabel lblInstalaciones;
-	private JComboBox<Instalacion> cbInstalaciones;
-	private JRadioButton rdbt1hora;
-	private JRadioButton rdbt2horas;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JLabel lblDuracion;
 
+	private Instalacion instalacionSeleccionada;
+	private ProcesaBoton pB;
+	
+	private JLabel lblInstalacion;
+	private JScrollPane spCalendarioReservas;
+	private JPanel pnDias;
+	private JPanel pnCalendarioInner;
+	private JPanel pnHoras;
+	private JPanel pnBotones;
+	
 	/**
 	 * Create the dialog.
 	 */
-	public DialogReservarInstalacion() {
-		setBounds(100, 100, 450, 300);
+	public DialogReservarInstalacion(Instalacion seleccionada) {
+		pB = new ProcesaBoton();
+		setResizable(false);
+		this.instalacionSeleccionada = seleccionada;
+		setTitle("Reserva de Instalación");
+		setBounds(100, 100, 772, 424);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
 		contentPanel.setLayout(null);
-		contentPanel.add(getCalendar());
-		contentPanel.add(getLblHora());
-		contentPanel.add(getSpnHora());
-		contentPanel.add(getLblSocios());
-		contentPanel.add(getCbSocios());
-		contentPanel.add(getLblInstalaciones());
-		contentPanel.add(getCbInstalaciones());
-		contentPanel.add(getRdbt1hora());
-		contentPanel.add(getRdbt2horas());
-		contentPanel.add(getLblDuracion());
+		contentPanel.add(getLblInstalacion());
+		contentPanel.add(getSpCalendarioReservas());
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -97,110 +99,136 @@ public class DialogReservarInstalacion extends JDialog {
 			JOptionPane.showMessageDialog(this, "Hay campos con contenido no válido:" + motivo);
 			return;
 		}
-		
-		int idSocio = ((Socio) getCbSocios().getSelectedItem()).getId();
-		LocalDate fecha = new java.sql.Date(getCalendar().getDate().getTime()).toLocalDate();
-		int hora = (int) getSpnHora().getValue();
-		boolean larga = getRdbt2horas().isSelected();
-		
-		if (!((Instalacion) getCbInstalaciones().getSelectedItem()).reservar(idSocio, fecha, hora, larga)) {
+		/*
+		if (!instalacionSeleccionada.reservar(idSocio, fecha, hora, larga)) {
 			JOptionPane.showMessageDialog(this, "No se ha podido efectuar la reserva");
-		}
+		}*/
 		dispose();
 	}
 	private String validacionCampos() {
 		String motivo = "";
-		if (getCbSocios().getSelectedIndex() == -1)
-			motivo += "\nSocio no escogido";
-		if (getCbInstalaciones().getSelectedIndex() == -1)
-			motivo += "\nInstalacion no escogida";
-		if (getCalendar().getDate().getTime() == LocalDate.now().toEpochDay())
-			motivo += "\nFecha no escogida";
-		if (!getRdbt1hora().isSelected() && !getRdbt2horas().isSelected())
-			motivo += "\nDuracion no escogida";
 		return motivo;
 	}
-	private JCalendar getCalendar() {
-		if (calendar == null) {
-			calendar = new JCalendar();
-			calendar.setBounds(26, 70, 206, 152);
+	private void abrirConfirmacionReserva() {
+		try {
+			DialogConfirmacionReserva dialog = new DialogConfirmacionReserva(this);
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		return calendar;
 	}
-	private JLabel getLblHora() {
-		if (lblHora == null) {
-			lblHora = new JLabel("Hora:");
-			lblHora.setFont(new Font("Arial", Font.PLAIN, 14));
-			lblHora.setBounds(277, 90, 45, 13);
+	private JLabel getLblInstalacion() {
+		if (lblInstalacion == null) {
+			lblInstalacion = new JLabel("Instalación a reservar: " + instalacionSeleccionada.getNombre());
+			lblInstalacion.setFont(new Font("Arial", Font.PLAIN, 16));
+			lblInstalacion.setBounds(10, 11, 736, 33);
 		}
-		return lblHora;
+		return lblInstalacion;
 	}
-	private JSpinner getSpnHora() {
-		if (spnHora == null) {
-			spnHora = new JSpinner();
-			spnHora.setModel(new SpinnerNumberModel(8, 8, 22, 1));
-			spnHora.setFont(new Font("Arial", Font.PLAIN, 14));
-			spnHora.setBounds(277, 111, 45, 21);
+	private JScrollPane getSpCalendarioReservas() {
+		if (spCalendarioReservas == null) {
+			spCalendarioReservas = new JScrollPane();
+			spCalendarioReservas.setBounds(10, 55, 736, 286);
+			spCalendarioReservas.setColumnHeaderView(getPnDias());
+			spCalendarioReservas.setViewportView(getPnCalendarioInner());
 		}
-		return spnHora;
+		return spCalendarioReservas;
 	}
-	private JLabel getLblSocios() {
-		if (lblSocios == null) {
-			lblSocios = new JLabel("Reserva para:");
-			lblSocios.setFont(new Font("Arial", Font.PLAIN, 14));
-			lblSocios.setBounds(26, 10, 111, 13);
+	private JPanel getPnDias() {
+		if (pnDias == null) {
+			pnDias = new JPanel();
+			addLabelDias();
 		}
-		return lblSocios;
+		return pnDias;
 	}
-	private JComboBox<Socio> getCbSocios() {
-		if (cbSocios == null) {
-			cbSocios = new JComboBox<Socio>();
-			cbSocios.setBounds(26, 27, 111, 21);
-			cbSocios.setModel(new DefaultComboBoxModel<Socio>(Db.getSocios().toArray(new Socio[Db.getSocios().size()])));
+	private void addLabelDias() {
+		getPnDias().setLayout(new GridLayout(1, 0, 10, 0));
+		pnDias.add(new JLabel("Horas"));
+		
+		for (int i = 0; i < 7; i++)
+			pnDias.add(createJLabelDias(i));
+	}
+	private JLabel createJLabelDias(int i) {
+		JLabel label = new JLabel();
+		label.setFont(new Font("Arial", Font.PLAIN, 14));
+		
+		LocalDate aux = LocalDate.now().plusDays(i);
+		label.setText(aux.getDayOfWeek().getDisplayName(TextStyle.SHORT, new Locale("es", "ES")) + " " + aux.getDayOfMonth());
+		return label;
+	}
+	private JPanel getPnCalendarioInner() {
+		if (pnCalendarioInner == null) {
+			pnCalendarioInner = new JPanel();
+			pnCalendarioInner.setLayout(new BorderLayout(0, 0));
+			pnCalendarioInner.add(getPnHoras(), BorderLayout.WEST);
+			pnCalendarioInner.add(getPnBotones(), BorderLayout.CENTER);
 		}
-		return cbSocios;
+		return pnCalendarioInner;
 	}
-	private JLabel getLblInstalaciones() {
-		if (lblInstalaciones == null) {
-			lblInstalaciones = new JLabel("De:");
-			lblInstalaciones.setFont(new Font("Arial", Font.PLAIN, 14));
-			lblInstalaciones.setBounds(147, 11, 85, 13);
+	private JPanel getPnHoras() {
+		if (pnHoras == null) {
+			pnHoras = new JPanel();
+			pnHoras.setLayout(new GridLayout(0, 1, 0, 15));
+			addLabelHoras();
 		}
-		return lblInstalaciones;
+		return pnHoras;
 	}
-	private JComboBox<Instalacion> getCbInstalaciones() {
-		if (cbInstalaciones == null) {
-			cbInstalaciones = new JComboBox<Instalacion>();
-			cbInstalaciones.setBounds(147, 27, 175, 21);
-			cbInstalaciones.setModel(
-					new DefaultComboBoxModel<Instalacion>(
-							GymControlador.getInstalacionesDisponibles().values().toArray(
-									new Instalacion[GymControlador.getInstalacionesDisponibles().values().size()])));
+	private void addLabelHoras() {
+		for (int i = 8; i < 23; i++) {
+			pnHoras.add(createJLabelHoras(i));
 		}
-		return cbInstalaciones;
 	}
-	private JRadioButton getRdbt1hora() {
-		if (rdbt1hora == null) {
-			rdbt1hora = new JRadioButton("1 hora");
-			buttonGroup.add(rdbt1hora);
-			rdbt1hora.setBounds(256, 162, 103, 21);
+	private JLabel createJLabelHoras(int i) {
+		JLabel label = new JLabel();
+		label.setFont(new Font("Arial", Font.PLAIN, 14));
+		
+		label.setText(i + ":00");
+		return label;
+	}
+	private JPanel getPnBotones() {
+		if (pnBotones == null) {
+			pnBotones = new JPanel();
+			pnBotones.setLayout(new GridLayout(15, 7, 0, 0));
+			addBotones();
 		}
-		return rdbt1hora;
+		return pnBotones;
 	}
-	private JRadioButton getRdbt2horas() {
-		if (rdbt2horas == null) {
-			rdbt2horas = new JRadioButton("2 horas");
-			buttonGroup.add(rdbt2horas);
-			rdbt2horas.setBounds(256, 185, 103, 21);
+	private void addBotones() {
+		for (int i = 8; i < 23; i++)
+			for (int j = 0; j < 7; j++)
+				pnBotones.add(crearBoton(i, j));
+	}
+	private JButton crearBoton(int i, int j) {
+		JButton boton = new JButton();
+		boton.addActionListener(pB);
+		LocalDate dia = LocalDate.now().plusDays(j);
+		int hora = i;
+		
+		boolean ocupada = false;
+		for (ReservaInstalacion rI : instalacionSeleccionada.getReservas()) {
+			if (rI.getFecha() == dia && rI.getHora() == hora) {
+					ocupada = true;
+					break;
+			}	
 		}
-		return rdbt2horas;
+		if (ocupada)
+			boton.setBackground(Color.red);
+		else
+			boton.setBackground(Color.white);
+		
+		boton.setActionCommand(dia.toString() + " " + hora);
+		return boton;
 	}
-	private JLabel getLblDuracion() {
-		if (lblDuracion == null) {
-			lblDuracion = new JLabel("Duracion:");
-			lblDuracion.setFont(new Font("Arial", Font.PLAIN, 14));
-			lblDuracion.setBounds(254, 143, 91, 13);
-		}
-		return lblDuracion;
+}
+
+class ProcesaBoton implements ActionListener {
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		JButton boton = (JButton) e.getSource();
+		
+		
 	}
+	
 }

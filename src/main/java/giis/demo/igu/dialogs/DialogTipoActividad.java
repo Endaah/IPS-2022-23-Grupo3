@@ -25,6 +25,7 @@ import javax.swing.DefaultListModel;
 import java.awt.event.ActionListener;
 import java.util.List;
 import java.awt.event.ActionEvent;
+import javax.swing.JCheckBox;
 
 public class DialogTipoActividad extends JDialog {
 	
@@ -38,13 +39,15 @@ public class DialogTipoActividad extends JDialog {
 	private JLabel lblIntensidadAct;
 	private JComboBox<String> cbIntensidadAct;
 	private JLabel lblRecursos;
+	private JCheckBox chckbxSinRecursos;
 
 	/**
 	 * Create the dialog.
 	 */
 	public DialogTipoActividad() {
+		setTitle("Crear un Tipo de Actividad");
 		setResizable(false);
-		setBounds(100, 100, 666, 211);
+		setBounds(100, 100, 666, 231);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		getContentPane().add(contentPanel, BorderLayout.CENTER);
@@ -55,6 +58,7 @@ public class DialogTipoActividad extends JDialog {
 		contentPanel.add(getLblIntensidadAct());
 		contentPanel.add(getCbIntensidadAct());
 		contentPanel.add(getLblRecursos());
+		contentPanel.add(getChckbxSinRecursos());
 		{
 			JPanel buttonPane = new JPanel();
 			buttonPane.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -160,5 +164,25 @@ public class DialogTipoActividad extends JDialog {
 			lblRecursos.setBounds(316, 11, 162, 14);
 		}
 		return lblRecursos;
+	}
+	private JCheckBox getChckbxSinRecursos() {
+		if (chckbxSinRecursos == null) {
+			chckbxSinRecursos = new JCheckBox("No usar recursos");
+			chckbxSinRecursos.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					updateRecursos();
+				}
+			});
+			chckbxSinRecursos.setFont(new Font("Arial", Font.PLAIN, 12));
+			chckbxSinRecursos.setBounds(421, 124, 121, 23);
+		}
+		return chckbxSinRecursos;
+	}
+	private void updateRecursos() {
+		if (getChckbxSinRecursos().isSelected() ) {
+			getListRecursos().clearSelection();
+			getListRecursos().setEnabled(false);
+		} else
+			getListRecursos().setEnabled(true);
 	}
 }
