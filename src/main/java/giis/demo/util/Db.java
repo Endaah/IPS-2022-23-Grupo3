@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.sql.Date;
@@ -72,6 +73,8 @@ public class Db {
 					st.setString(i, (String) params.get(i - 1));
 				else if (params.get(i - 1) instanceof Integer)
 					st.setInt(i, (int) params.get(i - 1));
+				else if (params.get(i - 1) instanceof Date)
+					st.setDate(i, (Date) params.get(i - 1));
 			}
 			rs = st.executeQuery();
 		} catch (SQLException e) {
@@ -94,6 +97,41 @@ public class Db {
 			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
 		}
 		return socios;
+	}
+	
+	public static List<Socio> getSociosConReserva() {
+		List<Socio> sociosConReserva = new ArrayList<Socio>();
+		for (Socio s : getSocios())
+			for (ReservaInstalacion rI : getReservasSocio(s)) {
+				if (rI.getAnulada() == 0) {
+					sociosConReserva.add(s);
+					break;
+				}
+			}
+		return sociosConReserva;
+	}
+	
+	public static List<ReservaInstalacion> getReservasSocio(Socio socio) {
+		String query = "SELECT I_NOMBRE, R_DIA, R_HORA FROM RESERVA "
+				+ "WHERE RESERVA.S_ID = ? "
+				+ "AND RESERVA.R_DIA > ?";
+		ResultSet rs = sqlExecute(query, Arrays.asList(socio.getId(), Date.valueOf(LocalDate.now())));
+		List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
+		try {
+			while(rs.next()) {
+				for (ReservaInstalacion rI : GymControlador.getInstalacionesDisponibles().get(rs.getString(1)).getReservas()) {
+					if (Date.valueOf(rI.getFecha()).compareTo(rs.getDate(2)) == 0
+							&& rI.getHora() == rs.getInt(3) && rI.getIdSocio() == socio.getId())
+						reservas.add(rI);
+				}
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
+		}
+		return reservas;
 	}
 	
 	/**
@@ -188,6 +226,35 @@ public class Db {
 		sqlInsertParam(query, params);
 	}
 	
+	// ============ ACTUALIZAR DATOS ==============
+	private static void sqlUpdate(String query, List<Object> params) {
+		connect();
+		try {
+			PreparedStatement st = con.prepareStatement(query);
+			for (int i = 0; i < params.size(); i++) {
+				if (params.get(i) instanceof String)
+					st.setString(i + 1, (String) params.get(i));
+				else if (params.get(i) instanceof Integer)
+					st.setInt(i + 1, (Integer) params.get(i));
+				else if (params.get(i) instanceof Date)
+					st.setDate(i + 1, new java.sql.Date(((java.util.Date) params.get(i)).getTime()));
+			}
+			st.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void dbAnularReserva(java.sql.Date fecha, int hora, String instalacion) {
+		String query = "UPDATE RESERVA "
+				+ "SET R_CANCELADA = 1 "
+				+ "WHERE I_NOMBRE = ? "
+				+ "AND R_DIA = ? "
+				+ "AND R_HORA = ?";
+		
+		sqlUpdate(query, Arrays.asList(instalacion, fecha, hora));
+	}
+	
 	// ============ CARGA DE TABLAS A MEMORIA ==============
 	
 	/**
@@ -242,13 +309,13 @@ public class Db {
 				rsRes = sqlExecute(queryRes, Arrays.asList(rsI.getString(1)));
 				List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
 				while (rsRes.next()) {
-					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1));
+					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5));
 					reservas.add(rI);
 				}
 				rsAct = sqlExecute(queryAct, Arrays.asList(rsI.getString(1)));
 				while(rsAct.next()) {
 					for (int i = 0; i < rsAct.getInt(3) - rsAct.getInt(2); i++) {
-						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1));
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1), 0);
 						reservas.add(rI);
 					}
 				}

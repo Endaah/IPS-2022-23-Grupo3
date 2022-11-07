@@ -6,8 +6,11 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+<<<<<<< HEAD
 import java.time.LocalDate;
 import java.time.ZoneId;
+=======
+>>>>>>> Marcos-HU-18896
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -18,7 +21,10 @@ import giis.demo.igu.VentanaSocio;
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
+<<<<<<< HEAD
 import giis.demo.model.ReservaInstalacion;
+=======
+>>>>>>> Marcos-HU-18896
 
 
 public class ModelSocio {
@@ -27,10 +33,13 @@ public class ModelSocio {
 	public static final String user = "SA";
 	public static final String password = "";
 	
+<<<<<<< HEAD
 	/**
 	 * Metodo que pregunta al socio por su id
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public int askForIdSocio(){
 		String input;
 		do {
@@ -48,11 +57,14 @@ public class ModelSocio {
 		return result;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Devuelve una lista de actividades para mostrar
 	 * @param date
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public List<Actividad> getListActivitiesFor(Date date) {
 		List<Actividad> activities = new ArrayList<>(); 
 		
@@ -99,6 +111,7 @@ public class ModelSocio {
 		return activities;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Comprueba que la fecha es válida
 	 * @param day
@@ -106,6 +119,8 @@ public class ModelSocio {
 	 * @param year
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean comprobarFechaCorrecta(int day, int month, int year) {
 		if(day <= 28) {
 			return true;
@@ -119,11 +134,14 @@ public class ModelSocio {
 		return false;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Comprueba que los datos introducidos por el usuario son digitos
 	 * @param s
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean checkIsInt(String s) {
 		for (char c : s.toCharArray()) {
 			if (!Character.isDigit(c)) {
@@ -133,11 +151,14 @@ public class ModelSocio {
 		return true;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Comprueba que el id está registrado en la aplicación
 	 * @param id
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean existsIdSocio(int id) {
 		try {
 			Connection c = getConnection();
@@ -166,11 +187,14 @@ public class ModelSocio {
 		return false;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Introduce a la bd, una reserva de actividad por un socio
 	 * @param actId
 	 * @param userId
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public void reservarActividad(int actId, int userId) {
 		try {
 			Connection c = getConnection();
@@ -201,10 +225,13 @@ public class ModelSocio {
 		}
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Proporciona una instancia de connection
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public Connection getConnection() {
 		Connection c = null;
 		try {
@@ -219,7 +246,11 @@ public class ModelSocio {
 	}
 
   // TODO: Cambiar el nombre del metodo para evitar lios, por el cambio de nombre de la tabla
+<<<<<<< HEAD
 	public void eliminarReservaActividad(int userId, int actId) {
+=======
+	public void eliminarReserva(int userId, int actId) {
+>>>>>>> Marcos-HU-18896
 		try {
 			Connection c = getConnection();
 			
@@ -251,11 +282,14 @@ public class ModelSocio {
 		
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Comprueba que una actividad a la que se quiera apuntar un socio, tenga plazas libres
 	 * @param actId
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean hayPlazas(int actId) {
 		try {
 			Connection c = getConnection();
@@ -285,10 +319,14 @@ public class ModelSocio {
 		return false;
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Resta una plaza a esa actividad
 	 * @param actId
 	 */
+=======
+	//Resta una plaza a esa actividad
+>>>>>>> Marcos-HU-18896
 	public void restarPlaza(int actId) {
 		try {
 			Connection c = getConnection();
@@ -319,6 +357,7 @@ public class ModelSocio {
 		}
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Comprueba que la hora a la que se solicita una reserva de actividad, 
 	 * esté recogida dentro del rango de los criterios de aceptacion (dia anterior - hora antes)
@@ -326,6 +365,8 @@ public class ModelSocio {
 	 * @param ini
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean checkPuedoApuntarme(Date dia, int ini) {
 		
 		Calendar now = Calendar.getInstance();
@@ -359,6 +400,7 @@ public class ModelSocio {
 		return false;
 	}
 
+<<<<<<< HEAD
 	/**
 	 * Checkea que el socio que desea reservar o apuntarse no tenga ninguna otra actividad a esas horas
 	 * @param dia
@@ -367,6 +409,8 @@ public class ModelSocio {
 	 * @param userId
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean checkSocioPuedeApuntarse(Date dia, int ini, int fin, int userId) {
 		try {
 			Connection c = getConnection();
@@ -426,6 +470,7 @@ public class ModelSocio {
 		return true;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Checkea que el socio que desea reservar o apuntarse no tenga una reserva de instalacion a esa hora
 	 * @param dia
@@ -433,6 +478,8 @@ public class ModelSocio {
 	 * @param userId
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean checkSocioTieneOtrasReservas(Date dia, int ini, int userId){
 		try {
 			Connection c = getConnection();
@@ -446,7 +493,11 @@ public class ModelSocio {
 		    pst.setInt(1, userId);
 		    pst.setDate(2, dia);
 		    pst.setInt(3, ini);
+<<<<<<< HEAD
 		    pst.setInt(4, ReservaInstalacion.VALIDA);
+=======
+		    pst.setInt(4, Instalacion.VALIDA);
+>>>>>>> Marcos-HU-18896
 		    
 		    ResultSet rs = pst.executeQuery();
 		    
@@ -466,6 +517,7 @@ public class ModelSocio {
 		return false;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Comprueba que una instalacion este libre un dia a una hora en concreto
 	 * @param inst
@@ -473,6 +525,8 @@ public class ModelSocio {
 	 * @param hora
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean checkInstalacionLibre(Instalacion inst, Date dia, int hora) {
 		try {
 			Connection c = getConnection();
@@ -487,7 +541,11 @@ public class ModelSocio {
 		    pst.setString(1, inst.getNombre());
 		    pst.setDate(2, dia);
 		    pst.setInt(3, hora);
+<<<<<<< HEAD
 		    pst.setInt(4, ReservaInstalacion.VALIDA);
+=======
+		    pst.setInt(4, Instalacion.VALIDA);
+>>>>>>> Marcos-HU-18896
 		    
 		    ResultSet rs = pst.executeQuery();
 		    
@@ -506,6 +564,7 @@ public class ModelSocio {
 		return false;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Comprueba que la hora a la que se solicita una reserva de instalacion, 
 	 * esté recogida dentro del rango de los criterios de aceptacion (7 dias antes - hora antes)
@@ -513,6 +572,8 @@ public class ModelSocio {
 	 * @param ini
 	 * @return
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public boolean checkPuedoReservar(Date dia, int ini) {
 		
 		Calendar now = Calendar.getInstance();
@@ -555,6 +616,7 @@ public class ModelSocio {
 		return false;
 	}
 	
+<<<<<<< HEAD
 	/**
 	 * Inserta en la bd una nueva reserva de una instalación
 	 * @param instalacion
@@ -562,6 +624,8 @@ public class ModelSocio {
 	 * @param hora
 	 * @param socioId
 	 */
+=======
+>>>>>>> Marcos-HU-18896
 	public void reservarInstalacion(Instalacion instalacion, 
 			Date dia, int hora, int socioId) {
 		try {
@@ -576,7 +640,11 @@ public class ModelSocio {
 		    pst.setString(2, instalacion.getNombre());
 		    pst.setDate(3, dia);
 		    pst.setInt(4, hora);
+<<<<<<< HEAD
 		    pst.setInt(5, ReservaInstalacion.VALIDA);
+=======
+		    pst.setInt(5, Instalacion.VALIDA);
+>>>>>>> Marcos-HU-18896
 		    
 		    int res = pst.executeUpdate();
 		    
@@ -595,6 +663,7 @@ public class ModelSocio {
 			System.err.println("Error reservando instalacion");
 		}
 	}
+<<<<<<< HEAD
 	
 	/**
 	 * Devuelve el nombre del socio con id especificado
@@ -726,5 +795,7 @@ public class ModelSocio {
 //			System.err.println("Error anulando reserva");
 		}
 	}
+=======
+>>>>>>> Marcos-HU-18896
 
 }

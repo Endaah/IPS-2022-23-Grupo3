@@ -2,6 +2,7 @@ package giis.demo.model;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.ArrayList;
 
 import giis.demo.util.Db;
 
@@ -46,6 +47,25 @@ public class GymControlador {
 		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, GymControlador.getInstalacionesDisponibles().get(nombreInstalacion));
 		actividadesDisponibles.add(t);
 		guardarActividad(t);
+	}
+	
+	public static List<Socio> buscarSocios(List<Socio> lista, String str) {
+		if (str.isBlank()) return lista;
+		
+		List<Socio> res = new ArrayList<Socio>();
+		for (Socio socio : lista) {
+			boolean isId = true;
+			for (char c : str.toCharArray())
+				if (!Character.isDigit(c)) {
+					isId = false;
+					break;
+				}
+			
+			if (isId && socio.getId() == Integer.parseInt(str))
+				res.add(socio);
+			else if (socio.getNombre().contains(str))
+				res.add(socio);
+		} return res;
 	}
 	
 	// ============ CARGAR DATOS DESDE LA DB ================

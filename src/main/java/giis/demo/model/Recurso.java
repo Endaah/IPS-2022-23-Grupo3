@@ -23,3 +23,4 @@ public class Recurso {
 		return "Recurso: " + nombre + " - Cantidad: " + cantidad;
 	}
 }
+
