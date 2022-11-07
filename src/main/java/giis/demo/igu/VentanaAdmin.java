@@ -73,6 +73,7 @@ public class VentanaAdmin extends JFrame {
 	private JButton btnVerReservas;
 	private JLabel lblPagos;
 	private JPanel panel;
+	private JButton btnNewButton;
 	
 	/**
 	 * Create the frame.

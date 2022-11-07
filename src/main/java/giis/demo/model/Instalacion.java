@@ -146,14 +146,14 @@ public class Instalacion {
 		}
 		
 		
-		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, false);
+		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0);
 		reservas.add(reserva);
 		Db.dbInsertarReserva(reserva);
 		if (larga) {
 			for(int i = 9 ; i < 23; i++) {
-				ReservaInstalacion tmp = new ReservaInstalacion(reserva);
-				reservas.add(tmp);
-				Db.dbInsertarReserva(tmp);
+					ReservaInstalacion tmp = new ReservaInstalacion(reserva);
+					reservas.add(tmp);
+					Db.dbInsertarReserva(tmp);
 			}
 		}
 		return true;
