@@ -89,12 +89,13 @@ public class DialogAnularReserva extends JDialog {
 			JButton btnAnularReserva = new JButton("Anular Reserva");
 			btnAnularReserva.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					ReservaInstalacion reserva = listReservas.getSelectedValue();
-					if (reserva != null) {
-						GymControlador.getInstalacionesDisponibles().get(reserva.getInstalacion()).anularReserva(reserva.getFecha(), reserva.getHora());
-						listReservas.setModel(getModelReservas(listSocios.getSelectedValue()));
-						listSocios.setModel(getModelSocios());
-					}
+					for (ReservaInstalacion rI : listReservas.getSelectedValuesList())
+						if (rI != null) {
+							GymControlador.getInstalacionesDisponibles().get(rI.getInstalacion()).anularReserva(rI.getFecha(), rI.getHora());
+							listReservas.setModel(getModelReservas(listSocios.getSelectedValue()));
+							if (getModelReservas(listSocios.getSelectedValue()).isEmpty())
+								listSocios.setModel(getModelSocios());
+						}
 				}
 			});
 			btnAnularReserva.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -107,14 +108,14 @@ public class DialogAnularReserva extends JDialog {
 			getContentPane().add(buttonPane, BorderLayout.SOUTH);
 			{
 				JButton okButton = new JButton("OK");
+				okButton.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						dispose();
+					}
+				});
 				okButton.setActionCommand("OK");
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
-			}
-			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
 			}
 		}
 	}
@@ -126,8 +127,6 @@ public class DialogAnularReserva extends JDialog {
 					if (listSocios.getSelectedValue() != null) {
 						lblInstalaciones.setText("Instalaciones reservadas del socio " + listSocios.getSelectedValue().getNombre() + ":");
 						listReservas.setModel(getModelReservas(listSocios.getSelectedValue()));
-					} else {
-						listSocios.clearSelection();
 					}
 				}
 			});
@@ -147,6 +146,5 @@ public class DialogAnularReserva extends JDialog {
 		for (ReservaInstalacion rI : Db.getReservasSocio(socio))
 			if (rI.getAnulada() == 0) model.addElement(rI);
 		return model;
-		
 	}
 }

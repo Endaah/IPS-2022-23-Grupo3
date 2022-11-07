@@ -49,8 +49,9 @@ public class Instalacion {
 					return false;
 				}
 				
-				if (ri.getIdSocio() == idSocio && (ri.getHora() == hora
-						|| (larga && ri.getHora() == hora + 1))) {			// Si el socio ya tiene una reserva de instalación
+				if (ri.getFecha().equals(fecha)
+						&& (ri.getHora() == hora
+						|| (larga && (ri.getHora() == hora || ri.getHora() == hora + 1)))) {			// Si el socio ya tiene una reserva de instalación
 					System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
 							+ "este socio ya tiene una reserva a esta hora");
 					return false;
@@ -59,11 +60,21 @@ public class Instalacion {
 		}
 		
 		for (Actividad a : Db.getActividadesDe(idSocio)) {
-			if ((a.getIni() < hora && a.getFin() > hora)						// Si el socio está apuntado a una actividad a esa hora
-					|| (larga && a.getIni() < hora && a.getFin() > hora + 1));
-			System.err.println("No se ha realizado la reserva, "				// Avisar que no se ha realizado
+			
+			boolean overlaps = false;
+			for (int i = 0; i < a.getFin() - a.getIni(); i++) {
+				if (a.getDia().toLocalDate().equals(fecha)
+						&& (a.getIni() + i == hora
+						|| (larga && (a.getIni() + i == hora || a.getIni() + i == hora + 1)))) {	// Si el socio está apuntado a una actividad a esa hora
+					overlaps = true;
+				}
+			}
+			
+			if (overlaps) {
+				System.err.println("No se ha realizado la reserva, "				// Avisar que no se ha realizado
 					+ "este socio ya está apuntado a una actividad a esta hora");
-			return false;
+				return false;
+			}
 		}
 		
 		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0);

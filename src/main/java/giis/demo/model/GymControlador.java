@@ -54,7 +54,16 @@ public class GymControlador {
 		
 		List<Socio> res = new ArrayList<Socio>();
 		for (Socio socio : lista) {
-			if (socio.getNombre().contains(str))
+			boolean isId = true;
+			for (char c : str.toCharArray())
+				if (!Character.isDigit(c)) {
+					isId = false;
+					break;
+				}
+			
+			if (isId && socio.getId() == Integer.parseInt(str))
+				res.add(socio);
+			else if (socio.getNombre().contains(str))
 				res.add(socio);
 		} return res;
 	}

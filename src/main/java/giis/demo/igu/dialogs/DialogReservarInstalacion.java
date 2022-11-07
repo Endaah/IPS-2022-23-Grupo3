@@ -2,6 +2,7 @@ package giis.demo.igu.dialogs;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.FlowLayout;
 
 import javax.swing.DefaultComboBoxModel;
@@ -26,6 +27,7 @@ import javax.swing.SpinnerNumberModel;
 import java.awt.event.ActionListener;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.TextStyle;
 import java.util.Locale;
 import java.awt.event.ActionEvent;
@@ -42,7 +44,6 @@ public class DialogReservarInstalacion extends JDialog {
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 
 	private Instalacion instalacionSeleccionada;
-	private ProcesaBoton pB;
 	
 	private JLabel lblInstalacion;
 	private JScrollPane spCalendarioReservas;
@@ -55,7 +56,6 @@ public class DialogReservarInstalacion extends JDialog {
 	 * Create the dialog.
 	 */
 	public DialogReservarInstalacion(Instalacion seleccionada) {
-		pB = new ProcesaBoton();
 		setResizable(false);
 		this.instalacionSeleccionada = seleccionada;
 		setTitle("Reserva de Instalación");
@@ -81,42 +81,22 @@ public class DialogReservarInstalacion extends JDialog {
 				buttonPane.add(okButton);
 				getRootPane().setDefaultButton(okButton);
 			}
-			{
-				JButton cancelButton = new JButton("Cancel");
-				cancelButton.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						dispose();
-					}
-				});
-				cancelButton.setActionCommand("Cancel");
-				buttonPane.add(cancelButton);
-			}
 		}
 	}
 	private void okConfirmar() {
-		String motivo = "";
-		if (!(motivo = validacionCampos()).isBlank()) {
-			JOptionPane.showMessageDialog(this, "Hay campos con contenido no válido:" + motivo);
-			return;
-		}
-		/*
-		if (!instalacionSeleccionada.reservar(idSocio, fecha, hora, larga)) {
-			JOptionPane.showMessageDialog(this, "No se ha podido efectuar la reserva");
-		}*/
 		dispose();
 	}
-	private String validacionCampos() {
-		String motivo = "";
-		return motivo;
-	}
-	private void abrirConfirmacionReserva() {
+	private void abrirConfirmacionReserva(JButton boton, int boton2) {
 		try {
-			DialogConfirmacionReserva dialog = new DialogConfirmacionReserva(this);
+			DialogConfirmacionReserva dialog = new DialogConfirmacionReserva(this, boton, boton2);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	public Instalacion getInstalacionSeleccionada() {
+		return this.instalacionSeleccionada;
 	}
 	private JLabel getLblInstalacion() {
 		if (lblInstalacion == null) {
@@ -201,34 +181,45 @@ public class DialogReservarInstalacion extends JDialog {
 	}
 	private JButton crearBoton(int i, int j) {
 		JButton boton = new JButton();
-		boton.addActionListener(pB);
 		LocalDate dia = LocalDate.now().plusDays(j);
 		int hora = i;
 		
+		boton.setName(String.valueOf(i * 7 + j));;
+		
 		boolean ocupada = false;
 		for (ReservaInstalacion rI : instalacionSeleccionada.getReservas()) {
-			if (rI.getFecha() == dia && rI.getHora() == hora) {
+			if (rI.getFecha().equals(dia) && rI.getHora() == hora && rI.getAnulada() == 0) {
 					ocupada = true;
 					break;
 			}	
 		}
-		if (ocupada)
-			boton.setBackground(Color.red);
-		else
+		if (ocupada) {
+			setHoraOcupada(boton);
+		} else {
 			boton.setBackground(Color.white);
+			boton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					abrirConfirmacionReserva((JButton) e.getSource(), Integer.parseInt(((JButton) e.getSource()).getName()) + 7);
+				}
+			});
+		}
+		
+		if (!ocupada && dia.equals(LocalDate.now()) && hora <= LocalDateTime.now().getHour() + 1) {
+			boton.setEnabled(false);
+			boton.setBackground(Color.lightGray);
+		}
 		
 		boton.setActionCommand(dia.toString() + " " + hora);
 		return boton;
 	}
-}
-
-class ProcesaBoton implements ActionListener {
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		JButton boton = (JButton) e.getSource();
-		
-		
+	public void setHoraOcupada(JButton boton) {
+		boton.setBackground(Color.red);
+		boton.setEnabled(false);
 	}
-	
+	public void setHoraOcupada(int botonId) {
+		for (Component boton : getPnBotones().getComponents()) {
+			if (Integer.parseInt(boton.getName()) == botonId)
+				setHoraOcupada((JButton) boton);
+		}
+	}
 }

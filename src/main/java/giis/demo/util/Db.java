@@ -103,8 +103,10 @@ public class Db {
 		List<Socio> sociosConReserva = new ArrayList<Socio>();
 		for (Socio s : getSocios())
 			for (ReservaInstalacion rI : getReservasSocio(s)) {
-				if (rI.getAnulada() == 0)
+				if (rI.getAnulada() == 0) {
 					sociosConReserva.add(s);
+					break;
+				}
 			}
 		return sociosConReserva;
 	}
