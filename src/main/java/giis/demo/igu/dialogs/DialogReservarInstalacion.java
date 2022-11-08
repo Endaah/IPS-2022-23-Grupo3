@@ -18,6 +18,7 @@ import java.awt.Font;
 import javax.swing.JComboBox;
 import com.toedter.calendar.JCalendar;
 
+import giis.demo.igu.VentanaAdmin;
 import giis.demo.model.GrupoReservas;
 import giis.demo.model.Instalacion;
 import giis.demo.model.ReservaInstalacion;
@@ -45,6 +46,7 @@ public class DialogReservarInstalacion extends JDialog {
 	private final JPanel contentPanel = new JPanel();
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 
+	private VentanaAdmin vA;
 	private Instalacion instalacionSeleccionada;
 	
 	private JLabel lblInstalacion;
@@ -57,9 +59,10 @@ public class DialogReservarInstalacion extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public DialogReservarInstalacion(Instalacion seleccionada) {
+	public DialogReservarInstalacion(Instalacion seleccionada, VentanaAdmin vA) {
 		setResizable(false);
 		this.instalacionSeleccionada = seleccionada;
+		this.vA = vA;
 		setTitle("Reserva de Instalación");
 		setBounds(100, 100, 772, 424);
 		getContentPane().setLayout(new BorderLayout());
@@ -86,6 +89,8 @@ public class DialogReservarInstalacion extends JDialog {
 		}
 	}
 	private void okConfirmar() {
+		vA.actualizarListaSocios();
+		vA.actualizarListaAlquileres();
 		dispose();
 	}
 	private void abrirConfirmacionReserva(JButton boton, int boton2) {

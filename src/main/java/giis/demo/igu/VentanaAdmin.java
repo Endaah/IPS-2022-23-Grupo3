@@ -154,7 +154,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private void abrirDialogoAnularReserva() {
 		try {
-			DialogAnularReserva dialog = new DialogAnularReserva();
+			DialogAnularReserva dialog = new DialogAnularReserva(this);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -222,7 +222,7 @@ public class VentanaAdmin extends JFrame {
 			Instalacion i;
 			DialogReservarInstalacion dialog;
 			if ((i = getListInstalaciones().getSelectedValue()) != null) {
-				dialog = new DialogReservarInstalacion(i);
+				dialog = new DialogReservarInstalacion(i, this);
 				dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 				dialog.setVisible(true);
 			} else {
@@ -499,7 +499,7 @@ public class VentanaAdmin extends JFrame {
 		}
 		return tfBuscarSocios;
 	}
-	private void actualizarListaSocios() {
+	public void actualizarListaSocios() {
 		getListSocios().setModel(getModelSocios());
 	}
 	private DefaultListModel<Socio> getModelSocios() {
@@ -521,8 +521,9 @@ public class VentanaAdmin extends JFrame {
 		}
 		return listSocios;
 	}
-	private void actualizarListaAlquileres() {
+	public void actualizarListaAlquileres() {
 		if (getListSocios().getSelectedValue() != null) getListAlquileres().setModel(getModelAlquileres());
+		else getListAlquileres().setModel(new DefaultListModel<GrupoReservas>());
 	}
 	private DefaultListModel<GrupoReservas> getModelAlquileres() {
 		DefaultListModel<GrupoReservas> model = new DefaultListModel<GrupoReservas>();

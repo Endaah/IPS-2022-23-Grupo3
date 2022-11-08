@@ -123,7 +123,7 @@ public class Db {
 				for (GrupoReservas gr : GymControlador.getInstalacionesDisponibles().get(rs.getString(1)).getReservas()) {
 					for (ReservaInstalacion rI : gr.getReservas()) {
 						if (!reservas.contains(gr) && Date.valueOf(rI.getFecha()).equals(rs.getDate(2))
-								&& rI.getHora() == rs.getInt(3))
+								&& rI.getHora() == rs.getInt(3) && gr.getIdSocio() == socio.getId())
 							reservas.add(gr);
 					}
 				}
@@ -179,9 +179,10 @@ public class Db {
 						&& ((rI.getFecha().getDayOfMonth() >= 20
 								&& rI.getFecha().getMonth().plus(-1) == LocalDate.now().getMonth().plus(mes)
 								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12)
-						|| (rI.getFecha().getDayOfMonth() < 20 
+							|| (rI.getFecha().getDayOfMonth() < 20 
 								&& rI.getFecha().getMonth() == LocalDate.now().getMonth().plus(mes)
-								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12))) {
+								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12))
+						&& rI.getAnulada() == 0) {
 					res.add(grupo);
 				}
 			}

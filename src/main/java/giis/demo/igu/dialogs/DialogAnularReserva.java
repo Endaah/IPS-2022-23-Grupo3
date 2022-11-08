@@ -9,6 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import giis.demo.igu.VentanaAdmin;
 import giis.demo.model.GrupoReservas;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
@@ -37,6 +38,9 @@ public class DialogAnularReserva extends JDialog {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
+	private VentanaAdmin vA;
+	
 	private final JPanel contentPanel = new JPanel();
 	private JTextField tfSocios;
 	private JList<Socio> listSocios;
@@ -46,8 +50,9 @@ public class DialogAnularReserva extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public DialogAnularReserva() {
+	public DialogAnularReserva(VentanaAdmin vA) {
 		setResizable(false);
+		this.vA = vA;
 		setBounds(100, 100, 499, 500);
 		getContentPane().setLayout(new BorderLayout());
 		contentPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -119,6 +124,7 @@ public class DialogAnularReserva extends JDialog {
 				JButton okButton = new JButton("OK");
 				okButton.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
+						vA.actualizarListaSocios();
 						dispose();
 					}
 				});
