@@ -27,6 +27,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.LocalDate;
+
 import javax.swing.JLabel;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionListener;
@@ -152,14 +154,14 @@ public class DialogAnularReserva extends JDialog {
 	}
 	private DefaultListModel<Socio> getModelSocios() {
 		DefaultListModel<Socio> model = new DefaultListModel<Socio>();
-		for (Socio s : GymControlador.buscarSocios(Db.getSociosConReserva(), tfSocios.getText())) {
+		for (Socio s : GymControlador.buscarSocios(Db.getSociosConReservaAnulable(), tfSocios.getText())) {
 			model.addElement(s);
 		} return model;
 	}
 	private DefaultListModel<GrupoReservas> getModelReservas(Socio socio) {
 		DefaultListModel<GrupoReservas> model = new DefaultListModel<GrupoReservas>();
 		for (GrupoReservas gr : Db.getReservasSocio(socio))
-			if (gr.getReservas()[0].getAnulada() == 0) model.addElement(gr);
+			if (gr.getReservas()[0].getAnulada() == 0 && gr.getReservas()[0].getFecha().isAfter(LocalDate.now())) model.addElement(gr);
 		return model;
 	}
 	private void mostrarDatosSocio(Socio s) {

@@ -100,6 +100,19 @@ public class Db {
 		return socios;
 	}
 	
+	public static List<Socio> getSociosConReservaAnulable() {
+		List<Socio> sociosConReserva = new ArrayList<Socio>();
+		for (Socio s : getSocios())
+			for (GrupoReservas gr : getReservasSocio(s)) {
+				if (gr.getReservas()[0].getAnulada() == 0
+						&& gr.getReservas()[0].getFecha().isAfter(LocalDate.now())) {
+					sociosConReserva.add(s);
+					break;
+				}
+			}
+		return sociosConReserva;
+	}
+	
 	public static List<Socio> getSociosConReserva() {
 		List<Socio> sociosConReserva = new ArrayList<Socio>();
 		for (Socio s : getSocios())
@@ -114,9 +127,8 @@ public class Db {
 	
 	public static List<GrupoReservas> getReservasSocio(Socio socio) {
 		String query = "SELECT I_NOMBRE, R_DIA, R_HORA, R_ID FROM RESERVA "
-				+ "WHERE RESERVA.S_ID = ? "
-				+ "AND RESERVA.R_DIA > ?";
-		ResultSet rs = sqlExecute(query, Arrays.asList(socio.getId(), Date.valueOf(LocalDate.now())));
+				+ "WHERE RESERVA.S_ID = ?";
+		ResultSet rs = sqlExecute(query, Arrays.asList(socio.getId()));
 		List<GrupoReservas> reservas = new ArrayList<GrupoReservas>();
 		try {
 			while(rs.next()) {
