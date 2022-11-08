@@ -568,7 +568,7 @@ public class ModelSocio {
 		try {
 			Connection c = getConnection();
 			
-			String query = "INSERT INTO RESERVA VALUES(?,?,?,?,?)";
+			String query = "INSERT INTO RESERVA VALUES(?,?,?,?,?,?)";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
@@ -578,6 +578,7 @@ public class ModelSocio {
 		    pst.setDate(3, dia);
 		    pst.setInt(4, hora);
 		    pst.setInt(5, ReservaInstalacion.VALIDA);
+		    pst.setInt(6, instalacion.getReservas()[instalacion.getReservas().length - 1].getIdReserva());
 		    
 		    int res = pst.executeUpdate();
 		    
@@ -666,11 +667,11 @@ public class ModelSocio {
 				dia = rs.getDate(3);
 				hora = rs.getInt(4);
 				
-				for (GrupoReservas gr : GymControlador.getInstalacionesDisponibles().get(rs.getString(1)).getReservas()) {
+				for (GrupoReservas gr : GymControlador.getInstalacionesDisponibles().get(rs.getString(2)).getReservas()) {
 					ReservaInstalacion rI = gr.getReservas()[0];
-					if (Date.valueOf(rI.getFecha()).equals(rs.getDate(2))
-							&& rI.getHora() == rs.getInt(3)
-							&& rI.getIdSocio() == id)
+					if (Date.valueOf(rI.getFecha()).equals(rs.getDate(3))
+							&& rI.getHora() == rs.getInt(4)
+							&& gr.getIdSocio() == socioId)
 						reservas.add(gr);
 				}
 			}
@@ -681,6 +682,7 @@ public class ModelSocio {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
 			System.err.println("Error obteniendo las actividades");
 		}
 		

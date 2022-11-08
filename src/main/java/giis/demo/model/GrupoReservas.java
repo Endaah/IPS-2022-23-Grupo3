@@ -7,9 +7,10 @@ public class GrupoReservas {
 
 	private int idReserva;
 	private int idSocio;
+	private int precioReservas;
 	private List<ReservaInstalacion> reservas;
 	
-	public GrupoReservas(int idReserva, int idSocio) {
+	public GrupoReservas(int idReserva, int idSocio, int precioReservas) {
 		this.idSocio = idSocio;
 		this.idReserva = idReserva;
 		this.reservas = new ArrayList<ReservaInstalacion>();
@@ -34,7 +35,7 @@ public class GrupoReservas {
 	public int getPrecio() {
 		int precio = 0;
 		for (ReservaInstalacion rI : reservas) {
-			precio += rI.getPrecio();
+			precio += precioReservas;
 		} return precio;
 	}
 	

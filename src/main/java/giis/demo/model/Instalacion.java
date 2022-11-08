@@ -12,11 +12,13 @@ public class Instalacion {
 	public static final int VALIDA = 0;
 	
 	private String nombre;
+	private int precioPorHora;
 	private List<Recurso> recursos;
 	private List<GrupoReservas> reservas;
 	
-	public Instalacion(String nombre, List<Recurso> recurso, List<GrupoReservas> reservas) {
+	public Instalacion(String nombre, int precio, List<Recurso> recurso, List<GrupoReservas> reservas) {
 		this.nombre = nombre;
+		this.precioPorHora = precio;
 		this.recursos = recurso;
 		this.reservas = reservas;
 	}
@@ -80,8 +82,11 @@ public class Instalacion {
 			}
 		}
 		
-		int idReserva = reservas.get(reservas.size() - 1).getIdReserva() + 1;
-		GrupoReservas gr = new GrupoReservas(idReserva, idSocio);
+		int idReserva = 0;
+		for (GrupoReservas gr : reservas)
+			if (gr.getIdSocio() == idSocio)
+				idReserva++;
+		GrupoReservas gr = new GrupoReservas(idReserva, idSocio, precioPorHora);
 		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0, idReserva);
 		gr.addReserva(reserva);
 		if (larga) {
@@ -142,10 +147,10 @@ public class Instalacion {
 		}
 		
 		int idReserva = reservas.get(reservas.size() - 1).getIdReserva() + 1;
-		GrupoReservas gr = new GrupoReservas(idReserva, idSocio);
+		GrupoReservas gr = new GrupoReservas(idReserva, idSocio, precioPorHora);
 		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0, idReserva);
 		if (larga) {
-			for(int i = 9 ; i < 23; i++) {
+			for(int i = 8 ; i < 23; i++) {
 					reserva = new ReservaInstalacion(reserva);
 					gr.addReserva(reserva);
 			}

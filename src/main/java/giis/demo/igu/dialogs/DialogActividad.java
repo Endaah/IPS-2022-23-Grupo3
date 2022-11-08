@@ -101,7 +101,7 @@ public class DialogActividad extends JDialog {
 	}
 	
 	private void okConfirmar() {
-		if (comprobarRecurso1()) {
+		if (!comprobarRecurso1()) {
 			JOptionPane.showMessageDialog(this, "Elija una instalación que tenga esos recursos");
 			return;
 		}
@@ -138,11 +138,12 @@ public class DialogActividad extends JDialog {
 	private void crearActividad() {
 		TipoActividad ta = (TipoActividad) getCmbTipos().getSelectedItem();
 		String nombre = ta.getNombre();
-		int id = (GymControlador.getActividadesDisponibles().get(GymControlador.getActividadesDisponibles().size()).getId())+1;
+		int id = (GymControlador.getActividadesDisponibles().get(GymControlador.getActividadesDisponibles().size() - 1).getId())+1;
 		java.sql.Date date = new java.sql.Date(calendar.getDate().getTime());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
 		int plazas = 0;
+		String instalacion = ((Instalacion) getCmbIns().getSelectedItem()).getNombre();
 		if (!ta.getRecurso().isEmpty()) {
 			int menor = ta.getRecurso().get(0).getCantidad();
 			for (int i = 1; i < ta.getRecurso().size(); i++) {
@@ -152,7 +153,7 @@ public class DialogActividad extends JDialog {
 			plazas = (int) getSpnPlazas().getValue();
 		}
 		// TODO: Añadir seleccion de instalacion y sustituir el null por el nombre en este método addActividad() v
-		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas, null);
+		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas,instalacion);
 	}
 	private JLabel getLblNewLabel_1() {
 		if (lblNewLabel_1 == null) {

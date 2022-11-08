@@ -15,7 +15,6 @@ public class ReservaInstalacion {
 	private String instalacion;
 	private int anulada;
 	private int idReserva;
-	private int precio = 2;
 	
 	public ReservaInstalacion(int idSocio, LocalDate fecha, int hora, String instalacion, int anulada, int id) {
 		this.idSocio = idSocio;
@@ -23,6 +22,7 @@ public class ReservaInstalacion {
 		this.hora = hora;
 		this.instalacion = instalacion;
 		this.anulada = anulada;
+		this.idReserva = id;
 	}
 	
 	public ReservaInstalacion(ReservaInstalacion reserva) {
@@ -36,10 +36,6 @@ public class ReservaInstalacion {
 	
 	public int getIdSocio() {
 		return idSocio;
-	}
-	
-	public int getPrecio() {
-		return precio;
 	}
 	
 	public LocalDate getFecha() {

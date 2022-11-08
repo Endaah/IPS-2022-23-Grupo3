@@ -102,7 +102,7 @@ private static final long serialVersionUID = 1L;
 		LocalDate fecha = new java.sql.Date(getCalendar().getDate().getTime()).toLocalDate();
 		int hora = (int) getSpnHora().getValue();
 		boolean todo = getRdbtnTodo().isSelected();
-		if (!((Instalacion) getCbInstalaciones().getSelectedItem()).reservar(n, fecha, hora, todo)) {
+		if (!((Instalacion) getCbInstalaciones().getSelectedItem()).reservarEmpresa(n, fecha, hora, todo)) {
 			JOptionPane.showMessageDialog(this, "No se ha podido efectuar la reserva");
 		}
 		dispose();

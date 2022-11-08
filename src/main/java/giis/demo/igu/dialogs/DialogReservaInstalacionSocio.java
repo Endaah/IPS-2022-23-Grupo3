@@ -44,10 +44,10 @@ public class DialogReservaInstalacionSocio extends JDialog {
 	 * Create the dialog.
 	 */
 	public DialogReservaInstalacionSocio(ModelSocio model, Instalacion instalacion,
-			Date dia, int horaInicial, int socioId) {
+			LocalDate dia, int horaInicial, int socioId) {
 		this.model = model;
 		this.instalacion = instalacion;
-		this.dia = dia.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+		this.dia = dia;
 		this.hora = horaInicial;
 		this.socioId = socioId;
 		

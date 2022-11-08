@@ -89,7 +89,7 @@ public class Db {
 		List<Socio> socios = new ArrayList<Socio>();
 		try {
 			while(rs.next()) {
-				socios.add(new Socio(rs.getInt(1), rs.getString(2)));
+				if (rs.getInt(1) != Socio.TERCEROS) socios.add(new Socio(rs.getInt(1), rs.getString(2), rs.getString(3)));
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -165,6 +165,42 @@ public class Db {
 		return actividades;
 	}
 	
+	/**
+	 * Devuelve las reservas que se han realizado durante un mes, desde el dia 20 hasta el dia 19 del siguiente
+	 * @param mes Diferencia entre el mes actual y el objetivo
+	 * @return Lista de Reservas no anuladas que se hicieron ese mes
+	 */
+	public static List<GrupoReservas> getReservasDelMes(int mes) {
+		List<GrupoReservas> res = new ArrayList<GrupoReservas>();
+		for (Instalacion i : GymControlador.getInstalacionesDisponibles().values()) {
+			for (GrupoReservas grupo : i.getReservas()) {
+				ReservaInstalacion rI = grupo.getReservas()[0];
+				if (rI.getIdSocio() != 0
+						&& ((rI.getFecha().getDayOfMonth() >= 20
+								&& rI.getFecha().getMonth().plus(-1) == LocalDate.now().getMonth().plus(mes)
+								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12)
+						|| (rI.getFecha().getDayOfMonth() < 20 
+								&& rI.getFecha().getMonth() == LocalDate.now().getMonth().plus(mes)
+								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12))) {
+					res.add(grupo);
+				}
+			}
+		} return res;
+	}
+	
+	/**
+	 * Devuelve las reservas que ha realizado un socio durante un mes, desde el dia 20 hasta el dia 19 del siguiente
+	 * @param s
+	 * @return
+	 */
+	public static List<GrupoReservas> getReservasDelMesParaSocio(Socio s, int mes) {
+		List<GrupoReservas> gruposSocio = new ArrayList<GrupoReservas>();
+		for (GrupoReservas grupo : getReservasDelMes(mes))
+			if (grupo.getIdSocio() == s.getId())
+				gruposSocio.add(grupo);
+		return gruposSocio;
+	}
+	
 	// ============ INSERCIÓN DE DATOS ==============
 	/*
 	 * Método general para insertar en la base de datos.
@@ -210,10 +246,10 @@ public class Db {
 	 * @param act Actividad a insertar a la bd
 	 */
 	public static void dbInsertarAct(Actividad act) {
-		String query = "INSERT INTO actividad (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS) "
-				+ "VALUES (?, ?, ?, ?, ?, ?)";
+		String query = "INSERT INTO actividad (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
 		
-		List<Object> params = Arrays.asList(act.getId(), act.getNombre(), act.getDia(), act.getIni(), act.getFin(), act.getPlazas());
+		List<Object> params = Arrays.asList(act.getId(), act.getNombre(), act.getDia(), act.getIni(), act.getFin(), act.getPlazas(), act.getInstalacion().getNombre());
 		sqlInsertParam(query, params);
 		
 	}
@@ -322,21 +358,21 @@ public class Db {
 							break;
 						}
 					} if (!added) {
-						GrupoReservas gr = new GrupoReservas(rsRes.getInt(6), rsRes.getInt(1));
+						GrupoReservas gr = new GrupoReservas(rsRes.getInt(6), rsRes.getInt(1), rsI.getInt(2));
 						gr.addReserva(new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5), rsRes.getInt(6)));
 						reservas.add(gr);
 					}
 				}
 				rsAct = sqlExecute(queryAct, Arrays.asList(rsI.getString(1)));
 				while(rsAct.next()) {
-					GrupoReservas gr = new GrupoReservas(rsAct.getInt(1), 0);
+					GrupoReservas gr = new GrupoReservas(rsAct.getInt(1), 0, 0);
 					for (int i = 0; i < rsAct.getInt(4) - rsAct.getInt(3); i++) {
 						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(2).toLocalDate(), rsAct.getInt(3) + i, rsI.getString(1), 0, rsAct.getInt(1));
 						gr.addReserva(rI);
 					}
 					reservas.add(gr);
 				}
-				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp, reservas));
+				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), rsI.getInt(2),tmp, reservas));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

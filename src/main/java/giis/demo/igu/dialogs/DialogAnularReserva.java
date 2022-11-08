@@ -19,6 +19,8 @@ import giis.demo.util.Db;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -97,6 +99,8 @@ public class DialogAnularReserva extends JDialog {
 					for (GrupoReservas gr : listReservas.getSelectedValuesList())
 						if (gr != null) {
 							GymControlador.getInstalacionesDisponibles().get(gr.getReservas()[0].getInstalacion()).anularReserva(gr);
+							Socio s = getListSocios().getSelectedValue();
+							mostrarDatosSocio(s);
 							listReservas.setModel(getModelReservas(listSocios.getSelectedValue()));
 							if (getModelReservas(listSocios.getSelectedValue()).isEmpty())
 								listSocios.setModel(getModelSocios());
@@ -151,5 +155,10 @@ public class DialogAnularReserva extends JDialog {
 		for (GrupoReservas gr : Db.getReservasSocio(socio))
 			if (gr.getReservas()[0].getAnulada() == 0) model.addElement(gr);
 		return model;
+	}
+	private void mostrarDatosSocio(Socio s) {
+		JOptionPane.showMessageDialog(this, "Se ha anulado la reserva del socio con id: " + s.getId()
+			+ "\nNombre del socio: " + s.getNombre()
+			+ "\nContactar con el socio via: " + s.getEmail());
 	}
 }

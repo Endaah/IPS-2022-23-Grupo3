@@ -309,7 +309,7 @@ public class VentanaSocio extends JFrame {
 						int userId = model.askForIdSocio();
 						//Mario, cuando hagas el ver instalaciones, conecta esto 
 						//a la instalación seleccionada, dia y hora de los spinners
-						Date d = new Date((int)spDay.getValue(),(int)spMonth.getValue(),(int)spYear.getValue());
+						LocalDate d = LocalDate.of((int)spYear.getValue(), (int)spMonth.getValue(), (int)spDay.getValue());
 						
 						DialogReservaInstalacionSocio dialog = 
 								new DialogReservaInstalacionSocio(model, 

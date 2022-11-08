@@ -11,6 +11,7 @@ import giis.demo.igu.dialogs.DialogAnularReserva;
 import giis.demo.igu.dialogs.DialogReservarInstalacion;
 import giis.demo.igu.dialogs.DialogTipoActividad;
 import giis.demo.model.Actividad;
+import giis.demo.model.GrupoReservas;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Socio;
@@ -28,6 +29,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+import java.util.List;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import javax.swing.SwingConstants;
@@ -42,10 +45,15 @@ import javax.swing.ListSelectionModel;
 import javax.swing.JTextField;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.Color;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ListSelectionEvent;
 
 public class VentanaAdmin extends JFrame {
 
 	private static final long serialVersionUID = 1L;
+	
+	private int difMesActual;
 	
 	private JPanel contentPane;
 	private JLabel lblAdmin;
@@ -81,14 +89,22 @@ public class VentanaAdmin extends JFrame {
 	private Component horizontalStrut_1;
 	private Component horizontalStrut_2;
 	private JScrollPane spPagosSocios;
-	private JScrollPane scrollPane_2;
 	private JTextField tfBuscarSocios;
 	private JList<Socio> listSocios;
+	private JPanel pnAlquileres;
+	private JLabel lblAlquileres;
+	private JScrollPane spAlquileres;
+	private JPanel pnMes;
+	private JList<GrupoReservas> listAlquileres;
+	private JButton btnMesAnterior;
+	private JLabel lblMes;
+	private JButton btnMesSiguiente;
 	
 	/**
 	 * Create the frame.
 	 */
 	public VentanaAdmin() {
+		difMesActual = 0;
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -182,6 +198,8 @@ public class VentanaAdmin extends JFrame {
 			btnReservarInstalacion.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					abrirDialogoReservaInstalacion();
+					actualizarListaSocios();
+					getListSocios().clearSelection();
 				}
 			});
 		}
@@ -418,6 +436,8 @@ public class VentanaAdmin extends JFrame {
 			btnAnularReserva.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					abrirDialogoAnularReserva();
+					actualizarListaSocios();
+					getListSocios().clearSelection();
 				}
 			});
 		}
@@ -442,7 +462,7 @@ public class VentanaAdmin extends JFrame {
 			pnPagos = new JPanel();
 			pnPagos.setLayout(new GridLayout(2, 0, 0, 0));
 			pnPagos.add(getSpPagosSocios());
-			pnPagos.add(getScrollPane_2());
+			pnPagos.add(getPnAlquileres());
 		}
 		return pnPagos;
 	}
@@ -466,12 +486,6 @@ public class VentanaAdmin extends JFrame {
 		}
 		return spPagosSocios;
 	}
-	private JScrollPane getScrollPane_2() {
-		if (scrollPane_2 == null) {
-			scrollPane_2 = new JScrollPane();
-		}
-		return scrollPane_2;
-	}
 	private JTextField getTfBuscarSocios() {
 		if (tfBuscarSocios == null) {
 			tfBuscarSocios = new JTextField();
@@ -490,14 +504,115 @@ public class VentanaAdmin extends JFrame {
 	}
 	private DefaultListModel<Socio> getModelSocios() {
 		DefaultListModel<Socio> model = new DefaultListModel<Socio>();
-		for (Socio s : Db.getSociosConReserva()) {
+		for (Socio s : GymControlador.buscarSocios(Db.getSociosConReserva(), tfBuscarSocios.getText())) {
 			model.addElement(s);
 		} return model;
 	}
 	private JList<Socio> getListSocios() {
 		if (listSocios == null) {
 			listSocios = new JList<Socio>();
+			listSocios.addListSelectionListener(new ListSelectionListener() {
+				public void valueChanged(ListSelectionEvent e) {
+					actualizarListaAlquileres();
+				}
+			});
+			listSocios.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			actualizarListaSocios();
 		}
 		return listSocios;
+	}
+	private void actualizarListaAlquileres() {
+		if (getListSocios().getSelectedValue() != null) getListAlquileres().setModel(getModelAlquileres());
+	}
+	private DefaultListModel<GrupoReservas> getModelAlquileres() {
+		DefaultListModel<GrupoReservas> model = new DefaultListModel<GrupoReservas>();
+		for (GrupoReservas gr : Db.getReservasDelMesParaSocio(getListSocios().getSelectedValue(), difMesActual)) {
+			model.addElement(gr);
+		} return model;
+	}
+	private JPanel getPnAlquileres() {
+		if (pnAlquileres == null) {
+			pnAlquileres = new JPanel();
+			pnAlquileres.setLayout(new BorderLayout(0, 0));
+			pnAlquileres.add(getLblAlquileres(), BorderLayout.NORTH);
+			pnAlquileres.add(getSpAlquileres(), BorderLayout.CENTER);
+		}
+		return pnAlquileres;
+	}
+	private JLabel getLblAlquileres() {
+		if (lblAlquileres == null) {
+			lblAlquileres = new JLabel("Alquileres:");
+		}
+		return lblAlquileres;
+	}
+	private JScrollPane getSpAlquileres() {
+		if (spAlquileres == null) {
+			spAlquileres = new JScrollPane();
+			spAlquileres.setColumnHeaderView(getPnMes());
+			spAlquileres.setViewportView(getListAlquileres());
+		}
+		return spAlquileres;
+	}
+	private JPanel getPnMes() {
+		if (pnMes == null) {
+			pnMes = new JPanel();
+			pnMes.setBackground(Color.WHITE);
+			pnMes.add(getBtnMesAnterior());
+			pnMes.add(getLblMes());
+			pnMes.add(getBtnMesSiguiente());
+		}
+		return pnMes;
+	}
+	private JList<GrupoReservas> getListAlquileres() {
+		if (listAlquileres == null) {
+			listAlquileres = new JList();
+		}
+		return listAlquileres;
+	}
+	private JButton getBtnMesAnterior() {
+		if (btnMesAnterior == null) {
+			btnMesAnterior = new JButton("<");
+			btnMesAnterior.setBackground(Color.WHITE);
+			btnMesAnterior.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					difMesActual--;
+					getLblMes().setText(getMes());
+					if (difMesActual < 1 && !getBtnMesSiguiente().isEnabled()) getBtnMesSiguiente().setEnabled(true);
+					if (getListSocios().getSelectedValue() != null) actualizarListaAlquileres();
+				}
+			});
+		}
+		return btnMesAnterior;
+	}
+	private JLabel getLblMes() {
+		if (lblMes == null) {
+			lblMes = new JLabel(getMes());
+		}
+		return lblMes;
+	}
+	private String getMes() {
+		String mes = "";
+		if (LocalDate.now().getDayOfMonth() < 20)
+			mes = LocalDate.now().getMonth().plus(difMesActual).toString();
+		else
+			mes = LocalDate.now().getMonth().plus(difMesActual + 1).toString();
+		return mes;
+	}
+	private JButton getBtnMesSiguiente() {
+		if (btnMesSiguiente == null) {
+			btnMesSiguiente = new JButton(">");
+			btnMesSiguiente.setBackground(Color.WHITE);
+			btnMesSiguiente.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (difMesActual < 1) {
+						difMesActual++;
+						getLblMes().setText(getMes());
+						if (getListSocios().getSelectedValue() != null) actualizarListaAlquileres();
+					} 
+					if (difMesActual >= 1) getBtnMesSiguiente().setEnabled(false);
+				}
+			});
+		}
+		return btnMesSiguiente;
 	}
 }
