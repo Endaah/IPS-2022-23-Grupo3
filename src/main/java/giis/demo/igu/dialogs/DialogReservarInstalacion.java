@@ -18,6 +18,7 @@ import java.awt.Font;
 import javax.swing.JComboBox;
 import com.toedter.calendar.JCalendar;
 
+import giis.demo.model.GrupoReservas;
 import giis.demo.model.Instalacion;
 import giis.demo.model.ReservaInstalacion;
 import giis.demo.model.Socio;
@@ -188,11 +189,12 @@ public class DialogReservarInstalacion extends JDialog {
 		boton.setName(String.valueOf(i * 7 + j));;
 		
 		boolean ocupada = false;
-		for (ReservaInstalacion rI : instalacionSeleccionada.getReservas()) {
-			if (rI.getFecha().equals(dia) && rI.getHora() == hora && rI.getAnulada() == 0) {
-					ocupada = true;
-					break;
-			}	
+		for (GrupoReservas gr : instalacionSeleccionada.getReservas()) {
+			for (ReservaInstalacion rI : gr.getReservas())
+				if (rI.getFecha().equals(dia) && rI.getHora() == hora && rI.getAnulada() == 0) {
+						ocupada = true;
+						break;
+				}	
 		}
 		if (ocupada) {
 			setHoraOcupada(boton);

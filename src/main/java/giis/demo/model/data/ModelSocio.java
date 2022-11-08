@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 
 import giis.demo.igu.VentanaSocio;
 import giis.demo.model.Actividad;
+import giis.demo.model.GrupoReservas;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.ReservaInstalacion;
@@ -634,8 +635,8 @@ public class ModelSocio {
 	 * @param date
 	 * @return
 	 */
-	public List<ReservaInstalacion> getListReservasFor(int socioId) {
-		List<ReservaInstalacion> reservas = new ArrayList<>(); 
+	public List<GrupoReservas> getListReservasFor(int socioId) {
+		List<GrupoReservas> reservas = new ArrayList<>(); 
 		
 		try {
 			Connection c = getConnection();
@@ -658,13 +659,20 @@ public class ModelSocio {
 		    String nombre;
 		    Date dia;
 		    int hora;
+		    
 		    while(rs.next()) {
 		    	id = rs.getInt(1);
 				nombre = rs.getString(2);
 				dia = rs.getDate(3);
-				java.util.Date diaJava = new java.util.Date(dia.getTime());
 				hora = rs.getInt(4);
-				reservas.add(new ReservaInstalacion(id, diaJava.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), hora, nombre, 0));
+				
+				for (GrupoReservas gr : GymControlador.getInstalacionesDisponibles().get(rs.getString(1)).getReservas()) {
+					ReservaInstalacion rI = gr.getReservas()[0];
+					if (Date.valueOf(rI.getFecha()).equals(rs.getDate(2))
+							&& rI.getHora() == rs.getInt(3)
+							&& rI.getIdSocio() == id)
+						reservas.add(gr);
+				}
 			}
 		    
 		    rs.close();

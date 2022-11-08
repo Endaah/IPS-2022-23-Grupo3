@@ -9,6 +9,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import giis.demo.model.GrupoReservas;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.ReservaInstalacion;
@@ -30,11 +31,15 @@ import javax.swing.event.ListSelectionEvent;
 
 public class DialogAnularReserva extends JDialog {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final JPanel contentPanel = new JPanel();
 	private JTextField tfSocios;
 	private JList<Socio> listSocios;
 	private JLabel lblInstalaciones;
-	private JList<ReservaInstalacion> listReservas;
+	private JList<GrupoReservas> listReservas;
 
 	/**
 	 * Create the dialog.
@@ -75,7 +80,7 @@ public class DialogAnularReserva extends JDialog {
 			spInstalaciones.setBounds(10, 253, 463, 140);
 			contentPanel.add(spInstalaciones);
 			{
-				listReservas = new JList();
+				listReservas = new JList<GrupoReservas>();
 				spInstalaciones.setViewportView(listReservas);
 			}
 		}
@@ -89,9 +94,9 @@ public class DialogAnularReserva extends JDialog {
 			JButton btnAnularReserva = new JButton("Anular Reserva");
 			btnAnularReserva.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					for (ReservaInstalacion rI : listReservas.getSelectedValuesList())
-						if (rI != null) {
-							GymControlador.getInstalacionesDisponibles().get(rI.getInstalacion()).anularReserva(rI.getFecha(), rI.getHora());
+					for (GrupoReservas gr : listReservas.getSelectedValuesList())
+						if (gr != null) {
+							GymControlador.getInstalacionesDisponibles().get(gr.getReservas()[0].getInstalacion()).anularReserva(gr);
 							listReservas.setModel(getModelReservas(listSocios.getSelectedValue()));
 							if (getModelReservas(listSocios.getSelectedValue()).isEmpty())
 								listSocios.setModel(getModelSocios());
@@ -141,10 +146,10 @@ public class DialogAnularReserva extends JDialog {
 			model.addElement(s);
 		} return model;
 	}
-	private DefaultListModel<ReservaInstalacion> getModelReservas(Socio socio) {
-		DefaultListModel<ReservaInstalacion> model = new DefaultListModel<ReservaInstalacion>();
-		for (ReservaInstalacion rI : Db.getReservasSocio(socio))
-			if (rI.getAnulada() == 0) model.addElement(rI);
+	private DefaultListModel<GrupoReservas> getModelReservas(Socio socio) {
+		DefaultListModel<GrupoReservas> model = new DefaultListModel<GrupoReservas>();
+		for (GrupoReservas gr : Db.getReservasSocio(socio))
+			if (gr.getReservas()[0].getAnulada() == 0) model.addElement(gr);
 		return model;
 	}
 }

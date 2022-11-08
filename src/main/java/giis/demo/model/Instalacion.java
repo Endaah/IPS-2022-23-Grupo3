@@ -1,5 +1,6 @@
 package giis.demo.model;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,9 +13,9 @@ public class Instalacion {
 	
 	private String nombre;
 	private List<Recurso> recursos;
-	private List<ReservaInstalacion> reservas;
+	private List<GrupoReservas> reservas;
 	
-	public Instalacion(String nombre, List<Recurso> recurso, List<ReservaInstalacion> reservas) {
+	public Instalacion(String nombre, List<Recurso> recurso, List<GrupoReservas> reservas) {
 		this.nombre = nombre;
 		this.recursos = recurso;
 		this.reservas = reservas;
@@ -28,8 +29,8 @@ public class Instalacion {
 		return recursos.toArray(new Recurso[recursos.size()]);
 	}
 	
-	public ReservaInstalacion[] getReservas() {
-		return reservas.toArray(new ReservaInstalacion[reservas.size()]);
+	public GrupoReservas[] getReservas() {
+		return reservas.toArray(new GrupoReservas[reservas.size()]);
 	}
 	
 	public boolean reservar(int idSocio, LocalDate fecha, int hora, boolean larga) {
@@ -39,22 +40,24 @@ public class Instalacion {
 			return false;
 		}
 		
-		for (ReservaInstalacion ri : reservas) {							// Por cada reserva
-			if (ri.getAnulada() == 0) {
-				if (ri.getFecha().equals(fecha)
-						&& (ri.getHora() == hora
-							|| (larga && ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
-					System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-							+ "la instalación ya estaba reservada");
-					return false;
-				}
-				
-				if (ri.getFecha().equals(fecha)
-						&& (ri.getHora() == hora
-						|| (larga && (ri.getHora() == hora || ri.getHora() == hora + 1)))) {			// Si el socio ya tiene una reserva de instalación
-					System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-							+ "este socio ya tiene una reserva a esta hora");
-					return false;
+		for (GrupoReservas gr : reservas) {							// Por cada reserva
+			for (ReservaInstalacion ri : gr.getReservas()) {
+				if (ri.getAnulada() == 0) {
+					if (ri.getFecha().equals(fecha)
+							&& (ri.getHora() == hora
+								|| (larga && ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
+						System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+								+ "la instalación ya estaba reservada");
+						return false;
+					}
+					
+					if (ri.getFecha().equals(fecha)
+							&& (ri.getHora() == hora
+							|| (larga && (ri.getHora() == hora || ri.getHora() == hora + 1)))) {			// Si el socio ya tiene una reserva de instalación
+						System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+								+ "este socio ya tiene una reserva a esta hora");
+						return false;
+					}
 				}
 			}
 		}
@@ -77,34 +80,31 @@ public class Instalacion {
 			}
 		}
 		
-		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0);
-		reservas.add(reserva);
-		Db.dbInsertarReserva(reserva);
+		int idReserva = reservas.get(reservas.size() - 1).getIdReserva() + 1;
+		GrupoReservas gr = new GrupoReservas(idReserva, idSocio);
+		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0, idReserva);
+		gr.addReserva(reserva);
 		if (larga) {
-			ReservaInstalacion tmp = new ReservaInstalacion(reserva);
-			reservas.add(tmp);
-			Db.dbInsertarReserva(tmp);
+			gr.addReserva(new ReservaInstalacion(reserva));
 		}
+		reservas.add(gr);
+		Db.dbInsertarReserva(gr);
 		return true;
 	}
 	
-	public void anularReserva(LocalDate fecha, int hora) {
-		if (fecha.getDayOfYear() - LocalDate.now().getDayOfYear() <= 0) {
+	public void anularReserva(GrupoReservas gr) {
+		if (gr.getReservas()[0].getFecha().getDayOfYear() - LocalDate.now().getDayOfYear() <= 0) {
 			System.err.println("No se ha podido anular la reserva, "
 					+ "no se puede anular una reserva para el mismo día");
 			return;
 		}
 		
-		ReservaInstalacion rI = null;
-		for (ReservaInstalacion reserva : reservas) {
-			if (reserva.getFecha().equals(fecha) && reserva.getHora() == hora && reserva.getIdSocio() != 0) {
-				rI = reserva;
-				break;
-			}
+		reservas.remove(gr);
+		for (ReservaInstalacion rI : gr.getReservas()) {
+			if (rI != null)
+				Db.dbAnularReserva(Date.valueOf(rI.getFecha()), rI.getHora(), nombre);
 		}
-		reservas.remove(rI);
-		if (rI != null)
-			Db.dbAnularReserva(java.sql.Date.valueOf(fecha), hora, nombre);
+		
 	}
 	
 	public boolean comprobarReserva(LocalDate fecha, int hora) {
@@ -114,48 +114,44 @@ public class Instalacion {
 			return false;
 		}
 		
-		for (ReservaInstalacion ri : reservas) {						// Por cada reserva
-			if (ri.getFecha().equals(fecha)
-					&& (ri.getHora() == hora
-						|| ( ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
-				System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-						+ "la instalación ya estaba reservada");
-				return false;
+		for (GrupoReservas gr : reservas)
+			for (ReservaInstalacion ri : gr.getReservas()) {						// Por cada reserva
+				if (ri.getFecha().equals(fecha)
+						&& (ri.getHora() == hora
+							|| ( ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
+					System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+							+ "la instalación ya estaba reservada");
+					return false;
+				}
 			}
-			
-			
-		}
-		
-		
-		
 		
 		return true;
 	}
 	
 	public boolean reservarEmpresa(int idSocio, LocalDate fecha, int hora,boolean larga) {
-		for (ReservaInstalacion ri : reservas) {						// Por cada reserva
-			if (ri.getFecha().equals(fecha)
-					&& (ri.getHora() == hora
-						|| (larga ))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
-				System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-						+ "la instalación ya estaba reservada");
-				return false;
+		for (GrupoReservas gr : reservas) {
+			for (ReservaInstalacion ri : gr.getReservas()) {						// Por cada reserva
+				if (ri.getFecha().equals(fecha)
+						&& (ri.getHora() == hora
+							|| (larga ))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
+					System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+							+ "la instalación ya estaba reservada");
+					return false;
+				}
 			}
-			
-			
 		}
 		
-		
-		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0);
-		reservas.add(reserva);
-		Db.dbInsertarReserva(reserva);
+		int idReserva = reservas.get(reservas.size() - 1).getIdReserva() + 1;
+		GrupoReservas gr = new GrupoReservas(idReserva, idSocio);
+		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0, idReserva);
 		if (larga) {
 			for(int i = 9 ; i < 23; i++) {
-					ReservaInstalacion tmp = new ReservaInstalacion(reserva);
-					reservas.add(tmp);
-					Db.dbInsertarReserva(tmp);
+					reserva = new ReservaInstalacion(reserva);
+					gr.addReserva(reserva);
 			}
-		}
+		} else
+			gr.addReserva(reserva);
+		Db.dbInsertarReserva(gr);
 		return true;
 	}
 	

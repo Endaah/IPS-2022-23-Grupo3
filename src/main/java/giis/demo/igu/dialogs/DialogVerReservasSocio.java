@@ -19,6 +19,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.VentanaSocio;
+import giis.demo.model.GrupoReservas;
 import giis.demo.model.ReservaInstalacion;
 import giis.demo.model.data.ModelSocio;
 import javax.swing.JTextField;
@@ -30,11 +31,11 @@ public class DialogVerReservasSocio extends JDialog {
 	private int userId;
 	private ModelSocio model;
 	private JScrollPane scPaneLista;
-	private JList<ReservaInstalacion> listReservas;
+	private JList<GrupoReservas> listReservas;
 	private JLabel lblTitulo;
 	private JButton btnEliminarReserva;
 	
-	private DefaultListModel<ReservaInstalacion> modelList;
+	private DefaultListModel<GrupoReservas> modelList;
 	private JButton btnVolver;
 	private JLabel lblNewLabel;
 	private JTextField txPrecio;
@@ -66,7 +67,7 @@ public class DialogVerReservasSocio extends JDialog {
 		}
 		return scPaneLista;
 	}
-	private JList<ReservaInstalacion> getListReservas() {
+	private JList<GrupoReservas> getListReservas() {
 		if (listReservas == null) {
 			listReservas = new JList<>();
 			
@@ -88,7 +89,7 @@ public class DialogVerReservasSocio extends JDialog {
 	}
 	
 	private void showReservas() {
-		List<ReservaInstalacion> reservas = model.getListReservasFor(userId);
+		List<GrupoReservas> reservas = model.getListReservasFor(userId);
 		modelList.clear();
 		modelList.addAll(reservas);
 	}
@@ -124,16 +125,18 @@ public class DialogVerReservasSocio extends JDialog {
 		if (res != JOptionPane.YES_OPTION) {
 			return;
 		}
-		ReservaInstalacion reserva = listReservas.getSelectedValue();
+		GrupoReservas gr = listReservas.getSelectedValue();
 		
-		if (!model.checkPuedoBorrarReserva(reserva.getFecha())) {
+		if (!model.checkPuedoBorrarReserva(gr.getReservas()[0].getFecha())) {
 			VentanaSocio.showMessage("Puede anular como muy tarde el dia anterior a la reserva", 
 					"No puede anular la reserva", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
 		
-		model.anularReservaInstalacion(
+		for (ReservaInstalacion reserva : gr.getReservas()) {
+			model.anularReservaInstalacion(
 				reserva.getInstalacion(), reserva.getFecha(), reserva.getHora());
+		}
 	}
 	
 	

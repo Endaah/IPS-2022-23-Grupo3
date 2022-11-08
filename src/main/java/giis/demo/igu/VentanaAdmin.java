@@ -13,6 +13,7 @@ import giis.demo.igu.dialogs.DialogTipoActividad;
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
+import giis.demo.model.Socio;
 import giis.demo.model.TipoActividad;
 import giis.demo.util.Db;
 
@@ -38,6 +39,9 @@ import java.awt.Component;
 import javax.swing.Box;
 import java.awt.FlowLayout;
 import javax.swing.ListSelectionModel;
+import javax.swing.JTextField;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class VentanaAdmin extends JFrame {
 
@@ -59,7 +63,7 @@ public class VentanaAdmin extends JFrame {
 	private JLabel lblTiposActividad;
 	private JLabel lblActividades;
 	private JScrollPane spTiposActividad;
-	private JScrollPane scrollPane;
+	private JScrollPane spActividades;
 	private JList<TipoActividad> listTiposActividad;
 	private JList<Actividad> listActividades;
 	private Component horizontalStrutActividadesDcha;
@@ -72,8 +76,14 @@ public class VentanaAdmin extends JFrame {
 	private JButton btnAnularReserva;
 	private JButton btnVerReservas;
 	private JLabel lblPagos;
-	private JPanel panel;
+	private JPanel pnPagos;
 	private JButton btnNewButton;
+	private Component horizontalStrut_1;
+	private Component horizontalStrut_2;
+	private JScrollPane spPagosSocios;
+	private JScrollPane scrollPane_2;
+	private JTextField tfBuscarSocios;
+	private JList<Socio> listSocios;
 	
 	/**
 	 * Create the frame.
@@ -240,7 +250,9 @@ public class VentanaAdmin extends JFrame {
 			pnAdminDerecha = new JPanel();
 			pnAdminDerecha.setLayout(new BorderLayout(0, 0));
 			pnAdminDerecha.add(getLblPagos(), BorderLayout.NORTH);
-			pnAdminDerecha.add(getPanel(), BorderLayout.CENTER);
+			pnAdminDerecha.add(getPnPagos(), BorderLayout.CENTER);
+			pnAdminDerecha.add(getHorizontalStrut_1(), BorderLayout.WEST);
+			pnAdminDerecha.add(getHorizontalStrut_2(), BorderLayout.EAST);
 		}
 		return pnAdminDerecha;
 	}
@@ -277,7 +289,7 @@ public class VentanaAdmin extends JFrame {
 			pnActividad.setLayout(new BorderLayout(0, 0));
 			pnActividad.add(getBtnCrearActividad(), BorderLayout.SOUTH);
 			pnActividad.add(getLblActividades(), BorderLayout.NORTH);
-			pnActividad.add(getScrollPane(), BorderLayout.CENTER);
+			pnActividad.add(getSpActividades(), BorderLayout.CENTER);
 		}
 		return pnActividad;
 	}
@@ -300,12 +312,12 @@ public class VentanaAdmin extends JFrame {
 		}
 		return spTiposActividad;
 	}
-	private JScrollPane getScrollPane() {
-		if (scrollPane == null) {
-			scrollPane = new JScrollPane();
-			scrollPane.setViewportView(getListActividades());
+	private JScrollPane getSpActividades() {
+		if (spActividades == null) {
+			spActividades = new JScrollPane();
+			spActividades.setViewportView(getListActividades());
 		}
-		return scrollPane;
+		return spActividades;
 	}
 	private JList<TipoActividad> getListTiposActividad() {
 		if (listTiposActividad == null) {
@@ -425,10 +437,67 @@ public class VentanaAdmin extends JFrame {
 		}
 		return lblPagos;
 	}
-	private JPanel getPanel() {
-		if (panel == null) {
-			panel = new JPanel();
+	private JPanel getPnPagos() {
+		if (pnPagos == null) {
+			pnPagos = new JPanel();
+			pnPagos.setLayout(new GridLayout(2, 0, 0, 0));
+			pnPagos.add(getSpPagosSocios());
+			pnPagos.add(getScrollPane_2());
 		}
-		return panel;
+		return pnPagos;
+	}
+	private Component getHorizontalStrut_1() {
+		if (horizontalStrut_1 == null) {
+			horizontalStrut_1 = Box.createHorizontalStrut(20);
+		}
+		return horizontalStrut_1;
+	}
+	private Component getHorizontalStrut_2() {
+		if (horizontalStrut_2 == null) {
+			horizontalStrut_2 = Box.createHorizontalStrut(20);
+		}
+		return horizontalStrut_2;
+	}
+	private JScrollPane getSpPagosSocios() {
+		if (spPagosSocios == null) {
+			spPagosSocios = new JScrollPane();
+			spPagosSocios.setColumnHeaderView(getTfBuscarSocios());
+			spPagosSocios.setViewportView(getListSocios());
+		}
+		return spPagosSocios;
+	}
+	private JScrollPane getScrollPane_2() {
+		if (scrollPane_2 == null) {
+			scrollPane_2 = new JScrollPane();
+		}
+		return scrollPane_2;
+	}
+	private JTextField getTfBuscarSocios() {
+		if (tfBuscarSocios == null) {
+			tfBuscarSocios = new JTextField();
+			tfBuscarSocios.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyReleased(KeyEvent e) {
+					actualizarListaSocios();
+				}
+			});
+			tfBuscarSocios.setColumns(10);
+		}
+		return tfBuscarSocios;
+	}
+	private void actualizarListaSocios() {
+		getListSocios().setModel(getModelSocios());
+	}
+	private DefaultListModel<Socio> getModelSocios() {
+		DefaultListModel<Socio> model = new DefaultListModel<Socio>();
+		for (Socio s : Db.getSociosConReserva()) {
+			model.addElement(s);
+		} return model;
+	}
+	private JList<Socio> getListSocios() {
+		if (listSocios == null) {
+			listSocios = new JList<Socio>();
+		}
+		return listSocios;
 	}
 }

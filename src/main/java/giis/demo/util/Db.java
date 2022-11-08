@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import giis.demo.model.Actividad;
+import giis.demo.model.GrupoReservas;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
@@ -102,8 +103,8 @@ public class Db {
 	public static List<Socio> getSociosConReserva() {
 		List<Socio> sociosConReserva = new ArrayList<Socio>();
 		for (Socio s : getSocios())
-			for (ReservaInstalacion rI : getReservasSocio(s)) {
-				if (rI.getAnulada() == 0) {
+			for (GrupoReservas gr : getReservasSocio(s)) {
+				if (gr.getReservas()[0].getAnulada() == 0) {
 					sociosConReserva.add(s);
 					break;
 				}
@@ -111,18 +112,20 @@ public class Db {
 		return sociosConReserva;
 	}
 	
-	public static List<ReservaInstalacion> getReservasSocio(Socio socio) {
-		String query = "SELECT I_NOMBRE, R_DIA, R_HORA FROM RESERVA "
+	public static List<GrupoReservas> getReservasSocio(Socio socio) {
+		String query = "SELECT I_NOMBRE, R_DIA, R_HORA, R_ID FROM RESERVA "
 				+ "WHERE RESERVA.S_ID = ? "
 				+ "AND RESERVA.R_DIA > ?";
 		ResultSet rs = sqlExecute(query, Arrays.asList(socio.getId(), Date.valueOf(LocalDate.now())));
-		List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
+		List<GrupoReservas> reservas = new ArrayList<GrupoReservas>();
 		try {
 			while(rs.next()) {
-				for (ReservaInstalacion rI : GymControlador.getInstalacionesDisponibles().get(rs.getString(1)).getReservas()) {
-					if (Date.valueOf(rI.getFecha()).compareTo(rs.getDate(2)) == 0
-							&& rI.getHora() == rs.getInt(3) && rI.getIdSocio() == socio.getId())
-						reservas.add(rI);
+				for (GrupoReservas gr : GymControlador.getInstalacionesDisponibles().get(rs.getString(1)).getReservas()) {
+					for (ReservaInstalacion rI : gr.getReservas()) {
+						if (!reservas.contains(gr) && Date.valueOf(rI.getFecha()).equals(rs.getDate(2))
+								&& rI.getHora() == rs.getInt(3))
+							reservas.add(gr);
+					}
 				}
 			}
 		} catch (SQLException e) {
@@ -219,11 +222,13 @@ public class Db {
 	 * Inserta una reserva de instalación a la base de datos, en la tabla Reserva
 	 * @param r Reserva a insertar en la bd
 	 */
-	public static void dbInsertarReserva(ReservaInstalacion r) {
-		String query = "INSERT INTO \"RESERVA\" VALUES (?, ?, ?, ?, ?)";
+	public static void dbInsertarReserva(GrupoReservas gr) {
+		String query = "INSERT INTO \"RESERVA\" VALUES (?, ?, ?, ?, ?, ?)";
 		
-		List<Object> params = Arrays.asList(r.getIdSocio(), r.getInstalacion(), Date.valueOf(r.getFecha()), r.getHora(), 0);
-		sqlInsertParam(query, params);
+		for (ReservaInstalacion rI : gr.getReservas()) {
+			List<Object> params = Arrays.asList(rI.getIdSocio(), rI.getInstalacion(), Date.valueOf(rI.getFecha()), rI.getHora(), 0, rI.getIdReserva());
+			sqlInsertParam(query, params);
+		}
 	}
 	
 	// ============ ACTUALIZAR DATOS ==============
@@ -289,7 +294,7 @@ public class Db {
 				+ "WHERE I_NOMBRE = ?";
 		String queryRes = "SELECT * FROM RESERVA "
 				+ "WHERE I_NOMBRE = ?";
-		String queryAct = "SELECT A_DIA, A_INI, A_FIN FROM ACTIVIDAD "
+		String queryAct = "SELECT A_ID, A_DIA, A_INI, A_FIN FROM ACTIVIDAD "
 				+ "WHERE I_NOMBRE = ?";
 		
 		HashMap<String, Instalacion> instalaciones = new HashMap<String, Instalacion>();
@@ -307,17 +312,29 @@ public class Db {
 						tmp.add(r);
 				}
 				rsRes = sqlExecute(queryRes, Arrays.asList(rsI.getString(1)));
-				List<ReservaInstalacion> reservas = new ArrayList<ReservaInstalacion>();
+				List<GrupoReservas> reservas = new ArrayList<GrupoReservas>();
 				while (rsRes.next()) {
-					ReservaInstalacion rI = new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5));
-					reservas.add(rI);
+					boolean added = false;
+					for (GrupoReservas gr : reservas) {
+						if (gr.getIdReserva() == rsRes.getInt(6) && gr.getIdSocio() == rsRes.getInt(1)) {
+							gr.addReserva(new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5), rsRes.getInt(6)));
+							added = true;
+							break;
+						}
+					} if (!added) {
+						GrupoReservas gr = new GrupoReservas(rsRes.getInt(6), rsRes.getInt(1));
+						gr.addReserva(new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5), rsRes.getInt(6)));
+						reservas.add(gr);
+					}
 				}
 				rsAct = sqlExecute(queryAct, Arrays.asList(rsI.getString(1)));
 				while(rsAct.next()) {
-					for (int i = 0; i < rsAct.getInt(3) - rsAct.getInt(2); i++) {
-						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(1).toLocalDate(), rsAct.getInt(2) + i, rsI.getString(1), 0);
-						reservas.add(rI);
+					GrupoReservas gr = new GrupoReservas(rsAct.getInt(1), 0);
+					for (int i = 0; i < rsAct.getInt(4) - rsAct.getInt(3); i++) {
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(2).toLocalDate(), rsAct.getInt(3) + i, rsI.getString(1), 0, rsAct.getInt(1));
+						gr.addReserva(rI);
 					}
+					reservas.add(gr);
 				}
 				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), tmp, reservas));
 			}

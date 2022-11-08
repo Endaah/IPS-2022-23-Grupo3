@@ -4,6 +4,8 @@ import java.time.LocalDate;
 
 public class ReservaInstalacion {
 
+	public static final int ID_ACTIVIDAD = 0;
+	
 	public static final int CANCELADA = 1;
 	public static final int VALIDA = 0;
 	
@@ -12,9 +14,10 @@ public class ReservaInstalacion {
 	private int hora;
 	private String instalacion;
 	private int anulada;
+	private int idReserva;
 	private int precio = 2;
 	
-	public ReservaInstalacion(int idSocio, LocalDate fecha, int hora, String instalacion, int anulada) {
+	public ReservaInstalacion(int idSocio, LocalDate fecha, int hora, String instalacion, int anulada, int id) {
 		this.idSocio = idSocio;
 		this.fecha = fecha;
 		this.hora = hora;
@@ -28,6 +31,7 @@ public class ReservaInstalacion {
 		this.hora = reserva.getHora() + 1;
 		this.instalacion = reserva.getInstalacion();
 		this.anulada = reserva.getAnulada();
+		this.idReserva = reserva.getIdReserva();
 	}
 	
 	public int getIdSocio() {
@@ -52,6 +56,10 @@ public class ReservaInstalacion {
 	
 	public String getInstalacion() {
 		return instalacion;
+	}
+	
+	public int getIdReserva() {
+		return idReserva;
 	}
 	
 	@Override
