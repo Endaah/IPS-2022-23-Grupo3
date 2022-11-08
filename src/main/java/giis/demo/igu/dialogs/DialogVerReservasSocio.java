@@ -81,10 +81,10 @@ public class DialogVerReservasSocio extends JDialog {
 	}
 	
 	private void showPrecio() {
+		List<GrupoReservas> reservas = model.getListReservasFor(userId);
 		int precio = 0;
-		for(int i = 0; i < model.getListReservasFor(userId).size(); i++) {
-			precio = precio + model.getListReservasFor(userId).get(i).getPrecio();
-		}
+		for (GrupoReservas gr : reservas)
+			precio += gr.getPrecio();
 		txPrecio.setText(precio+"€");
 	}
 	
@@ -169,6 +169,7 @@ public class DialogVerReservasSocio extends JDialog {
 			txPrecio.setEditable(false);
 			txPrecio.setBounds(468, 22, 65, 47);
 			txPrecio.setColumns(10);
+			showPrecio();
 		}
 		return txPrecio;
 	}

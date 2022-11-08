@@ -151,11 +151,12 @@ public class Instalacion {
 		ReservaInstalacion reserva = new ReservaInstalacion(idSocio, fecha, hora, nombre, 0, idReserva);
 		if (larga) {
 			for(int i = 8 ; i < 23; i++) {
-					reserva = new ReservaInstalacion(reserva);
 					gr.addReserva(reserva);
+					reserva = new ReservaInstalacion(reserva);
 			}
 		} else
 			gr.addReserva(reserva);
+		reservas.add(gr);
 		Db.dbInsertarReserva(gr);
 		return true;
 	}

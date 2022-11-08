@@ -13,6 +13,7 @@ public class GrupoReservas {
 	public GrupoReservas(int idReserva, int idSocio, int precioReservas) {
 		this.idSocio = idSocio;
 		this.idReserva = idReserva;
+		this.precioReservas = precioReservas;
 		this.reservas = new ArrayList<ReservaInstalacion>();
 	}
 	
