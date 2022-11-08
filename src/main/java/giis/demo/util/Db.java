@@ -177,7 +177,7 @@ public class Db {
 				ReservaInstalacion rI = grupo.getReservas()[0];
 				if (rI.getIdSocio() != 0
 						&& ((rI.getFecha().getDayOfMonth() >= 20
-								&& rI.getFecha().getMonth().plus(-1) == LocalDate.now().getMonth().plus(mes)
+								&& rI.getFecha().getMonth().plus(1) == LocalDate.now().getMonth().plus(mes)
 								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12)
 							|| (rI.getFecha().getDayOfMonth() < 20 
 								&& rI.getFecha().getMonth() == LocalDate.now().getMonth().plus(mes)
