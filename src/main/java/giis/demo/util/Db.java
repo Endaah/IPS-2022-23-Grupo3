@@ -406,7 +406,9 @@ public class Db {
 				{
 					rcUsados.add(GymControlador.getRecursosDisponibles().get(rsRC.getString(1)));
 				}
-				tiposActividad.put(rsTA.getString(1), new TipoActividad(new ArrayList<>(rcUsados), rsTA.getString(1), rsTA.getString(2)));
+				String nombreTA = rsTA.getString(1);
+				String intensidadTA = rsTA.getString(2);
+				tiposActividad.put(rsTA.getString(1), new TipoActividad(new ArrayList<>(rcUsados), nombreTA, intensidadTA));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

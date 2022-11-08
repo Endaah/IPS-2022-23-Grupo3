@@ -23,13 +23,13 @@ public class TipoActividad {
 	
 	private void setIntensidad(String intensidad) {
 		switch(intensidad) {
-		case "Alta":
+		case "alta":
 			this.intensidad = Intensidad.ALTA;
 			break;
-		case "Media":
+		case "media":
 			this.intensidad = Intensidad.MEDIA;
 			break;
-		case "Baja":
+		case "baja":
 			this.intensidad = Intensidad.BAJA;
 			break;
 		}
@@ -40,7 +40,7 @@ public class TipoActividad {
 	}
 	
 	public String getIntensidad() {
-		return intensidad.toString();
+		return intensidad.toString().toLowerCase();
 	}
 	
 	public List<Recurso> getRecurso() {
