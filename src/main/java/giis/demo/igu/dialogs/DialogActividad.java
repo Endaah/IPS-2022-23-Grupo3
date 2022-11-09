@@ -16,6 +16,7 @@ import javax.swing.JOptionPane;
 import com.toedter.calendar.JCalendar;
 
 import giis.demo.igu.VentanaAdmin;
+import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.TipoActividad;
@@ -142,7 +143,7 @@ public class DialogActividad extends JDialog {
 		java.sql.Date date = new java.sql.Date(calendar.getDate().getTime());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
-		int plazas = 0;
+		int plazas = Actividad.ACTIVIDADILIMITADA;
 		String instalacion = ((Instalacion) getCmbIns().getSelectedItem()).getNombre();
 		if (!ta.getRecurso().isEmpty()) {
 			int menor = ta.getRecurso().get(0).getCantidad();

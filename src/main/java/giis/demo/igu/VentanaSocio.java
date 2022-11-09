@@ -256,6 +256,11 @@ public class VentanaSocio extends JFrame {
 					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
+		if (actList.getSelectedValue().getPlazas() == 0) {
+			showMessage("Esta actividad esta completa",
+					"Aviso - Actividad sin plazas libres", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
 		Actividad actividad = actList.getSelectedValue();
 		if (!model.checkPuedoApuntarme(actividad.getDia(), actividad.getIni())) {
 			showMessage("No puedes apuntarte a esta actividad, debe ser maximo un "

@@ -3,7 +3,7 @@ package giis.demo.model;
 import java.sql.Date;
 
 public class Actividad {
-public final static int ACTIVIDADILIMITADA = 0;
+public final static int ACTIVIDADILIMITADA = -1;
 	
 	private int id;
 	private String nombre;
@@ -34,6 +34,8 @@ public final static int ACTIVIDADILIMITADA = 0;
 		aux += ") ";
 		if (plazas == ACTIVIDADILIMITADA) {
 			aux += "SIN LIMITE DE PLAZAS, ";
+		} else if (plazas == 0) {
+			aux += "ACTIVIDAD COMPLETA, ";
 		} else {
 			aux += plazas;
 			aux += " PLAZAS, ";
