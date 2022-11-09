@@ -493,7 +493,8 @@ public class ModelSocio {
 		    ResultSet rs = pst.executeQuery();
 		    
 		    while(rs.next()) {
-		    	return true;
+		    	System.out.println("Instalacion no libre");
+		    	return false;
 			}
 		    
 		    rs.close();
@@ -504,7 +505,7 @@ public class ModelSocio {
 			// TODO Auto-generated catch block
 			System.err.println("Error comprobando disponibilidad de instalacion");
 		}
-		return false;
+		return true;
 	}
 	
 	/**
