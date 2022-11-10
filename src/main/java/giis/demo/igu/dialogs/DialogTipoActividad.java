@@ -8,6 +8,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import giis.demo.igu.VentanaAdmin;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Recurso;
 
@@ -31,6 +32,8 @@ public class DialogTipoActividad extends JDialog {
 	
 	private static final long serialVersionUID = 1L;
 	
+	private VentanaAdmin vA;
+	
 	private final JPanel contentPanel = new JPanel();
 	private JScrollPane spListaRecursos;
 	private JList<Recurso> listRecursos;
@@ -44,8 +47,9 @@ public class DialogTipoActividad extends JDialog {
 	/**
 	 * Create the dialog.
 	 */
-	public DialogTipoActividad() {
+	public DialogTipoActividad(VentanaAdmin vA) {
 		setTitle("Crear un Tipo de Actividad");
+		this.vA = vA;
 		setResizable(false);
 		setBounds(100, 100, 666, 231);
 		getContentPane().setLayout(new BorderLayout());
@@ -93,6 +97,7 @@ public class DialogTipoActividad extends JDialog {
 			return;
 		}
 		crearTipoActividad();
+		vA.actualizarListaTiposActividad();
 		dispose();
 	}
 	private void crearTipoActividad() {
