@@ -126,7 +126,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private void abrirDialogoActividad() {
 		try {
-			DialogTipoActividad dialog = new DialogTipoActividad();
+			DialogTipoActividad dialog = new DialogTipoActividad(this);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -342,9 +342,12 @@ public class VentanaAdmin extends JFrame {
 			listTiposActividad = new JList<TipoActividad>();
 			listTiposActividad.setFont(new Font("Arial", Font.PLAIN, 12));
 			listTiposActividad.setEnabled(false);
-			listTiposActividad.setModel(getModelTipos());
+			actualizarListaTiposActividad();
 		}
 		return listTiposActividad;
+	}
+	public void actualizarListaTiposActividad() {
+		listTiposActividad.setModel(getModelTipos());
 	}
 	private DefaultListModel<TipoActividad> getModelTipos() {
 		DefaultListModel<TipoActividad> model = new DefaultListModel<TipoActividad>();

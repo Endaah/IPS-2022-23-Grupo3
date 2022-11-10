@@ -22,7 +22,7 @@ public class TipoActividad {
 	}
 	
 	private void setIntensidad(String intensidad) {
-		switch(intensidad) {
+		switch(intensidad.toLowerCase()) {
 		case "alta":
 			this.intensidad = Intensidad.ALTA;
 			break;
@@ -57,7 +57,7 @@ public class TipoActividad {
 	
 	@Override
 	public String toString() {
-		String res = nombre + " - " + intensidad;
+		String res = nombre + " - " + intensidad.toString().toLowerCase();
 		return res;
 	}
 }
