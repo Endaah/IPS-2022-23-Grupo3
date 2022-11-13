@@ -28,10 +28,12 @@ public final static int ACTIVIDADILIMITADA = -1;
 		String aux = "ID: ";
 		aux += id;
 		aux += ", (";
+		aux += dia;
+		aux += "- (";
 		aux += ini;
 		aux += "-";
 		aux += fin;
-		aux += ") ";
+		aux += " )) ";
 		if (plazas == ACTIVIDADILIMITADA) {
 			aux += "SIN LIMITE DE PLAZAS, ";
 		} else if (plazas == 0) {
@@ -41,6 +43,10 @@ public final static int ACTIVIDADILIMITADA = -1;
 			aux += " PLAZAS, ";
 		}
 		aux += nombre;
+		if (instalacion != null) {
+			aux += ", ";
+			aux += instalacion.getNombre();
+		}
 		return aux;
 	}
 
