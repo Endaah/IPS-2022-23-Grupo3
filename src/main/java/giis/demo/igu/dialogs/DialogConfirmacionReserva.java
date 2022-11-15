@@ -121,12 +121,13 @@ public class DialogConfirmacionReserva extends JDialog {
 		int hora = Integer.parseInt(tiempo[1]);
 		boolean larga = getRdbt2horas().isSelected();
 		
-		if (!i.reservar(listSocios.getSelectedValue().getId(), fecha, hora, larga))
-			JOptionPane.showMessageDialog(this, "No se ha podido efectuar la reserva");
+		motivo = i.reservar(listSocios.getSelectedValue().getId(), fecha, hora, larga);
+		if (!motivo.isBlank())
+			JOptionPane.showMessageDialog(this, "No se ha podido efectuar la reserva:\n" + motivo);
 		else {
-			dri.setHoraOcupada(boton1);
+			dri.setHoraReservada(boton1, listSocios.getSelectedValue());
 			if (larga) {
-				dri.setHoraOcupada(boton2Id);
+				dri.setHoraReservada(boton2Id, listSocios.getSelectedValue());
 			}
 				
 		}

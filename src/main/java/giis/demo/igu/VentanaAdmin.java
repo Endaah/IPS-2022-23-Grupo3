@@ -82,7 +82,6 @@ public class VentanaAdmin extends JFrame {
 	private JScrollPane spInstalaciones;
 	private JList<Instalacion> listInstalaciones;
 	private JButton btnAnularReserva;
-	private JButton btnVerReservas;
 	private JLabel lblPagos;
 	private JPanel pnPagos;
 	private JButton btnNewButton;
@@ -405,7 +404,6 @@ public class VentanaAdmin extends JFrame {
 			pnBotonesInstalaciones = new JPanel();
 			pnBotonesInstalaciones.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
 			pnBotonesInstalaciones.add(getBtnReservarInstalacion());
-			pnBotonesInstalaciones.add(getBtnVerReservas());
 			pnBotonesInstalaciones.add(getBtnAnularReserva());
 			pnBotonesInstalaciones.add(getBtnNewButton());
 		}
@@ -445,12 +443,6 @@ public class VentanaAdmin extends JFrame {
 			});
 		}
 		return btnAnularReserva;
-	}
-	private JButton getBtnVerReservas() {
-		if (btnVerReservas == null) {
-			btnVerReservas = new JButton("Ver Reservas");
-		}
-		return btnVerReservas;
 	}
 	private JLabel getLblPagos() {
 		if (lblPagos == null) {

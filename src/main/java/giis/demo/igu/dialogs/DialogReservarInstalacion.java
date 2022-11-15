@@ -38,6 +38,7 @@ import javax.swing.JRadioButton;
 import javax.swing.ButtonGroup;
 import javax.swing.JScrollPane;
 import java.awt.GridLayout;
+import javax.swing.ScrollPaneConstants;
 
 public class DialogReservarInstalacion extends JDialog {
 
@@ -116,6 +117,7 @@ public class DialogReservarInstalacion extends JDialog {
 	private JScrollPane getSpCalendarioReservas() {
 		if (spCalendarioReservas == null) {
 			spCalendarioReservas = new JScrollPane();
+			spCalendarioReservas.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 			spCalendarioReservas.setBounds(10, 55, 736, 286);
 			spCalendarioReservas.setColumnHeaderView(getPnDias());
 			spCalendarioReservas.setViewportView(getPnCalendarioInner());
@@ -193,16 +195,26 @@ public class DialogReservarInstalacion extends JDialog {
 		
 		boton.setName(String.valueOf(i * 7 + j));;
 		
-		boolean ocupada = false;
+		boolean reservada = false;
+		boolean actividad = false;
+		Socio s = null;
 		for (GrupoReservas gr : instalacionSeleccionada.getReservas()) {
 			for (ReservaInstalacion rI : gr.getReservas())
 				if (rI.getFecha().equals(dia) && rI.getHora() == hora && rI.getAnulada() == 0) {
-						ocupada = true;
-						break;
+						if (gr.getIdSocio() == 0) {
+							actividad = true;
+							break;
+						} else {
+							reservada = true;
+							s = Db.getSocio(rI.getIdSocio());
+							break;
+						}
 				}	
 		}
-		if (ocupada) {
-			setHoraOcupada(boton);
+		if (actividad) {
+			setHoraOcupadaActividad(boton);
+		} else if (reservada) {
+			setHoraReservada(boton, s);
 		} else {
 			boton.setBackground(Color.white);
 			boton.addActionListener(new ActionListener() {
@@ -212,7 +224,7 @@ public class DialogReservarInstalacion extends JDialog {
 			});
 		}
 		
-		if (!ocupada && dia.equals(LocalDate.now()) && hora <= LocalDateTime.now().getHour() + 1) {
+		if (!(reservada || actividad) && dia.equals(LocalDate.now()) && hora <= LocalDateTime.now().getHour() + 1) {
 			boton.setEnabled(false);
 			boton.setBackground(Color.lightGray);
 		}
@@ -220,14 +232,20 @@ public class DialogReservarInstalacion extends JDialog {
 		boton.setActionCommand(dia.toString() + " " + hora);
 		return boton;
 	}
-	public void setHoraOcupada(JButton boton) {
+	public void setHoraOcupadaActividad(JButton boton) {
 		boton.setBackground(Color.red);
 		boton.setEnabled(false);
+		boton.setText("Actividad");
 	}
-	public void setHoraOcupada(int botonId) {
+	public void setHoraReservada(JButton boton, Socio s) {
+		boton.setBackground(Color.yellow);
+		boton.setEnabled(false);
+		boton.setText("Reserva");
+	}
+	public void setHoraReservada(int botonId, Socio s) {
 		for (Component boton : getPnBotones().getComponents()) {
 			if (Integer.parseInt(boton.getName()) == botonId)
-				setHoraOcupada((JButton) boton);
+				setHoraReservada((JButton) boton, s);
 		}
 	}
 }

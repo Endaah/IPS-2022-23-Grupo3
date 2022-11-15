@@ -7,9 +7,7 @@ import java.awt.event.ActionListener;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -27,14 +25,12 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
 
 import giis.demo.igu.dialogs.DialogReservaInstalacionSocio;
+import giis.demo.igu.dialogs.DialogVerActividadesSocio;
 import giis.demo.igu.dialogs.DialogVerReservasSocio;
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
-import giis.demo.model.Recurso;
-import giis.demo.model.ReservaInstalacion;
 import giis.demo.model.data.ModelSocio;
-import javax.swing.border.LineBorder;
 
 public class VentanaSocio extends JFrame {
 
@@ -73,6 +69,7 @@ public class VentanaSocio extends JFrame {
 	private JButton btnVerInstalaciones;
 	private JLabel lblNewLabel;
 	private JSpinner spnHora;
+	private JButton btnVerActividades;
 
 	/**
 	 * Create the frame.
@@ -105,7 +102,7 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getBtnFecha());
 		contentPane.add(getScPaneList());
 		contentPane.add(getBtnApuntarse());
-		contentPane.add(getBtnBorrar());
+//		contentPane.add(getBtnBorrar());
 		contentPane.add(getBtnReservarInstalacion());
 		contentPane.add(getBtnVerReservas());
 		contentPane.add(getLblInstalacionesDisponibles());
@@ -113,6 +110,7 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getBtnVerInstalaciones());
 		contentPane.add(getLblNewLabel());
 		contentPane.add(getSpnHora());
+		contentPane.add(getBtnVerActividades());
 		
 		this.setVisible(true);
 	}
@@ -128,7 +126,7 @@ public class VentanaSocio extends JFrame {
 		if (lblDia == null) {
 			lblDia = new JLabel("Selecciona un dia:");
 			lblDia.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblDia.setBounds(456, 92, 127, 27);
+			lblDia.setBounds(456, 55, 127, 27);
 		}
 		return lblDia;
 	}
@@ -136,7 +134,7 @@ public class VentanaSocio extends JFrame {
 		if (spDay == null) {
 			spDay = new JSpinner();
 			spDay.setModel(new SpinnerNumberModel(today.getTime().getDate(), 1, 31, 1));
-			spDay.setBounds(584, 98, 41, 20);
+			spDay.setBounds(584, 61, 41, 20);
 		}
 		return spDay;
 	}
@@ -144,7 +142,7 @@ public class VentanaSocio extends JFrame {
 		if (lblMonth == null) {
 			lblMonth = new JLabel("Selecciona un mes:");
 			lblMonth.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblMonth.setBounds(456, 129, 127, 27);
+			lblMonth.setBounds(456, 92, 127, 27);
 		}
 		return lblMonth;
 	}
@@ -152,7 +150,7 @@ public class VentanaSocio extends JFrame {
 		if (spMonth == null) {
 			spMonth = new JSpinner();
 			spMonth.setModel(new SpinnerNumberModel(today.getTime().getMonth()+MONTHCORRECTION, 1, 12, 1));
-			spMonth.setBounds(584, 135, 41, 20);
+			spMonth.setBounds(584, 98, 41, 20);
 		}
 		return spMonth;
 	}
@@ -162,7 +160,7 @@ public class VentanaSocio extends JFrame {
 			spYear = new JSpinner();
 			spYear.setModel(new SpinnerNumberModel(today.getTime().getYear()+YEARCORRECTION,
 					today.getTime().getYear()+YEARCORRECTION, 2023, 1));
-			spYear.setBounds(568, 172, 57, 20);
+			spYear.setBounds(568, 135, 57, 20);
 		}
 		return spYear;
 	}
@@ -170,7 +168,7 @@ public class VentanaSocio extends JFrame {
 		if (lblYear == null) {
 			lblYear = new JLabel("Año:");
 			lblYear.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblYear.setBounds(456, 166, 41, 27);
+			lblYear.setBounds(456, 129, 41, 27);
 		}
 		return lblYear;
 	}
@@ -280,31 +278,31 @@ public class VentanaSocio extends JFrame {
 		model.restarPlaza(actId);
 	}
 	
-	private JButton getBtnBorrar() {
-		if (btnBorrar == null) {
-			btnBorrar = new JButton("Borrarme");
-			btnBorrar.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					eliminar();
-				}
-			});
-			btnBorrar.setBackground(Color.RED);
-			btnBorrar.setBounds(290, 213, 142, 34);
-		}
-		return btnBorrar;
-	}
+//	private JButton getBtnBorrar() {
+//		if (btnBorrar == null) {
+//			btnBorrar = new JButton("Borrarme");
+//			btnBorrar.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent e) {
+//					eliminar();
+//				}
+//			});
+//			btnBorrar.setBackground(Color.RED);
+//			btnBorrar.setBounds(290, 213, 142, 34);
+//		}
+//		return btnBorrar;
+//	}
 	
-	private void eliminar() {
-		if (actList.getSelectedValue() == null ||
-				actList.getSelectedValue().getPlazas() == Actividad.ACTIVIDADILIMITADA) {
-			showMessage("Asegurese de que ha escogido una actividad con limite de plazas.",
-					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
-			return;
-		}
-		int actId = actList.getSelectedValue().getId();
-		int userId = model.askForIdSocio();
-		model.eliminarReservaActividad(userId, actId);
-	}
+//	private void eliminar() {
+//		if (actList.getSelectedValue() == null ||
+//				actList.getSelectedValue().getPlazas() == Actividad.ACTIVIDADILIMITADA) {
+//			showMessage("Asegurese de que ha escogido una actividad con limite de plazas.",
+//					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
+//			return;
+//		}
+//		int actId = actList.getSelectedValue().getId();
+//		int userId = model.askForIdSocio();
+//		model.eliminarReservaActividad(userId, actId);
+//	}
 	private JButton getBtnReservarInstalacion() {
 		if (btnReservarInstalacion == null) {
 			btnReservarInstalacion = new JButton("Reservar Instalación");
@@ -429,5 +427,23 @@ public class VentanaSocio extends JFrame {
 			spnHora.setBounds(566, 221, 48, 17);
 		}
 		return spnHora;
+	}
+	private JButton getBtnVerActividades() {
+		if (btnVerActividades == null) {
+			btnVerActividades = new JButton("Ver mis actividades");
+			btnVerActividades.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int userId = model.askForIdSocio();
+					DialogVerActividadesSocio dialog = new DialogVerActividadesSocio(model, userId);
+					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					dialog.setLocationRelativeTo(contentPane);
+					dialog.setModal(true);
+					dialog.setVisible(true);
+				}
+			});
+			btnVerActividades.setBackground(Color.WHITE);
+			btnVerActividades.setBounds(456, 168, 169, 27);
+		}
+		return btnVerActividades;
 	}
 }

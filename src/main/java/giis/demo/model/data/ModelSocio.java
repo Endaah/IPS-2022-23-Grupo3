@@ -690,7 +690,11 @@ public class ModelSocio {
 		return reservas;
 	}
 	
-	
+	/**
+	 * Comprueba en la db si la fecha de una reserva es valida para borrar una reserva
+	 * @param dia
+	 * @return
+	 */
 	public boolean checkPuedoBorrarReserva(LocalDate dia) {
 		Calendar now = Calendar.getInstance();
 		now.setTime(new Date(System.currentTimeMillis()));
@@ -704,6 +708,12 @@ public class ModelSocio {
 		return true;
 	}
 	
+	/**
+	 * Anula una reserva de una instalacion
+	 * @param nombreInst
+	 * @param dia
+	 * @param hora
+	 */
 	public void anularReservaInstalacion(String nombreInst, LocalDate dia, int hora) {
 		try {
 			Connection c = getConnection();
@@ -733,9 +743,59 @@ public class ModelSocio {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-//			System.err.println("Error anulando reserva");
+			System.err.println("Error anulando reserva");
 		}
 	}
+	
+	
+	public List<Actividad> showActividadesForSocio( int socioId ) {
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT * FROM Actividad ac, SEAPUNTA a "
+					+ "WHERE a.a_id = ac.a_id AND a.s_id = ?";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, socioId);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    int id;
+		    String nombre;
+		    Date dia;
+		    int ini;
+		    int fin;
+		    int plazas;
+		    String instalacion;
+		    while(rs.next()) {
+		    	System.out.println("Reservilla");
+		    	id = rs.getInt(1);
+				nombre = rs.getString(2);
+				dia = rs.getDate(3);
+				ini = rs.getInt(4);
+				fin = rs.getInt(5);
+				plazas = rs.getInt(6);
+				instalacion = rs.getString(7);
+				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion)));
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+//			System.err.println("Error obteniendo las actividades para un socio");
+		}
+		
+		return actividades;
+	}
+	
+	
 
 }
