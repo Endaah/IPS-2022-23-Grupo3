@@ -160,7 +160,7 @@ public class DialogAnularReserva extends JDialog {
 	}
 	private DefaultListModel<GrupoReservas> getModelReservas(Socio socio) {
 		DefaultListModel<GrupoReservas> model = new DefaultListModel<GrupoReservas>();
-		for (GrupoReservas gr : Db.getReservasSocio(socio))
+		for (GrupoReservas gr : Db.getReservasSocio(socio.getId()))
 			if (gr.getReservas()[0].getAnulada() == 0 && gr.getReservas()[0].getFecha().isAfter(LocalDate.now())) model.addElement(gr);
 		return model;
 	}

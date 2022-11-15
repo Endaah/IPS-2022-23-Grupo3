@@ -35,33 +35,31 @@ public class Instalacion {
 		return reservas.toArray(new GrupoReservas[reservas.size()]);
 	}
 	
-	public boolean reservar(int idSocio, LocalDate fecha, int hora, boolean larga) {
+	public String validarReserva(int idSocio, LocalDate fecha, int hora, boolean larga) {
+		String motivo = "";
 		if (fecha.getDayOfYear() - LocalDate.now().getDayOfYear() >= 8) {		// Si la reserva se ha hecho más de 7 días antes
-			System.err.println("No se ha realizado la reserva, "				// Avisar de que no se ha realizado
-					+ "las resrvas se deben hacer como mucho 7 días antes");
-			return false;
+			motivo += "Las resrvas se deben hacer como mucho 7 días antes\n";
 		}
 		
-		for (GrupoReservas gr : reservas) {							// Por cada reserva
+		for (GrupoReservas gr : reservas) {										// Por cada reserva
 			for (ReservaInstalacion ri : gr.getReservas()) {
 				if (ri.getAnulada() == 0) {
 					if (ri.getFecha().equals(fecha)
 							&& (ri.getHora() == hora
 								|| (larga && ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
-						System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-								+ "la instalación ya estaba reservada");
-						return false;
-					}
-					
-					if (ri.getFecha().equals(fecha)
-							&& (ri.getHora() == hora
-							|| (larga && (ri.getHora() == hora || ri.getHora() == hora + 1)))) {			// Si el socio ya tiene una reserva de instalación
-						System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-								+ "este socio ya tiene una reserva a esta hora");
-						return false;
+						motivo += "La instalación ya estaba reservada\n";
 					}
 				}
 			}
+		}
+		
+		for (GrupoReservas gr : Db.getReservasSocio(idSocio)) {
+			for (ReservaInstalacion ri : gr.getReservas())
+				if (ri.getFecha().equals(fecha)
+						&& (ri.getHora() == hora
+						|| (larga && (ri.getHora() == hora || ri.getHora() == hora + 1)))) {			// Si el socio ya tiene una reserva de instalación
+					motivo += "Este socio ya tiene una reserva a esta hora\n";
+				}
 		}
 		
 		for (Actividad a : Db.getActividadesDe(idSocio)) {
@@ -76,11 +74,16 @@ public class Instalacion {
 			}
 			
 			if (overlaps) {
-				System.err.println("No se ha realizado la reserva, "				// Avisar que no se ha realizado
-					+ "este socio ya está apuntado a una actividad a esta hora");
-				return false;
+				motivo += "Este socio ya está apuntado a una actividad a esta hora\n";
 			}
 		}
+		
+		return motivo;
+	}
+	
+	public String reservar(int idSocio, LocalDate fecha, int hora, boolean larga) {
+		String motivo = validarReserva(idSocio, fecha, hora, larga);
+		if (!motivo.isBlank()) return motivo;
 		
 		int idReserva = 0;
 		for (GrupoReservas gr : reservas)
@@ -94,7 +97,7 @@ public class Instalacion {
 		}
 		reservas.add(gr);
 		Db.dbInsertarReserva(gr);
-		return true;
+		return "";
 	}
 	
 	public void anularReserva(GrupoReservas gr) {
