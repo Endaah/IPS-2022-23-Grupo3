@@ -144,17 +144,17 @@ public class DialogActividad extends JDialog {
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
 		int plazas = Actividad.ACTIVIDADILIMITADA;
-		String instalacion = ((Instalacion) getCmbIns().getSelectedItem()).getNombre();
-		if (!ta.getRecurso().isEmpty()) {
-			int menor = ta.getRecurso().get(0).getCantidad();
-			for (int i = 1; i < ta.getRecurso().size(); i++) {
-				menor = menor > ta.getRecurso().get(i).getCantidad() ? ta.getRecurso().get(i).getCantidad() : menor;
+		Instalacion instalacion = ((Instalacion) getCmbIns().getSelectedItem());
+		if (instalacion.getRecurso().length >= 0) {
+			int menor = Integer.MAX_VALUE;
+			for (int i : instalacion.getCantidades().values()) {
+				menor = menor > i ? i : menor;
 			} plazas = menor;
 		} else {
 			plazas = (int) getSpnPlazas().getValue();
 		}
 		// TODO: Añadir seleccion de instalacion y sustituir el null por el nombre en este método addActividad() v
-		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas,instalacion);
+		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas,instalacion.getNombre());
 	}
 	private JLabel getLblNewLabel_1() {
 		if (lblNewLabel_1 == null) {

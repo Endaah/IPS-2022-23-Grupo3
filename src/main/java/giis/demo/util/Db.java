@@ -185,6 +185,20 @@ public class Db {
 		return actividades;
 	}
 	
+	public static int getNumeroRecursos(String rc, String i) {
+		String query = "SELECT RC_CANTIDAD FROM TIENE "
+				+ "WHERE RC_NOMBRE = ? AND I_NOMBRE = ?";
+		
+		ResultSet rs = sqlExecute(query, Arrays.asList(rc, i));
+		int res = 0;
+		try {
+			rs.next();
+			res = rs.getInt(1);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} return res;
+	}
+	
 	/**
 	 * Devuelve las reservas que se han realizado durante un mes, desde el dia 20 hasta el dia 19 del siguiente
 	 * @param mes Diferencia entre el mes actual y el objetivo
@@ -330,7 +344,7 @@ public class Db {
 		ResultSet rs = sqlExecute(query);
 		try {
 			while (rs.next()) {
-				recursos.put(rs.getString(1), new Recurso(rs.getString(1), rs.getInt(2)));
+				recursos.put(rs.getString(1), new Recurso(rs.getString(1)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -346,7 +360,7 @@ public class Db {
 	 */
 	public static HashMap<String, Instalacion> cargarInstalaciones() {
 		String queryI = "SELECT * FROM INSTALACION";
-		String queryRC = "SELECT RC_NOMBRE "
+		String queryRC = "SELECT RC_NOMBRE, RC_CANTIDAD "
 				+ "FROM TIENE "
 				+ "WHERE I_NOMBRE = ?";
 		String queryRes = "SELECT * FROM RESERVA "
