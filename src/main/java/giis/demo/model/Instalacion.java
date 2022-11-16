@@ -2,6 +2,7 @@ package giis.demo.model;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 
 import giis.demo.util.Db;
@@ -16,11 +17,19 @@ public class Instalacion {
 	private List<Recurso> recursos;
 	private List<GrupoReservas> reservas;
 	
+	private HashMap<String, Integer> cantidades;
+	
 	public Instalacion(String nombre, int precio, List<Recurso> recurso, List<GrupoReservas> reservas) {
 		this.nombre = nombre;
 		this.precioPorHora = precio;
 		this.recursos = recurso;
 		this.reservas = reservas;
+		
+		this.cantidades = new HashMap<>();
+		for (Recurso r : recursos) {
+			cantidades.put(r.getNombre(), Db.getNumeroRecursos(r.getNombre(), nombre));
+		}
+		
 	}
 	
 	public String getNombre() {
@@ -33,6 +42,10 @@ public class Instalacion {
 	
 	public GrupoReservas[] getReservas() {
 		return reservas.toArray(new GrupoReservas[reservas.size()]);
+	}
+	
+	public HashMap<String, Integer> getCantidades() {
+		return new HashMap<>(cantidades);
 	}
 	
 	public String validarReserva(int idSocio, LocalDate fecha, int hora, boolean larga) {
