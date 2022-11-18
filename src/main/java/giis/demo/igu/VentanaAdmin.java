@@ -1,14 +1,40 @@
 package giis.demo.igu;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import giis.demo.igu.dialogs.DialogActividad;
-import giis.demo.igu.dialogs.DialogReservarInstalacionAdmin;
-import giis.demo.igu.dialogs.DialogTipoActividad;
 import giis.demo.igu.dialogs.DialogAnularReserva;
 import giis.demo.igu.dialogs.DialogReservarInstalacion;
+import giis.demo.igu.dialogs.DialogReservarInstalacionAdmin;
 import giis.demo.igu.dialogs.DialogTipoActividad;
 import giis.demo.model.Actividad;
 import giis.demo.model.GrupoReservas;
@@ -16,38 +42,8 @@ import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Socio;
 import giis.demo.model.TipoActividad;
+import giis.demo.model.data.ModelSocio;
 import giis.demo.util.Db;
-
-import javax.swing.JLabel;
-import java.awt.Font;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.time.LocalDate;
-import java.util.List;
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import javax.swing.SwingConstants;
-import javax.swing.JScrollPane;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-
-import java.awt.Component;
-import javax.swing.Box;
-import java.awt.FlowLayout;
-import javax.swing.ListSelectionModel;
-import javax.swing.JTextField;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.Color;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.event.ListSelectionEvent;
 
 public class VentanaAdmin extends JFrame {
 
@@ -98,6 +94,7 @@ public class VentanaAdmin extends JFrame {
 	private JButton btnMesAnterior;
 	private JLabel lblMes;
 	private JButton btnMesSiguiente;
+	private JButton btnApuntarSocio;
 	
 	/**
 	 * Create the frame.
@@ -249,6 +246,7 @@ public class VentanaAdmin extends JFrame {
 			pnAdminIzquierda.add(getPnActividades(), BorderLayout.CENTER);
 			pnAdminIzquierda.add(getHorizontalStrutActividadesDcha(), BorderLayout.EAST);
 			pnAdminIzquierda.add(getHorizontalStrut(), BorderLayout.WEST);
+			pnAdminIzquierda.add(getBtnApuntarSocio(), BorderLayout.SOUTH);
 			getPnPrincipal().setLayout(new GridLayout(0, 3, 0, 0));
 		}
 		return pnAdminIzquierda;
@@ -358,8 +356,8 @@ public class VentanaAdmin extends JFrame {
 	private JList<Actividad> getListActividades() {
 		if (listActividades == null) {
 			listActividades = new JList<Actividad>();
+			listActividades.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			listActividades.setFont(new Font("Arial", Font.PLAIN, 12));
-			listActividades.setEnabled(false);
 			listActividades.setModel(getModelActividades());
 		}
 		return listActividades;
@@ -610,5 +608,64 @@ public class VentanaAdmin extends JFrame {
 			});
 		}
 		return btnMesSiguiente;
+	}
+	private JButton getBtnApuntarSocio() {
+		if (btnApuntarSocio == null) {
+			btnApuntarSocio = new JButton("Apuntar socio a actividad");
+			btnApuntarSocio.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					reservar();
+				}
+			});
+		}
+		return btnApuntarSocio;
+	}
+	
+	private void reservar() {
+		if (listActividades.getSelectedValue() == null ||
+				listActividades.getSelectedValue().getPlazas() == Actividad.ACTIVIDADILIMITADA) {
+			showMessage("Asegurese de que ha escogido una actividad con limite de plazas.",
+					"Aviso - Actividad no reservable", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		if (listActividades.getSelectedValue().getPlazas() == 0) {
+			showMessage("Esta actividad esta completa",
+					"Aviso - Actividad sin plazas libres", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		ModelSocio model = new ModelSocio();
+		Actividad actividad = listActividades.getSelectedValue();
+		if (!model.checkPuedoApuntarme(actividad.getDia(), actividad.getIni())) {
+			showMessage("No puedes apuntarte a esta actividad, debe ser maximo un "
+					+ "dia antes y minimo una hora antes de comenzar", 
+					"Aviso - Imposible apuntar", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		int actId = listActividades.getSelectedValue().getId();
+		int userId = model.askForIdSocio();
+		if (!model.checkSocioPuedeApuntarse(actividad.getDia(), actividad.getIni(), 
+				actividad.getFin(), userId)) {
+			showMessage("No puedes apuntarte a esta actividad, estas opcupado!!!", 
+					"Aviso - Imposible apuntar", JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+		int respuesta = JOptionPane.showConfirmDialog(null, "¿Está seguro que quiere apuntar "
+				+ "al socio " + model.getNombreSocio(userId) + " a la actividad " + 
+				listActividades.getSelectedValue().getNombre());
+		if (respuesta == JOptionPane.YES_OPTION) {
+			int correct = model.reservarActividad(actId, userId);
+			model.restarPlaza(actId);
+			if (correct == 1) {
+				JOptionPane.showMessageDialog(null, "El socio ha sido apuntado correctamente");
+			}
+		}
+	}
+	
+	public static void showMessage(String message, String title, int type) {
+	    JOptionPane pane = new JOptionPane(message,type,JOptionPane.DEFAULT_OPTION);
+	    pane.setOptions(new Object[] {"ACEPTAR"}); //fija este valor para que no dependa del idioma
+	    JDialog d = pane.createDialog(pane, title);
+	    d.setLocation(200,200);
+	    d.setVisible(true);
 	}
 }

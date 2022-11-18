@@ -172,7 +172,8 @@ public class ModelSocio {
 	 * @param actId
 	 * @param userId
 	 */
-	public void reservarActividad(int actId, int userId) {
+	public int reservarActividad(int actId, int userId) {
+		int res = 0;
 		try {
 			Connection c = getConnection();
 			
@@ -184,7 +185,7 @@ public class ModelSocio {
 		    pst.setInt(1, userId);
 		    pst.setInt(2, actId);
 		    
-		    int res = pst.executeUpdate();
+		    res = pst.executeUpdate();
 		    
 		    if (res == 1) {
 				System.out.println("Datos insertados correctamente");
@@ -200,6 +201,7 @@ public class ModelSocio {
 			// TODO Auto-generated catch block
 			System.err.println("Error apuntandose a actividad");
 		}
+		return res;
 	}
 
 	/**
