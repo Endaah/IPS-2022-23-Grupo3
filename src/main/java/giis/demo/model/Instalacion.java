@@ -113,7 +113,21 @@ public class Instalacion {
 		return "";
 	}
 	
-	public void anularReserva(GrupoReservas gr) {
+	public String reservar(Actividad act) {
+		int idReserva = 0;
+		for (GrupoReservas gr : reservas)
+			if (gr.getIdSocio() == 0)
+				idReserva++;
+		GrupoReservas gr = new GrupoReservas(idReserva, 0, precioPorHora);
+		for (int i = act.getIni(); i < act.getFin(); i++) {
+			ReservaInstalacion reserva = new ReservaInstalacion(0, act.getDia().toLocalDate(), i, nombre, 0, idReserva);
+			gr.addReserva(reserva);
+		}
+		reservas.add(gr);
+		return "";
+	}
+	
+	public void anular(GrupoReservas gr) {
 		if (gr.getReservas()[0].getFecha().getDayOfYear() - LocalDate.now().getDayOfYear() <= 0) {
 			System.err.println("No se ha podido anular la reserva, "
 					+ "no se puede anular una reserva para el mismo día");
@@ -126,6 +140,25 @@ public class Instalacion {
 				Db.dbAnularReserva(Date.valueOf(rI.getFecha()), rI.getHora(), nombre);
 		}
 		
+	}
+	
+	public void anular(Actividad act) {
+		if ((act.getDia().toLocalDate().getDayOfMonth() < LocalDate.now().getDayOfMonth()
+				&& act.getDia().toLocalDate().getMonthValue() == LocalDate.now().getMonthValue())
+				|| act.getDia().toLocalDate().getMonthValue() < LocalDate.now().getMonthValue()) {
+			System.err.println("No se ha podido anular la actividad, "
+					+ "no se puede anular una reserva pasada");
+			return;
+		}
+		
+		for (GrupoReservas gr : reservas) {
+			if (gr.getIdSocio() == 0)
+				for (ReservaInstalacion rI : gr.getReservas()) {
+					if (act.getDia().toLocalDate().equals(rI.getFecha())
+							&& (act.getIni() <= rI.getHora() && act.getFin() >= rI.getHora()))
+						rI.anular();
+				}
+		}
 	}
 	
 	public boolean comprobarReserva(LocalDate fecha, int hora) {

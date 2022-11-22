@@ -34,6 +34,10 @@ public class ReservaInstalacion {
 		this.idReserva = reserva.getIdReserva();
 	}
 	
+	public void anular() {
+		anulada = 1;
+	}
+	
 	public int getIdSocio() {
 		return idSocio;
 	}

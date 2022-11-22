@@ -95,6 +95,8 @@ public class VentanaAdmin extends JFrame {
 	private JLabel lblMes;
 	private JButton btnMesSiguiente;
 	private JButton btnApuntarSocio;
+	private JPanel pnBotonesActividad;
+	private JButton btnAnularActividad;
 	
 	/**
 	 * Create the frame.
@@ -179,6 +181,7 @@ public class VentanaAdmin extends JFrame {
 	private JButton getBtnCrearActividad() {
 		if (btnCrearActividad == null) {
 			btnCrearActividad = new JButton("CrearActividad");
+			btnCrearActividad.setFont(new Font("Tahoma", Font.PLAIN, 10));
 			btnCrearActividad.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					abrirDialogoCrearActividad();
@@ -302,9 +305,9 @@ public class VentanaAdmin extends JFrame {
 		if (pnActividad == null) {
 			pnActividad = new JPanel();
 			pnActividad.setLayout(new BorderLayout(0, 0));
-			pnActividad.add(getBtnCrearActividad(), BorderLayout.SOUTH);
 			pnActividad.add(getLblActividades(), BorderLayout.NORTH);
 			pnActividad.add(getSpActividades(), BorderLayout.CENTER);
+			pnActividad.add(getPnBotonesActividad(), BorderLayout.SOUTH);
 		}
 		return pnActividad;
 	}
@@ -586,10 +589,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private String getMes() {
 		String mes = "";
-		if (LocalDate.now().getDayOfMonth() < 20)
-			mes = LocalDate.now().getMonth().plus(difMesActual).toString();
-		else
-			mes = LocalDate.now().getMonth().plus(difMesActual + 1).toString();
+		mes = LocalDate.now().getMonth().plus(difMesActual).toString();
 		return mes;
 	}
 	private JButton getBtnMesSiguiente() {
@@ -667,5 +667,40 @@ public class VentanaAdmin extends JFrame {
 	    JDialog d = pane.createDialog(pane, title);
 	    d.setLocation(200,200);
 	    d.setVisible(true);
+	}
+	private JPanel getPnBotonesActividad() {
+		if (pnBotonesActividad == null) {
+			pnBotonesActividad = new JPanel();
+			pnBotonesActividad.setLayout(new GridLayout(1, 2, 0, 0));
+			pnBotonesActividad.add(getBtnCrearActividad());
+			pnBotonesActividad.add(getBtnAnularActividad());
+		}
+		return pnBotonesActividad;
+	}
+	private JButton getBtnAnularActividad() {
+		if (btnAnularActividad == null) {
+			btnAnularActividad = new JButton("Anular Actividad");
+			btnAnularActividad.setFont(new Font("Tahoma", Font.PLAIN, 10));
+			btnAnularActividad.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					anularActividad();
+				}
+			});
+		}
+		return btnAnularActividad;
+	}
+	private void anularActividad() {
+		Actividad act;
+		if ((act = this.getListActividades().getSelectedValue()) != null) {
+			GymControlador.anularActividad(act);
+			if (act.getPlazas() != -1) {
+				String socios = "Socios apuntados a la actividad cancelada:\n" + GymControlador.getSociosDe(act);
+				JOptionPane.showMessageDialog(this, socios);
+			}
+			actualizarListaActividades();
+		}
+	}
+	public void actualizarListaActividades() {
+		getListActividades().setModel(getModelActividades());
 	}
 }

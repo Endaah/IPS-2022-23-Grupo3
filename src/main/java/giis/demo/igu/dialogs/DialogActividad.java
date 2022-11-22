@@ -24,6 +24,7 @@ import giis.demo.model.TipoActividad;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import java.awt.event.ActionListener;
+import java.sql.Date;
 import java.util.Collection;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
@@ -106,10 +107,15 @@ public class DialogActividad extends JDialog {
 			JOptionPane.showMessageDialog(this, "Elija una instalación que tenga esos recursos");
 			return;
 		}
+		
+		if (!comprobarDisponibilidad()) {
+			JOptionPane.showMessageDialog(this, "No se pudo crear la actividad, ya hay otra planificada a esa hora");
+			return;
+		}
 		crearActividad();
+		vA.actualizarListaActividades();
 		dispose();
 	}
-	
 	private boolean comprobarRecurso1() {
 		for(int i = 0; i < ((TipoActividad)getCmbTipos().getSelectedItem()).getRecurso().size();i++) {
 			boolean x = false;
@@ -125,7 +131,11 @@ public class DialogActividad extends JDialog {
 		}
 		return true;
 	}
-	
+	private boolean comprobarDisponibilidad() {
+		Instalacion i = (Instalacion) getCmbIns().getSelectedItem();
+		java.sql.Date dia = new Date(getCalendar().getDate().getTime());
+		return GymControlador.comprobarDisponibilidad(i, dia.toLocalDate(), (int)getSpnIni().getValue(), (int)getSpnFin().getValue());
+	}
 	private void cargarTipos() {
 		Collection<TipoActividad> tipos = GymControlador.getTiposActividadDisponibles().values();
 		getCmbTipos().setModel(new DefaultComboBoxModel<TipoActividad>(tipos.toArray(new TipoActividad[tipos.size()])));
@@ -139,7 +149,7 @@ public class DialogActividad extends JDialog {
 	private void crearActividad() {
 		TipoActividad ta = (TipoActividad) getCmbTipos().getSelectedItem();
 		String nombre = ta.getNombre();
-		int id = (GymControlador.getActividadesDisponibles().get(GymControlador.getActividadesDisponibles().size() - 1).getId())+1;
+		int id = (GymControlador.getActividadesExistentes().get(GymControlador.getActividadesExistentes().size() - 1).getId())+1;
 		java.sql.Date date = new java.sql.Date(calendar.getDate().getTime());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();

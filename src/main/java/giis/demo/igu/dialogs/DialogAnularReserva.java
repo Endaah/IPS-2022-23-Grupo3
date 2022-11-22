@@ -105,7 +105,7 @@ public class DialogAnularReserva extends JDialog {
 				public void actionPerformed(ActionEvent e) {
 					for (GrupoReservas gr : listReservas.getSelectedValuesList())
 						if (gr != null) {
-							GymControlador.getInstalacionesDisponibles().get(gr.getReservas()[0].getInstalacion()).anularReserva(gr);
+							GymControlador.getInstalacionesDisponibles().get(gr.getReservas()[0].getInstalacion()).anular(gr);
 							Socio s = getListSocios().getSelectedValue();
 							mostrarDatosSocio(s);
 							listReservas.setModel(getModelReservas(listSocios.getSelectedValue()));

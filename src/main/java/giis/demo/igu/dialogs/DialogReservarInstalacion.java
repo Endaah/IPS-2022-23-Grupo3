@@ -201,7 +201,7 @@ public class DialogReservarInstalacion extends JDialog {
 		for (GrupoReservas gr : instalacionSeleccionada.getReservas()) {
 			for (ReservaInstalacion rI : gr.getReservas())
 				if (rI.getFecha().equals(dia) && rI.getHora() == hora && rI.getAnulada() == 0) {
-						if (gr.getIdSocio() == 0) {
+						if (gr.getIdSocio() == 0 && rI.getAnulada() == 0) {
 							actividad = true;
 							break;
 						} else {

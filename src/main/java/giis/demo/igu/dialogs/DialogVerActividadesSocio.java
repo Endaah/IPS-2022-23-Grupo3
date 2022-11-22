@@ -77,7 +77,7 @@ public class DialogVerActividadesSocio extends JDialog {
 		return listActividades;
 	}
 	private void showActividades() {
-		List<Actividad> actividades = model.showActividadesForSocio(socioId);
+		List<Actividad> actividades = model.showActividadesActivasForSocio(socioId);
 		modelList.clear();
 		modelList.addAll(actividades);
 	}

@@ -3,7 +3,10 @@ package giis.demo.model;
 import java.sql.Date;
 
 public class Actividad {
-public final static int ACTIVIDADILIMITADA = -1;
+	public final static int CANCELADA = 1;
+	public final static int VALIDA = 0;
+	
+	public final static int ACTIVIDADILIMITADA = -1;
 	
 	private int id;
 	private String nombre;
@@ -12,8 +15,9 @@ public final static int ACTIVIDADILIMITADA = -1;
 	private int fin;
 	private int plazas;
 	private Instalacion instalacion;
+	private int cancelada;
 	
-	public Actividad(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas, Instalacion instalacion) {
+	public Actividad(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas, Instalacion instalacion, int cancelada) {
 		this.id = a_id;
 		this.nombre = ta_nombre;
 		this.dia = a_dia;
@@ -21,6 +25,7 @@ public final static int ACTIVIDADILIMITADA = -1;
 		this.fin = a_fin;
 		this.plazas = plazas;
 		this.instalacion = instalacion;
+		this.cancelada = cancelada;
 	}
 
 	@Override
@@ -57,11 +62,16 @@ public final static int ACTIVIDADILIMITADA = -1;
 	public int getFin() {return fin;}
 	public int getPlazas() {return plazas;}
 	public Instalacion getInstalacion() {return instalacion;}
+	public int getCancelada() {return cancelada;}
 	public void setId(int id) {this.id = id;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
 	public void setDia(Date dia) {this.dia = dia;}
 	public void setIni(int ini) {this.ini = ini;}
 	public void setFin(int fin) {this.fin = fin;}
 	public void setPlazas(int plazas) {this.plazas = plazas;}
+	
+	public void anular() {
+		this.cancelada = 1;
+	}
 	
 }

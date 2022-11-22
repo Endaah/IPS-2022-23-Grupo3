@@ -92,7 +92,6 @@ public class Db {
 				if (rs.getInt(1) != Socio.TERCEROS) socios.add(new Socio(rs.getInt(1), rs.getString(2), rs.getString(3)));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
@@ -149,7 +148,6 @@ public class Db {
 				}
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			try {rs.close();} catch (SQLException e) {e.printStackTrace();}
@@ -170,7 +168,7 @@ public class Db {
 		List<Actividad> actividades = new ArrayList<Actividad>();
 		try {
 			while(rs.next()) {
-				for (Actividad a : GymControlador.getActividadesDisponibles()) {
+				for (Actividad a : GymControlador.getActividadesExistentes()) {
 					if (a.getId() == rs.getInt(1)) {
 						actividades.add(a);
 						break;
@@ -206,16 +204,17 @@ public class Db {
 	 */
 	public static List<GrupoReservas> getReservasDelMes(int mes) {
 		List<GrupoReservas> res = new ArrayList<GrupoReservas>();
+		LocalDate hoy = LocalDate.now();
 		for (Instalacion i : GymControlador.getInstalacionesDisponibles().values()) {
 			for (GrupoReservas grupo : i.getReservas()) {
 				ReservaInstalacion rI = grupo.getReservas()[0];
 				if (rI.getIdSocio() != 0
 						&& ((rI.getFecha().getDayOfMonth() >= 20
-								&& rI.getFecha().getMonth().plus(1) == LocalDate.now().getMonth().plus(mes)
-								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12)
+								&& rI.getFecha().getMonth().plus(1) == hoy.getMonth().plus(mes)
+								&& rI.getFecha().getYear() == hoy.getYear() + mes / 12)
 							|| (rI.getFecha().getDayOfMonth() < 20 
-								&& rI.getFecha().getMonth() == LocalDate.now().getMonth().plus(mes)
-								&& rI.getFecha().getYear() == LocalDate.now().getYear() + mes / 12))
+								&& rI.getFecha().getMonth() == hoy.getMonth().plus(mes)
+								&& rI.getFecha().getYear() == hoy.getYear() + mes / 12))
 						&& rI.getAnulada() == 0) {
 					res.add(grupo);
 				}
@@ -236,7 +235,24 @@ public class Db {
 		return gruposSocio;
 	}
 	
-	// ============ INSERCIÓN DE DATOS ==============
+	public static List<Socio> getSociosDe(Actividad act) {
+		String query = "SELECT SOCIO.S_ID, SOCIO.S_NOMBRE, SOCIO.S_EMAIL FROM SOCIO "
+				+ "JOIN SEAPUNTA ON SOCIO.S_ID = SEAPUNTA.S_ID "
+				+ "WHERE SEAPUNTA.A_ID = ?";
+		ResultSet rs = sqlExecute(query, Arrays.asList(act.getId()));
+		
+		List<Socio> socios = new ArrayList<Socio>();
+		try {
+			while (rs.next()) {
+				socios.add(new Socio(rs.getInt(1), rs.getString(2), rs.getString(3)));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return socios;
+	}
+	
+	// ============ INSERCIÓN DE DATOS ============== 
 	/*
 	 * Método general para insertar en la base de datos.
 	 * Se le pasa una query en SQL y los parámetros a rellenar, si no necesita parámetros pasarle null
@@ -281,10 +297,10 @@ public class Db {
 	 * @param act Actividad a insertar a la bd
 	 */
 	public static void dbInsertarAct(Actividad act) {
-		String query = "INSERT INTO actividad (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?)";
+		String query = "INSERT INTO actividad (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE, A_CANCELADA) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 		
-		List<Object> params = Arrays.asList(act.getId(), act.getNombre(), act.getDia(), act.getIni(), act.getFin(), act.getPlazas(), act.getInstalacion().getNombre());
+		List<Object> params = Arrays.asList(act.getId(), act.getNombre(), act.getDia(), act.getIni(), act.getFin(), act.getPlazas(), act.getInstalacion().getNombre(), act.getCancelada());
 		sqlInsertParam(query, params);
 		
 	}
@@ -331,6 +347,14 @@ public class Db {
 		sqlUpdate(query, Arrays.asList(instalacion, fecha, hora));
 	}
 	
+	public static void dbAnularActividad(Actividad a) {
+		String query = "UPDATE ACTIVIDAD "
+				+ "SET A_CANCELADA = 1 "
+				+ "WHERE A_ID = ? ";
+		
+		sqlUpdate(query, Arrays.asList(a.getId()));
+	}
+	
 	// ============ CARGA DE TABLAS A MEMORIA ==============
 	
 	/**
@@ -365,7 +389,7 @@ public class Db {
 				+ "WHERE I_NOMBRE = ?";
 		String queryRes = "SELECT * FROM RESERVA "
 				+ "WHERE I_NOMBRE = ?";
-		String queryAct = "SELECT A_ID, A_DIA, A_INI, A_FIN FROM ACTIVIDAD "
+		String queryAct = "SELECT A_ID, A_DIA, A_INI, A_FIN, A_CANCELADA FROM ACTIVIDAD "
 				+ "WHERE I_NOMBRE = ?";
 		
 		HashMap<String, Instalacion> instalaciones = new HashMap<String, Instalacion>();
@@ -402,7 +426,7 @@ public class Db {
 				while(rsAct.next()) {
 					GrupoReservas gr = new GrupoReservas(rsAct.getInt(1), 0, 0);
 					for (int i = 0; i < rsAct.getInt(4) - rsAct.getInt(3); i++) {
-						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(2).toLocalDate(), rsAct.getInt(3) + i, rsI.getString(1), 0, rsAct.getInt(1));
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(2).toLocalDate(), rsAct.getInt(3) + i, rsI.getString(1), rsAct.getInt(5), rsAct.getInt(1));
 						gr.addReserva(rI);
 					}
 					reservas.add(gr);
@@ -465,7 +489,7 @@ public class Db {
 		ResultSet rs = sqlExecute(query);
 		try {
 			while (rs.next()) {
-				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7))));
+				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7)),rs.getInt(8)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

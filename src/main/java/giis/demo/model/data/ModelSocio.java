@@ -60,7 +60,7 @@ public class ModelSocio {
 		try {
 			Connection c = getConnection();
 			
-			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE "
+			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE, A_CANCELADA "
 					+ "FROM actividad WHERE A_DIA = ? ORDER BY A_INI";
 			
 			PreparedStatement pst = null;
@@ -85,7 +85,7 @@ public class ModelSocio {
 				fin = rs.getInt(5);
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
-				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion)));
+				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), rs.getInt(8)));
 			}
 		    
 		    rs.close();
@@ -94,6 +94,7 @@ public class ModelSocio {
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
+			e.printStackTrace();
 			System.err.println("Error obteniendo las actividades");
 		}
 		
@@ -378,7 +379,8 @@ public class ModelSocio {
 					+ "WHERE a.a_id = ac.a_id AND a.s_id = ?"
 					+ "AND ac.a_dia = ?"
 					+ "AND ac.a_ini <= ?"
-					+ "AND ac.a_fin > ?";
+					+ "AND ac.a_fin > ?"
+					+ "AND a.a_cancelada == 0";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
@@ -773,6 +775,7 @@ public class ModelSocio {
 		    int fin;
 		    int plazas;
 		    String instalacion;
+		    int cancelada;
 		    while(rs.next()) {
 		    	System.out.println("Reservilla");
 		    	id = rs.getInt(1);
@@ -782,7 +785,8 @@ public class ModelSocio {
 				fin = rs.getInt(5);
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
-				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion)));
+				cancelada = rs.getInt(8);
+				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada));
 			}
 		    
 		    rs.close();
@@ -798,6 +802,54 @@ public class ModelSocio {
 		return actividades;
 	}
 	
-	
+	public List<Actividad> showActividadesActivasForSocio( int socioId ) {
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT * FROM Actividad ac, SEAPUNTA a "
+					+ "WHERE a.a_id = ac.a_id AND a.s_id = ? AND ac.a_cancelada = 0";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    		    
+		    pst.setInt(1, socioId);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    int id;
+		    String nombre;
+		    Date dia;
+		    int ini;
+		    int fin;
+		    int plazas;
+		    String instalacion;
+		    int cancelada;
+		    while(rs.next()) {
+		    	System.out.println("Reservilla");
+		    	id = rs.getInt(1);
+				nombre = rs.getString(2);
+				dia = rs.getDate(3);
+				ini = rs.getInt(4);
+				fin = rs.getInt(5);
+				plazas = rs.getInt(6);
+				instalacion = rs.getString(7);
+				cancelada = rs.getInt(8);
+				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada));
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+//			System.err.println("Error obteniendo las actividades para un socio");
+		}
+		
+		return actividades;
+	}
 
 }

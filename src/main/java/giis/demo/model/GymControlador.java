@@ -2,6 +2,7 @@ package giis.demo.model;
 
 import java.util.HashMap;
 import java.util.List;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 import giis.demo.util.Db;
@@ -39,14 +40,40 @@ public class GymControlador {
 		instalacionesDisponibles.put(i.getNombre(), i);
 	}
 	
-	public static List<Actividad> getActividadesDisponibles() {
+	public static List<Actividad> getActividadesExistentes() {
 		return actividadesDisponibles;
 	}
 	
+	public static List<Actividad> getActividadesDisponibles() {
+		List<Actividad> tmp = new ArrayList<Actividad>();
+		for (Actividad act : actividadesDisponibles)
+			if (act.getCancelada() == 0)
+				tmp.add(act);
+		return tmp;
+	}
+	
 	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas, String nombreInstalacion) {
-		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, GymControlador.getInstalacionesDisponibles().get(nombreInstalacion));
+		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, GymControlador.getInstalacionesDisponibles().get(nombreInstalacion), 0);
 		actividadesDisponibles.add(t);
+		instalacionesDisponibles.get(nombreInstalacion).reservar(t);
 		guardarActividad(t);
+	}
+	
+	public static void anularActividad(Actividad act) {
+		for(Actividad a : actividadesDisponibles) {
+			if (a.equals(act)) {
+				a.anular();
+				break;
+			}
+		}
+		instalacionesDisponibles.get(act.getInstalacion().getNombre()).anular(act);
+		Db.dbAnularActividad(act);
+	}
+	
+	public static void addGrupoReserva(Instalacion i, Actividad act) {
+		for (int hora = act.getIni(); hora < act.getFin(); hora++) {
+			i.reservar(0, act.getDia().toLocalDate(), hora, false);
+		}
 	}
 	
 	public static List<Socio> buscarSocios(List<Socio> lista, String str) {
@@ -66,6 +93,31 @@ public class GymControlador {
 			else if (socio.getNombre().contains(str))
 				res.add(socio);
 		} return res;
+	}
+	/**
+	 * Devuelve si la instalación está disponible en un momento determinado
+	 * @param i Instalación a comprobar
+	 * @param dia Día a comprobar
+	 * @param inicio Hora inicial a comprobar
+	 * @param fin Hora final a comprobar
+	 * @return True si está disponible, False si no
+	 */
+	public static boolean comprobarDisponibilidad(Instalacion i, LocalDate dia, int inicio, int fin) {
+		for (GrupoReservas gr : i.getReservas()) {
+			for (ReservaInstalacion rI : gr.getReservas()) {
+				if (rI.getFecha().equals(dia)
+						&& (inicio <= rI.getHora() && rI.getHora() < fin))
+					return false;
+			}
+		} return true;
+	}
+	
+	public static String getSociosDe(Actividad act) {
+		String socios = "";
+		for (Socio s : Db.getSociosDe(act)) {
+			socios += s.getNombre() + "\n" + s.getEmail() + "\n\n";
+		}
+		return socios;
 	}
 	
 	// ============ CARGAR DATOS DESDE LA DB ================

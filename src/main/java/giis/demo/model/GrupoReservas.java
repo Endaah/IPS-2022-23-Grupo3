@@ -35,7 +35,7 @@ public class GrupoReservas {
 	
 	public int getPrecio() {
 		int precio = 0;
-		for (ReservaInstalacion rI : reservas) {
+		for (ReservaInstalacion rI : reservas) { // Suma el precio tantas veces como horas haya
 			precio += precioReservas;
 		} return precio;
 	}
