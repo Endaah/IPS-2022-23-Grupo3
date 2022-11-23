@@ -20,36 +20,12 @@ public class ModelActividadRecursos {
 	public static final String url = "jdbc:hsqldb:hsql://localhost:9002/labdb";
 	public static final String user = "SA";
 	public static final String password = "";
-	
-	/**
-	 * Comprueba que los datos introducidos por el usuario son digitos
-	 * @param s
-	 * @return
-	 */
-	public boolean checkIsInt(String s) {
-		for (char c : s.toCharArray()) {
-			if (!Character.isDigit(c)) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	/**
-	 * Metodo que pregunta al administrador el numero de recursos que tiene al añadir un recurso a una instalacion
-	 * @return
-	 */
-	public int askForNumeroDeRecursos(){
-		String input;
-		do {
-			input = JOptionPane.showInputDialog("Introduzca el numero de recursos del que dispondría (Número)");
-		} while (input == null || input.isEmpty() || !checkIsInt(input) || input.trim().equals("0"));
-		
-		int result = Integer.parseInt(input);
-		
-		return result;
-	}
 
+	/**
+	 * Devuelve los recursos que tiene esta instalacion
+	 * @param nombreInstalacion
+	 * @return
+	 */
 	public List<Recurso> getRecursosTiene(String nombreInstalacion) {
 		List<Recurso> recursos = new ArrayList<>();
 		
@@ -68,7 +44,7 @@ public class ModelActividadRecursos {
 		    
 		    String nombre;
 		    while(rs.next()) {
-				nombre = rs.getString("I_NOMBRE");
+				nombre = rs.getString("RC_NOMBRE");
 				recursos.add(new Recurso(nombre));
 			}
 		    
@@ -85,9 +61,114 @@ public class ModelActividadRecursos {
 		return recursos;
 	}
 
-	public List<Recurso> getRecursosNoTiene(String nombreInstalacion) {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Devuelve todos los recursos que existen
+	 * @return
+	 */
+	public List<Recurso> getTodosLosRecursos() {
+		List<Recurso> recursos = new ArrayList<>();
+		
+		try {
+			Connection c = getConnection();
+			
+			String query = "SELECT * "
+					+ "FROM Recurso ";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    ResultSet rs = pst.executeQuery();
+		    
+		    String nombre;
+		    while(rs.next()) {
+				nombre = rs.getString("RC_NOMBRE");
+				recursos.add(new Recurso(nombre));
+			}
+		    
+		    rs.close();
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Error obteniendo los recursos");
+		}
+		
+		return recursos;
+	}
+
+	/**
+	 * Elimina una relacion entre un recurso y una instalacion
+	 * @param nombreRecurso
+	 * @param nombreInstalacion
+	 */
+	public void eliminarRecursoDeInstalacion(String nombreRecurso, String nombreInstalacion) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "DELETE FROM Tiene WHERE RC_NOMBRE = ? and I_NOMBRE = ?";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    pst.setString(1, nombreRecurso);
+		    pst.setString(2, nombreInstalacion);
+		    
+		    int res = pst.executeUpdate();
+		    
+		    if (res == 1) {
+				System.out.println("Recursos borrados correctamente");
+			}
+			else {
+				System.out.println("ERROR borrando el recurso");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Error obteniendo los recursos");
+		}
+	}
+	
+	/**
+	 * Añade una relacion entre un recurso y una instalacion
+	 * @param nombreRecurso
+	 * @param nombreInstalacion
+	 */
+	public void AñadirRecursoAInstalacion(String nombreRecurso, String nombreInstalacion, int cantidad) {
+		try {
+			Connection c = getConnection();
+			
+			String query = "INSERT INTO TIENE VALUES(?, ?, ?)";
+			
+			PreparedStatement pst = null;
+		    pst = c.prepareStatement(query);
+		    
+		    pst.setString(1, nombreRecurso);
+		    pst.setString(2, nombreInstalacion);
+		    pst.setInt(3, cantidad);
+		    
+		    int res = pst.executeUpdate();
+		    
+		    if (res == 1) {
+				System.out.println("Recurso añadido correctamente");
+			}
+			else {
+				System.out.println("ERROR añadiendo el recurso");
+			}
+		    
+			pst.close();
+			c.close();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.err.println("Error obteniendo los recursos");
+		}
 	}
 	
 	

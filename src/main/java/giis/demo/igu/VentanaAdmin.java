@@ -717,6 +717,8 @@ public class VentanaAdmin extends JFrame {
 					dialog.setLocationRelativeTo(contentPane);
 					dialog.setModal(true);
 					dialog.setVisible(true);
+					
+					listInstalaciones.setModel(getModelInstalaciones());
 				}
 			});
 		}

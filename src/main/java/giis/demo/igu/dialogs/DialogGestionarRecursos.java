@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultListModel;
@@ -12,18 +13,18 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import giis.demo.model.Actividad;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
 import giis.demo.model.data.ModelActividadRecursos;
-import javax.swing.SpinnerNumberModel;
 
 public class DialogGestionarRecursos extends JDialog {
 	
@@ -41,7 +42,7 @@ public class DialogGestionarRecursos extends JDialog {
 	private JList<Recurso> listNoTiene;
 	private JButton btnEliminarRecurso;
 	private JButton btnAñadirRecurso;
-	private JSpinner spinner;
+	private JSpinner spCantidad;
 	private JLabel lblCantidad;
 	private JButton btnVolver;
 	
@@ -70,14 +71,14 @@ public class DialogGestionarRecursos extends JDialog {
 		contentPanel.add(getLblNoTiene());
 		contentPanel.add(getBtnEliminarRecurso());
 		contentPanel.add(getBtnAñadirRecurso());
-		contentPanel.add(getSpinner());
+		contentPanel.add(getSpCantidad());
 		contentPanel.add(getLblCantidad());
 		contentPanel.add(getBtnVolver());
 	}
 	private JLabel getLblNombreInstalacion() {
 		if (lblNombreInstalacion == null) {
 			lblNombreInstalacion = new JLabel("Nombre de la Instalación: " + nombreInstalacion);
-			lblNombreInstalacion.setBounds(26, 23, 223, 26);
+			lblNombreInstalacion.setBounds(26, 23, 342, 26);
 		}
 		return lblNombreInstalacion;
 	}
@@ -133,6 +134,7 @@ public class DialogGestionarRecursos extends JDialog {
 			
 			modelListNoTiene = new DefaultListModel<Recurso>();
 			listNoTiene.setModel(modelListNoTiene);
+			showRecursosNoTiene();
 		}
 		return listNoTiene;
 	}
@@ -149,14 +151,34 @@ public class DialogGestionarRecursos extends JDialog {
 	}
 	
 	private void showRecursosNoTiene() {
-		List <Recurso> recursos = model.getRecursosNoTiene(nombreInstalacion);
+		List <Recurso> todos = model.getTodosLosRecursos();
+		List <Recurso> recursosTiene = model.getRecursosTiene(nombreInstalacion);
 		modelListNoTiene.clear();
-		modelListNoTiene.addAll(recursos);
+		List <Recurso> recursosNoTiene = new ArrayList<>();
+		for (Recurso r : todos) {
+			if (!recursosTiene.contains(r)) {
+				recursosNoTiene.add(r);
+			}
+		}
+		modelListNoTiene.addAll(recursosNoTiene);
 	}
 	
 	private JButton getBtnEliminarRecurso() {
 		if (btnEliminarRecurso == null) {
 			btnEliminarRecurso = new JButton("Eliminar este recurso");
+			btnEliminarRecurso.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (listTiene.getSelectedValue() == null) {
+						JOptionPane.showMessageDialog(contentPanel, 
+								"Seleccione un recurso", "No hay recurso seleccionado", 
+								JOptionPane.DEFAULT_OPTION);
+						return;
+					}
+					Recurso eliminar = listTiene.getSelectedValue();
+					model.eliminarRecursoDeInstalacion(eliminar.getNombre(), nombreInstalacion);
+					actualizarListas();
+				}
+			});
 			btnEliminarRecurso.setBackground(Color.YELLOW);
 			btnEliminarRecurso.setBounds(26, 303, 249, 26);
 		}
@@ -165,18 +187,40 @@ public class DialogGestionarRecursos extends JDialog {
 	private JButton getBtnAñadirRecurso() {
 		if (btnAñadirRecurso == null) {
 			btnAñadirRecurso = new JButton("Añadir este recurso");
+			btnAñadirRecurso.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					int cantidad = (int)spCantidad.getValue();
+					if (cantidad <= 0) {
+						JOptionPane.showMessageDialog(contentPanel, 
+								"La cantidad debe ser mayor a 0", "Cantidad erronea", 
+								JOptionPane.DEFAULT_OPTION);
+						return;
+					}
+					
+					if (listNoTiene.getSelectedValue() == null) {
+						JOptionPane.showMessageDialog(contentPanel, 
+								"Seleccione un recurso", "No hay recurso seleccionado", 
+								JOptionPane.DEFAULT_OPTION);
+						return;
+					}
+					String nombreRecurso = listNoTiene.getSelectedValue().getNombre();
+					
+					model.AñadirRecursoAInstalacion(nombreRecurso, nombreInstalacion, cantidad);
+					actualizarListas();
+				}
+			});
 			btnAñadirRecurso.setBackground(Color.GREEN);
 			btnAñadirRecurso.setBounds(378, 303, 180, 26);
 		}
 		return btnAñadirRecurso;
 	}
-	private JSpinner getSpinner() {
-		if (spinner == null) {
-			spinner = new JSpinner();
-			spinner.setModel(new SpinnerNumberModel(1, 1, null, 1));
-			spinner.setBounds(309, 312, 59, 26);
+	private JSpinner getSpCantidad() {
+		if (spCantidad == null) {
+			spCantidad = new JSpinner();
+			spCantidad.setModel(new SpinnerNumberModel(1, 1, null, 1));
+			spCantidad.setBounds(309, 312, 59, 26);
 		}
-		return spinner;
+		return spCantidad;
 	}
 	private JLabel getLblCantidad() {
 		if (lblCantidad == null) {
