@@ -33,6 +33,7 @@ import javax.swing.event.ListSelectionListener;
 
 import giis.demo.igu.dialogs.DialogActividad;
 import giis.demo.igu.dialogs.DialogAnularReserva;
+import giis.demo.igu.dialogs.DialogGestionarRecursos;
 import giis.demo.igu.dialogs.DialogReservarInstalacion;
 import giis.demo.igu.dialogs.DialogReservarInstalacionAdmin;
 import giis.demo.igu.dialogs.DialogTipoActividad;
@@ -42,6 +43,7 @@ import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
 import giis.demo.model.Socio;
 import giis.demo.model.TipoActividad;
+import giis.demo.model.data.ModelActividadRecursos;
 import giis.demo.model.data.ModelSocio;
 import giis.demo.util.Db;
 
@@ -97,6 +99,7 @@ public class VentanaAdmin extends JFrame {
 	private JButton btnApuntarSocio;
 	private JPanel pnBotonesActividad;
 	private JButton btnAnularActividad;
+	private JButton btnGestionarRecursos;
 	
 	/**
 	 * Create the frame.
@@ -407,6 +410,7 @@ public class VentanaAdmin extends JFrame {
 			pnBotonesInstalaciones.add(getBtnReservarInstalacion());
 			pnBotonesInstalaciones.add(getBtnAnularReserva());
 			pnBotonesInstalaciones.add(getBtnNewButton());
+			pnBotonesInstalaciones.add(getBtnGestionarRecursos());
 		}
 		return pnBotonesInstalaciones;
 	}
@@ -702,5 +706,22 @@ public class VentanaAdmin extends JFrame {
 	}
 	public void actualizarListaActividades() {
 		getListActividades().setModel(getModelActividades());
+	}
+	private JButton getBtnGestionarRecursos() {
+		if (btnGestionarRecursos == null) {
+			btnGestionarRecursos = new JButton("Gestionar Recursos");
+			btnGestionarRecursos.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					DialogGestionarRecursos dialog = new DialogGestionarRecursos(new ModelActividadRecursos(), listInstalaciones.getSelectedValue());
+					dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+					dialog.setLocationRelativeTo(contentPane);
+					dialog.setModal(true);
+					dialog.setVisible(true);
+					
+					listInstalaciones.setModel(getModelInstalaciones());
+				}
+			});
+		}
+		return btnGestionarRecursos;
 	}
 }
