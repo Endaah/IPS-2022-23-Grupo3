@@ -33,6 +33,7 @@ import javax.swing.event.ListSelectionListener;
 
 import giis.demo.igu.dialogs.DialogActividad;
 import giis.demo.igu.dialogs.DialogAnularReserva;
+import giis.demo.igu.dialogs.DialogFormasPlanificar;
 import giis.demo.igu.dialogs.DialogGestionarRecursos;
 import giis.demo.igu.dialogs.DialogReservarInstalacion;
 import giis.demo.igu.dialogs.DialogReservarInstalacionAdmin;
@@ -136,7 +137,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private void abrirDialogoCrearActividad() {
 		try {
-			DialogActividad dialog = new DialogActividad(this);
+			DialogFormasPlanificar dialog = new DialogFormasPlanificar(this);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -183,8 +184,8 @@ public class VentanaAdmin extends JFrame {
 	}
 	private JButton getBtnCrearActividad() {
 		if (btnCrearActividad == null) {
-			btnCrearActividad = new JButton("CrearActividad");
-			btnCrearActividad.setFont(new Font("Tahoma", Font.PLAIN, 10));
+			btnCrearActividad = new JButton("Crear");
+			btnCrearActividad.setFont(new Font("Tahoma", Font.PLAIN, 11));
 			btnCrearActividad.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					abrirDialogoCrearActividad();
@@ -683,8 +684,8 @@ public class VentanaAdmin extends JFrame {
 	}
 	private JButton getBtnAnularActividad() {
 		if (btnAnularActividad == null) {
-			btnAnularActividad = new JButton("Anular Actividad");
-			btnAnularActividad.setFont(new Font("Tahoma", Font.PLAIN, 10));
+			btnAnularActividad = new JButton("Anular");
+			btnAnularActividad.setFont(new Font("Tahoma", Font.PLAIN, 11));
 			btnAnularActividad.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					anularActividad();
@@ -696,7 +697,10 @@ public class VentanaAdmin extends JFrame {
 	private void anularActividad() {
 		Actividad act;
 		if ((act = this.getListActividades().getSelectedValue()) != null) {
-			GymControlador.anularActividad(act);
+			if (!GymControlador.anularActividad(act)) {
+				JOptionPane.showMessageDialog(this, "No se puede anular una actividad pasada");
+				return;
+			}
 			if (act.getPlazas() != -1) {
 				String socios = "Socios apuntados a la actividad cancelada:\n" + GymControlador.getSociosDe(act);
 				JOptionPane.showMessageDialog(this, socios);

@@ -16,8 +16,9 @@ public class Actividad {
 	private int plazas;
 	private Instalacion instalacion;
 	private int cancelada;
+	private int grupo;
 	
-	public Actividad(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas, Instalacion instalacion, int cancelada) {
+	public Actividad(int a_id, String ta_nombre, Date a_dia, int a_ini, int a_fin, int plazas, Instalacion instalacion, int cancelada, int grupo) {
 		this.id = a_id;
 		this.nombre = ta_nombre;
 		this.dia = a_dia;
@@ -26,6 +27,7 @@ public class Actividad {
 		this.plazas = plazas;
 		this.instalacion = instalacion;
 		this.cancelada = cancelada;
+		this.grupo = grupo;
 	}
 
 	@Override
@@ -63,6 +65,7 @@ public class Actividad {
 	public int getPlazas() {return plazas;}
 	public Instalacion getInstalacion() {return instalacion;}
 	public int getCancelada() {return cancelada;}
+	public int getGrupo() {return grupo;}
 	public void setId(int id) {this.id = id;}
 	public void setNombre(String nombre) {this.nombre = nombre;}
 	public void setDia(Date dia) {this.dia = dia;}

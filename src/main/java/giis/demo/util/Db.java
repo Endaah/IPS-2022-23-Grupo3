@@ -297,10 +297,10 @@ public class Db {
 	 * @param act Actividad a insertar a la bd
 	 */
 	public static void dbInsertarAct(Actividad act) {
-		String query = "INSERT INTO actividad (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE, A_CANCELADA) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+		String query = "INSERT INTO actividad (a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE, A_CANCELADA, A_GRUPO) "
+				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
-		List<Object> params = Arrays.asList(act.getId(), act.getNombre(), act.getDia(), act.getIni(), act.getFin(), act.getPlazas(), act.getInstalacion().getNombre(), act.getCancelada());
+		List<Object> params = Arrays.asList(act.getId(), act.getNombre(), act.getDia(), act.getIni(), act.getFin(), act.getPlazas(), act.getInstalacion().getNombre(), act.getCancelada(), act.getGrupo());
 		sqlInsertParam(query, params);
 		
 	}
@@ -489,7 +489,7 @@ public class Db {
 		ResultSet rs = sqlExecute(query);
 		try {
 			while (rs.next()) {
-				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7)),rs.getInt(8)));
+				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7)),rs.getInt(8),rs.getInt(9)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

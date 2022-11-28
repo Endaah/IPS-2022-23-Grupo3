@@ -14,6 +14,8 @@ public class GymControlador {
 	private static HashMap<String, Instalacion> instalacionesDisponibles;
 	private static List<Actividad> actividadesDisponibles;
 	
+	private static int ultimoGrupo;
+	
 	public static HashMap<String, Recurso> getRecursosDisponibles(){
 		return recursosDisponibles;
 	}
@@ -52,14 +54,23 @@ public class GymControlador {
 		return tmp;
 	}
 	
-	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas, String nombreInstalacion) {
-		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, GymControlador.getInstalacionesDisponibles().get(nombreInstalacion), 0);
+	public static void addActividad(int id, String nombre, java.sql.Date fecha, int hini, int hfin, int plazas, String nombreInstalacion, int grupo) {
+		Actividad t = new Actividad(id, nombre, fecha, hini, hfin, plazas, GymControlador.getInstalacionesDisponibles().get(nombreInstalacion), 0, grupo);
+		ultimoGrupo++;
 		actividadesDisponibles.add(t);
 		instalacionesDisponibles.get(nombreInstalacion).reservar(t);
 		guardarActividad(t);
 	}
 	
-	public static void anularActividad(Actividad act) {
+	public static boolean anularActividad(Actividad act) {
+		if ((act.getDia().toLocalDate().getDayOfMonth() < LocalDate.now().getDayOfMonth()
+				&& act.getDia().toLocalDate().getMonthValue() == LocalDate.now().getMonthValue())
+				|| act.getDia().toLocalDate().getMonthValue() < LocalDate.now().getMonthValue()) {
+			System.err.println("No se ha podido anular la actividad, "
+					+ "no se puede anular una reserva pasada");
+			return false;
+		}
+		
 		for(Actividad a : actividadesDisponibles) {
 			if (a.equals(act)) {
 				a.anular();
@@ -68,6 +79,7 @@ public class GymControlador {
 		}
 		instalacionesDisponibles.get(act.getInstalacion().getNombre()).anular(act);
 		Db.dbAnularActividad(act);
+		return true;
 	}
 	
 	public static void addGrupoReserva(Instalacion i, Actividad act) {
@@ -102,14 +114,21 @@ public class GymControlador {
 	 * @param fin Hora final a comprobar
 	 * @return True si está disponible, False si no
 	 */
-	public static boolean comprobarDisponibilidad(Instalacion i, LocalDate dia, int inicio, int fin) {
+	public static String comprobarDisponibilidad(Instalacion i, LocalDate dia, int inicio, int fin) {
+		String motivo = "";
 		for (GrupoReservas gr : i.getReservas()) {
 			for (ReservaInstalacion rI : gr.getReservas()) {
 				if (rI.getFecha().equals(dia)
-						&& (inicio <= rI.getHora() && rI.getHora() < fin))
-					return false;
+						&& (inicio <= rI.getHora() && rI.getHora() < fin)) {
+					motivo += rI.toString();
+					if (rI.getIdSocio() == 0)
+						motivo += " - Actividad";
+					else
+						motivo += " - Reserva";
+				}
 			}
-		} return true;
+		}
+		return motivo;
 	}
 	
 	public static String getSociosDe(Actividad act) {
@@ -118,6 +137,13 @@ public class GymControlador {
 			socios += s.getNombre() + "\n" + s.getEmail() + "\n\n";
 		}
 		return socios;
+	}
+	
+	public static int getUltimoGrupo() {
+		int max = 0;
+		for (Actividad a : actividadesDisponibles) {
+			max = a.getGrupo() > max ? a.getGrupo() : max;
+		} return max;
 	}
 	
 	// ============ CARGAR DATOS DESDE LA DB ================
@@ -135,6 +161,7 @@ public class GymControlador {
 	
 	public static void cargarActividades() {
 		actividadesDisponibles = Db.cargarActividades();
+		ultimoGrupo = getUltimoGrupo();
 	}
 	
 	// ============ INTRODUCIR DATOS A LA DB ================
