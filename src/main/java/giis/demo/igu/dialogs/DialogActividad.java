@@ -25,6 +25,7 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import java.awt.event.ActionListener;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
@@ -112,6 +113,11 @@ public class DialogActividad extends JDialog {
 			JOptionPane.showMessageDialog(this, "No se pudo crear la actividad, ya hay otra planificada a esa hora");
 			return;
 		}
+		
+		if (!comprobarFecha()) {
+			JOptionPane.showMessageDialog(this, "No se pudo crear la actividad, fecha errónea");
+			return;
+		}
 		crearActividad();
 		vA.actualizarListaActividades();
 		dispose();
@@ -128,6 +134,22 @@ public class DialogActividad extends JDialog {
 			if(x == false) {
 				return false;
 			}
+		}
+		return true;
+	}
+	private boolean comprobarFecha() {
+		LocalDate d = LocalDate.now();
+		java.sql.Date dia = new Date(getCalendar().getDate().getTime());
+		LocalDate fecha = dia.toLocalDate();
+		if(fecha.getYear() < d.getYear()) {
+			
+			return false;
+		}else if((fecha.getYear() == d.getYear()) && (fecha.getMonthValue() < d.getMonthValue())){
+			
+			return false;
+		}else if((fecha.getYear() == d.getYear()) && (fecha.getMonthValue() == d.getMonthValue()) && (fecha.getDayOfMonth() < d.getDayOfMonth())) {
+			
+			return false;
 		}
 		return true;
 	}

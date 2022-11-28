@@ -183,6 +183,22 @@ public class Instalacion {
 	}
 	
 	public boolean reservarEmpresa(int idSocio, LocalDate fecha, int hora,boolean larga) {
+		LocalDate d = LocalDate.now();
+		if(fecha.getYear() < d.getYear()) {
+			System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+					+ "fecha errónea");
+			return false;
+		}else if((fecha.getYear() == d.getYear()) && (fecha.getMonthValue() < d.getMonthValue())){
+			System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+					+ "fecha errónea");
+			return false;
+		}else if((fecha.getYear() == d.getYear()) && (fecha.getMonthValue() == d.getMonthValue()) && (fecha.getDayOfMonth() < d.getDayOfMonth())) {
+			System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
+					+ "fecha errónea");
+			return false;
+		}
+		
+		
 		for (GrupoReservas gr : reservas) {
 			for (ReservaInstalacion ri : gr.getReservas()) {						// Por cada reserva
 				if (ri.getFecha().equals(fecha)

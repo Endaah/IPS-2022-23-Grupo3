@@ -100,6 +100,7 @@ public class VentanaAdmin extends JFrame {
 	private JPanel pnBotonesActividad;
 	private JButton btnAnularActividad;
 	private JButton btnGestionarRecursos;
+	private JButton btnNewButton_1;
 	
 	/**
 	 * Create the frame.
@@ -411,6 +412,7 @@ public class VentanaAdmin extends JFrame {
 			pnBotonesInstalaciones.add(getBtnAnularReserva());
 			pnBotonesInstalaciones.add(getBtnNewButton());
 			pnBotonesInstalaciones.add(getBtnGestionarRecursos());
+			pnBotonesInstalaciones.add(getBtnNewButton_1());
 		}
 		return pnBotonesInstalaciones;
 	}
@@ -723,5 +725,11 @@ public class VentanaAdmin extends JFrame {
 			});
 		}
 		return btnGestionarRecursos;
+	}
+	private JButton getBtnNewButton_1() {
+		if (btnNewButton_1 == null) {
+			btnNewButton_1 = new JButton("Gestionar Instalación");
+		}
+		return btnNewButton_1;
 	}
 }

@@ -71,8 +71,6 @@ public class VentanaSocio extends JFrame {
 	private DefaultListModel<Instalacion> modelList1;
 	private DefaultListModel<Integer> modelo;
 	private JButton btnVerInstalaciones;
-	private JLabel lblNewLabel;
-	private JSpinner spnHora;
 	private JButton btnVerActividades;
 	private JScrollPane scrollPane;
 	private JList<Integer> listHoras;
@@ -116,8 +114,6 @@ public class VentanaSocio extends JFrame {
 		contentPane.add(getLblInstalacionesDisponibles());
 		contentPane.add(getScPaneList_1());
 		contentPane.add(getBtnVerInstalaciones());
-		contentPane.add(getLblNewLabel());
-		contentPane.add(getSpnHora());
 		contentPane.add(getBtnVerActividades());
 		contentPane.add(getScrollPane());
 		contentPane.add(getLblNewLabel_1());
@@ -327,7 +323,7 @@ public class VentanaSocio extends JFrame {
 						
 						DialogReservaInstalacionSocio dialog = 
 								new DialogReservaInstalacionSocio(model, 
-										getActList1().getSelectedValue(),d,(int)spnHora.getValue(),userId);
+										getActList1().getSelectedValue(),d,getListHoras().getSelectedValue(),userId);
 						dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 						dialog.setLocationRelativeTo(contentPane);
 						dialog.setModal(true);
@@ -384,7 +380,7 @@ public class VentanaSocio extends JFrame {
 			actList1.setModel(modelList1);
 			
 			actList1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			showInstalaciones(date.getYear()+YEARCORRECTION, date.getMonth()+MONTHCORRECTION, date.getDate(),8);
+			showInstalaciones(date.getYear()+YEARCORRECTION, date.getMonth()+MONTHCORRECTION, date.getDate());
 		}
 		return actList1;
 	}
@@ -393,7 +389,7 @@ public class VentanaSocio extends JFrame {
 			btnVerInstalaciones = new JButton("Ver instalaciones");
 			btnVerInstalaciones.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					showInstalaciones((int)spYear.getValue(), (int)spMonth.getValue(),(int)spDay.getValue(), (int)spnHora.getValue());
+					showInstalaciones((int)spYear.getValue(), (int)spMonth.getValue(),(int)spDay.getValue());
 				}
 			});
 			btnVerInstalaciones.setBackground(Color.WHITE);
@@ -402,7 +398,7 @@ public class VentanaSocio extends JFrame {
 		return btnVerInstalaciones;
 	}
 	
-	private void showInstalaciones(int year, int month, int day,int h1) {
+	private void showInstalaciones(int year, int month, int day) {
 		if (!model.comprobarFechaCorrecta(day, month, year)) {
 			showMessage("Esta fecha no existe, Introduce una fecha correcta",
 					"Aviso - Fecha incorrecta", JOptionPane.WARNING_MESSAGE);
@@ -413,31 +409,13 @@ public class VentanaSocio extends JFrame {
 			Instalacion[] instalaciones =  GymControlador.getInstalacionesDisponibles().values().toArray(
 					new Instalacion[GymControlador.getInstalacionesDisponibles().values().size()]);
 			for(int i =0; i < instalaciones.length; i++) {
-				if(instalaciones[i].comprobarReserva(date, h1)) {
-					ins.add(instalaciones[i]);
-				}
+				ins.add(instalaciones[i]);
 			}
 			modelList1.clear();
 			modelList1.addAll(ins);
 			
 			
 		}
-	}
-	private JLabel getLblNewLabel() {
-		if (lblNewLabel == null) {
-			lblNewLabel = new JLabel("Hora:");
-			lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			lblNewLabel.setBounds(456, 218, 75, 20);
-		}
-		return lblNewLabel;
-	}
-	private JSpinner getSpnHora() {
-		if (spnHora == null) {
-			spnHora = new JSpinner();
-			spnHora.setModel(new SpinnerNumberModel(8, 8, 22, 1));
-			spnHora.setBounds(566, 221, 48, 17);
-		}
-		return spnHora;
 	}
 	private JButton getBtnVerActividades() {
 		if (btnVerActividades == null) {
