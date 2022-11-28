@@ -60,7 +60,7 @@ public class ModelSocio {
 		try {
 			Connection c = getConnection();
 			
-			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE, A_CANCELADA "
+			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE, A_CANCELADA, A_GRUPO "
 					+ "FROM actividad WHERE A_DIA = ? ORDER BY A_INI";
 			
 			PreparedStatement pst = null;
@@ -85,7 +85,7 @@ public class ModelSocio {
 				fin = rs.getInt(5);
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
-				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), rs.getInt(8)));
+				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), rs.getInt(8), rs.getInt(9)));
 			}
 		    
 		    rs.close();
@@ -776,6 +776,7 @@ public class ModelSocio {
 		    int plazas;
 		    String instalacion;
 		    int cancelada;
+		    int grupo;
 		    while(rs.next()) {
 		    	System.out.println("Reservilla");
 		    	id = rs.getInt(1);
@@ -786,7 +787,8 @@ public class ModelSocio {
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
 				cancelada = rs.getInt(8);
-				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada));
+				grupo = rs.getInt(9);
+				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada, grupo));
 			}
 		    
 		    rs.close();
@@ -826,6 +828,7 @@ public class ModelSocio {
 		    int plazas;
 		    String instalacion;
 		    int cancelada;
+		    int grupo;
 		    while(rs.next()) {
 		    	System.out.println("Reservilla");
 		    	id = rs.getInt(1);
@@ -836,7 +839,8 @@ public class ModelSocio {
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
 				cancelada = rs.getInt(8);
-				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada));
+				grupo = rs.getInt(9);
+				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada, grupo));
 			}
 		    
 		    rs.close();

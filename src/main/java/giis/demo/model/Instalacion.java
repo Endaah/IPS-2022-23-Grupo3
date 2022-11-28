@@ -143,13 +143,6 @@ public class Instalacion {
 	}
 	
 	public void anular(Actividad act) {
-		if ((act.getDia().toLocalDate().getDayOfMonth() < LocalDate.now().getDayOfMonth()
-				&& act.getDia().toLocalDate().getMonthValue() == LocalDate.now().getMonthValue())
-				|| act.getDia().toLocalDate().getMonthValue() < LocalDate.now().getMonthValue()) {
-			System.err.println("No se ha podido anular la actividad, "
-					+ "no se puede anular una reserva pasada");
-			return;
-		}
 		
 		for (GrupoReservas gr : reservas) {
 			if (gr.getIdSocio() == 0)
