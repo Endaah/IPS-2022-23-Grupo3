@@ -6,7 +6,7 @@ public class Actividad {
 	public final static int CANCELADA = 1;
 	public final static int VALIDA = 0;
 	
-	public final static int ACTIVIDADILIMITADA = -1;
+	public final static int ACTIVIDADILIMITADA = 999;
 	
 	private int id;
 	private String nombre;

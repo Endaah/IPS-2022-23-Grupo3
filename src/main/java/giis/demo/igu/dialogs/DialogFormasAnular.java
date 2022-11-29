@@ -101,6 +101,10 @@ public class DialogFormasAnular extends JDialog {
 				JOptionPane.showMessageDialog(this, "No se puede anular una actividad pasada");
 				return;
 			}
+			if (act.getPlazas() != -1 && !GymControlador.getSociosDe(act).isBlank()) {
+				String res = "Socios apuntados a la actividad " + act.toString() + "\n" + GymControlador.getSociosDe(act);
+				JOptionPane.showMessageDialog(this, res);
+			}
 			vA.actualizarListaActividades();
 		}
 	}

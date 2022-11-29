@@ -20,6 +20,7 @@ import giis.demo.igu.VentanaAdmin;
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
 import giis.demo.model.Instalacion;
+import giis.demo.model.Recurso;
 import giis.demo.model.TipoActividad;
 
 import javax.swing.JSpinner;
@@ -169,17 +170,17 @@ public class DialogActividad extends JDialog {
 		java.sql.Date date = new java.sql.Date(calendar.getDate().getTime());
 		int hini = (int)getSpnIni().getValue();
 		int hfin = (int)getSpnFin().getValue();
-		int plazas = Actividad.ACTIVIDADILIMITADA;
+		int plazas;
 		Instalacion instalacion = ((Instalacion) getCmbIns().getSelectedItem());
-		if (instalacion.getRecurso().length >= 0) {
+		if (!ta.getRecurso().isEmpty()) {
 			int menor = Integer.MAX_VALUE;
-			for (int i : instalacion.getCantidades().values()) {
-				menor = menor > i ? i : menor;
+			for (Recurso r : ta.getRecurso()) {
+				menor = menor > instalacion.getCantidades().get(r.getNombre()) ? instalacion.getCantidades().get(r.getNombre()) : menor;
 			} plazas = menor;
 		} else {
 			plazas = (int) getSpnPlazas().getValue();
 			if (plazas == 0)
-				plazas = -1;
+				plazas = Actividad.ACTIVIDADILIMITADA;
 		}
 		// TODO: Añadir seleccion de instalacion y sustituir el null por el nombre en este método addActividad() v
 		GymControlador.addActividad(id,nombre,date,hini,hfin,plazas,instalacion.getNombre(),GymControlador.getUltimoGrupo() + 1);
@@ -215,16 +216,15 @@ public class DialogActividad extends JDialog {
 			if (i == 0 && tmp.equals(LocalDate.now()) && hini < LocalTime.now().getHour())
 				continue;
 			id = (GymControlador.getActividadesExistentes().get(GymControlador.getActividadesExistentes().size() - 1).getId())+1;
-			plazas = Actividad.ACTIVIDADILIMITADA;
-			if (instalacion.getRecurso().length > 0) {
+			if (!ta.getRecurso().isEmpty()) {
 				int menor = Integer.MAX_VALUE;
-				for (int inst : instalacion.getCantidades().values()) {
-					menor = menor > inst ? inst : menor;
+				for (Recurso r : ta.getRecurso()) {
+					menor = menor > instalacion.getCantidades().get(r.getNombre()) ? instalacion.getCantidades().get(r.getNombre()) : menor;
 				} plazas = menor;
 			} else {
 				plazas = (int) getSpnPlazas().getValue();
 				if (plazas == 0)
-					plazas = -1;
+					plazas = Actividad.ACTIVIDADILIMITADA;
 			}
 			GymControlador.addActividad(id,nombre,java.sql.Date.valueOf(date.toLocalDate().plusDays(i)),hini,hfin,plazas,instalacion.getNombre(),grupo);
 		}
@@ -258,7 +258,7 @@ public class DialogActividad extends JDialog {
 	private JSpinner getSpnIni() {
 		if (spnIni == null) {
 			spnIni = new JSpinner();
-			spnIni.setModel(new SpinnerNumberModel(7, 7, 23, 1));
+			spnIni.setModel(new SpinnerNumberModel(8, 8, 22, 1));
 			spnIni.setBounds(242, 106, 30, 20);
 		}
 		return spnIni;
@@ -266,7 +266,7 @@ public class DialogActividad extends JDialog {
 	private JSpinner getSpnFin() {
 		if (spnFin == null) {
 			spnFin = new JSpinner();
-			spnFin.setModel(new SpinnerNumberModel(7, 7, 23, 1));
+			spnFin.setModel(new SpinnerNumberModel(9, 9, 23, 1));
 			spnFin.setBounds(327, 106, 30, 20);
 		}
 		return spnFin;

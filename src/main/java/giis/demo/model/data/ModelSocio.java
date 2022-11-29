@@ -305,6 +305,13 @@ public class ModelSocio {
 		    
 		    pst.setInt(1, actId);
 		    
+		    Actividad a = null;
+		    for (Actividad act : GymControlador.getActividadesDisponibles()) {
+		    	if (act.getId() == actId)
+		    		a = act;
+		    }
+		    
+		    
 		    int res = pst.executeUpdate();
 		    
 		    if (res == 1) {
