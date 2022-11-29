@@ -362,9 +362,42 @@ public class ModelSocio {
 		
 		return false;
 	}
+	
+	/**
+	 * Comprueba que la hora a la que se solicita una reserva de actividad, 
+	 * esté recogida dentro del rango de los criterios de aceptacion
+	 * para apuntar siendo administrador (mismo dia, antes de esa hora)
+	 * @param dia
+	 * @param ini
+	 * @return
+	 */
+	public boolean checkPuedoApuntarAUnSocio(Date dia, int ini) {
+		
+		Calendar now = Calendar.getInstance();
+		now.setTime(new Date(System.currentTimeMillis()));
+		
+		Calendar act = Calendar.getInstance();
+		act.setTime(dia);
+		
+		//Mirar si coincide fecha
+		if (act.getTime().getYear() == now.getTime().getYear() && 
+				act.getTime().getMonth() == now.getTime().getMonth() &&
+				act.getTime().getDate() == now.getTime().getDate()) {
+			//Return true o false segun la hora
+			if (now.getTime().getHours() < ini) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		return false;
+	}
 
 	/**
-	 * Checkea que el socio que desea reservar o apuntarse no tenga ninguna otra actividad a esas horas
+	 * Checkea que el socio que desea reservar o apuntarse no tenga 
+	 * ninguna otra actividad a esas horas
 	 * @param dia
 	 * @param ini
 	 * @param fin

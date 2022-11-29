@@ -641,9 +641,9 @@ public class VentanaAdmin extends JFrame {
 		}
 		ModelSocio model = new ModelSocio();
 		Actividad actividad = listActividades.getSelectedValue();
-		if (!model.checkPuedoApuntarme(actividad.getDia(), actividad.getIni())) {
-			showMessage("No puedes apuntarte a esta actividad, debe ser maximo un "
-					+ "dia antes y minimo una hora antes de comenzar", 
+		if (!model.checkPuedoApuntarAUnSocio(actividad.getDia(), actividad.getIni())) {
+			showMessage("No puedes apuntar a nadie a esta actividad, la actividad"
+					+ " debe ser hoy", 
 					"Aviso - Imposible apuntar", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
