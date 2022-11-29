@@ -324,7 +324,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private JLabel getLblActividades() {
 		if (lblActividades == null) {
-			lblActividades = new JLabel("Actividades existentes:");
+			lblActividades = new JLabel("Actividades disponibles:");
 		}
 		return lblActividades;
 	}
@@ -373,7 +373,8 @@ public class VentanaAdmin extends JFrame {
 	private DefaultListModel<Actividad> getModelActividades() {
 		DefaultListModel<Actividad> model = new DefaultListModel<Actividad>();
 		for (Actividad a : GymControlador.getActividadesDisponibles())
-			model.addElement(a);
+			if (a.getDia().toLocalDate().isAfter(LocalDate.now()) || a.getDia().toLocalDate().isEqual(LocalDate.now()))
+				model.addElement(a);
 		return model;
 	}
 	private Component getHorizontalStrutActividadesDcha() {

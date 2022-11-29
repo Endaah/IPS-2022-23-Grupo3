@@ -25,7 +25,7 @@ public class Instalacion {
 		this.recursos = recurso;
 		this.reservas = reservas;
 		
-		this.cantidades = new HashMap<>();
+		this.cantidades = new HashMap<String, Integer>();
 		for (Recurso r : recursos) {
 			cantidades.put(r.getNombre(), Db.getNumeroRecursos(r.getNombre(), nombre));
 		}
@@ -34,6 +34,15 @@ public class Instalacion {
 	
 	public void addGrupoReserva(GrupoReservas gr) {
 		reservas.add(gr);
+	}
+	
+	public void addRecurso(Recurso r, int cantidad) {
+		recursos.add(r);
+		cantidades.put(r.getNombre(), cantidad);
+	}
+	
+	public void removeRecurso(Recurso r) {
+		recursos.remove(r);
 	}
 	
 	public String getNombre() {
