@@ -32,29 +32,17 @@ public class Actividad {
 
 	@Override
 	public String toString() {
-		String aux = "ID: ";
-		aux += id;
-		aux += ", (";
-		aux += dia;
-		aux += "- (";
-		aux += ini;
-		aux += "-";
-		aux += fin;
-		aux += " )) ";
-		if (plazas == ACTIVIDADILIMITADA) {
-			aux += "SIN LIMITE DE PLAZAS, ";
-		} else if (plazas == 0) {
-			aux += "ACTIVIDAD COMPLETA, ";
-		} else {
-			aux += plazas;
-			aux += " PLAZAS, ";
-		}
-		aux += nombre;
-		if (instalacion != null) {
-			aux += ", ";
-			aux += instalacion.getNombre();
-		}
-		return aux;
+		String str = "ID: " + id
+				+ " - " + dia 
+				+ " - " + ini + "-" + fin
+				+ " - " + nombre + " - ";
+		if (plazas == ACTIVIDADILIMITADA)
+			str += "sin limite";
+		else
+			str += plazas + " plazas";
+		str += " - Grupo " + grupo;
+		
+		return str;
 	}
 
 	public int getId() {return id;}

@@ -88,6 +88,10 @@ public class GymControlador {
 		}
 	}
 	
+	public static void addGrupoReserva(Instalacion i, GrupoReservas gr) {
+		i.addGrupoReserva(gr);
+	}
+	
 	public static List<Socio> buscarSocios(List<Socio> lista, String str) {
 		if (str.isBlank()) return lista;
 		
@@ -134,7 +138,7 @@ public class GymControlador {
 	public static String getSociosDe(Actividad act) {
 		String socios = "";
 		for (Socio s : Db.getSociosDe(act)) {
-			socios += s.getNombre() + "\n" + s.getEmail() + "\n\n";
+			socios += s.getNombre() + "\n" + s.getEmail() + "\n";
 		}
 		return socios;
 	}

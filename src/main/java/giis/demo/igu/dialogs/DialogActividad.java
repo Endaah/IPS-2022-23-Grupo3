@@ -398,12 +398,13 @@ class EvaluadorDeDias implements IDateEvaluator {
 
 	@Override
 	public boolean isInvalid(java.util.Date arg0) {
-		java.util.Date today = new java.util.Date(System.currentTimeMillis());
-		if (!arg0.equals(today)) {
+		LocalDate today = LocalDate.now();
+		LocalDate arg = new java.sql.Date(arg0.getTime()).toLocalDate();
+		if (!arg.equals(today)) {
 			DayOfWeek dayOfWeek = getDayOfWeek(arg0);
 			return !diasValidos.contains(dayOfWeek);
 		} else {
-			return true;
+			return false;
 		}
 	}
 

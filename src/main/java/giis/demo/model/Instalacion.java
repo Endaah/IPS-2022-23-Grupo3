@@ -32,6 +32,10 @@ public class Instalacion {
 		
 	}
 	
+	public void addGrupoReserva(GrupoReservas gr) {
+		reservas.add(gr);
+	}
+	
 	public String getNombre() {
 		return nombre;
 	}
@@ -46,6 +50,10 @@ public class Instalacion {
 	
 	public HashMap<String, Integer> getCantidades() {
 		return new HashMap<>(cantidades);
+	}
+	
+	public int getPrecioPorHora() {
+		return precioPorHora;
 	}
 	
 	public String validarReserva(int idSocio, LocalDate fecha, int hora, boolean larga) {

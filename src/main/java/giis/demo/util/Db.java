@@ -252,6 +252,27 @@ public class Db {
 		return socios;
 	}
 	
+	public static List<Actividad> getActividadesDelGrupo(int grupo) {
+		String query = "SELECT A_ID FROM ACTIVIDAD "
+				+ "WHERE A_GRUPO = ? "
+				+ "AND A_CANCELADA = 0 "
+				+ "AND A_DIA > ?";
+		ResultSet rs = sqlExecute(query, Arrays.asList(grupo, java.sql.Date.valueOf(LocalDate.now())));
+		
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		try {
+			while (rs.next()) {
+				for (Actividad a : GymControlador.getActividadesDisponibles()) {
+					if (a.getId() == rs.getInt(1))
+						actividades.add(a);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return actividades;
+	}
+	
 	// ============ INSERCIÓN DE DATOS ============== 
 	/*
 	 * Método general para insertar en la base de datos.

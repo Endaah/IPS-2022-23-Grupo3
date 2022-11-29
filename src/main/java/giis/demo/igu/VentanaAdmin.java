@@ -33,6 +33,7 @@ import javax.swing.event.ListSelectionListener;
 
 import giis.demo.igu.dialogs.DialogActividad;
 import giis.demo.igu.dialogs.DialogAnularReserva;
+import giis.demo.igu.dialogs.DialogFormasAnular;
 import giis.demo.igu.dialogs.DialogFormasPlanificar;
 import giis.demo.igu.dialogs.DialogGestionarRecursos;
 import giis.demo.igu.dialogs.DialogReservarInstalacion;
@@ -688,26 +689,22 @@ public class VentanaAdmin extends JFrame {
 			btnAnularActividad.setFont(new Font("Tahoma", Font.PLAIN, 11));
 			btnAnularActividad.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					anularActividad();
+					abrirDialogFormasDeAnular();
 				}
 			});
 		}
 		return btnAnularActividad;
 	}
-	private void anularActividad() {
-		Actividad act;
-		if ((act = this.getListActividades().getSelectedValue()) != null) {
-			if (!GymControlador.anularActividad(act)) {
-				JOptionPane.showMessageDialog(this, "No se puede anular una actividad pasada");
-				return;
-			}
-			if (act.getPlazas() != -1) {
-				String socios = "Socios apuntados a la actividad cancelada:\n" + GymControlador.getSociosDe(act);
-				JOptionPane.showMessageDialog(this, socios);
-			}
-			actualizarListaActividades();
+	private void abrirDialogFormasDeAnular() {
+		try {
+			DialogFormasAnular dialog = new DialogFormasAnular(this, getListActividades().getSelectedValue());
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
+	
 	public void actualizarListaActividades() {
 		getListActividades().setModel(getModelActividades());
 	}

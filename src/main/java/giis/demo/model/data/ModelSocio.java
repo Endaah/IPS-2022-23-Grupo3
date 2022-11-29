@@ -380,7 +380,7 @@ public class ModelSocio {
 					+ "AND ac.a_dia = ?"
 					+ "AND ac.a_ini <= ?"
 					+ "AND ac.a_fin > ?"
-					+ "AND a.a_cancelada == 0";
+					+ "AND ac.a_cancelada = 0";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
@@ -577,13 +577,15 @@ public class ModelSocio {
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
-		    		    
+		    
+		    int idReserva = instalacion.getReservas()[instalacion.getReservas().length - 1].getIdReserva();
+		    
 		    pst.setInt(1, socioId);
 		    pst.setString(2, instalacion.getNombre());
 		    pst.setDate(3, dia);
 		    pst.setInt(4, hora);
 		    pst.setInt(5, ReservaInstalacion.VALIDA);
-		    pst.setInt(6, instalacion.getReservas()[instalacion.getReservas().length - 1].getIdReserva());
+		    pst.setInt(6, idReserva);
 		    
 		    int res = pst.executeUpdate();
 		    
@@ -593,6 +595,10 @@ public class ModelSocio {
 			else {
 				System.out.println("ERROR insertando los datos");
 			}
+		    
+		    GrupoReservas gr = new GrupoReservas(idReserva, socioId, instalacion.getPrecioPorHora());
+		    gr.addReserva(new ReservaInstalacion(socioId, dia.toLocalDate(), hora, instalacion.getNombre(), 0, idReserva));
+		    GymControlador.addGrupoReserva(instalacion, gr);
 		    
 			pst.close();
 			c.close();
