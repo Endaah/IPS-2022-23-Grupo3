@@ -33,6 +33,9 @@ import javax.swing.event.ListSelectionListener;
 
 import giis.demo.igu.dialogs.DialogActividad;
 import giis.demo.igu.dialogs.DialogAnularReserva;
+import giis.demo.igu.dialogs.DialogFormasAnular;
+import giis.demo.igu.dialogs.DialogFormasPlanificar;
+import giis.demo.igu.dialogs.DialogGestionarInstalacion;
 import giis.demo.igu.dialogs.DialogGestionarRecursos;
 import giis.demo.igu.dialogs.DialogReservarInstalacion;
 import giis.demo.igu.dialogs.DialogReservarInstalacionAdmin;
@@ -137,7 +140,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private void abrirDialogoCrearActividad() {
 		try {
-			DialogActividad dialog = new DialogActividad(this);
+			DialogFormasPlanificar dialog = new DialogFormasPlanificar(this);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
@@ -200,13 +203,26 @@ public class VentanaAdmin extends JFrame {
 			btnReservarInstalacion = new JButton("Reservar para socio");
 			btnReservarInstalacion.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					abrirDialogoReservaInstalacion();
-					actualizarListaSocios();
-					getListSocios().clearSelection();
+						if(listInstalaciones.getSelectedValue() != null) {
+							if(listInstalaciones.getSelectedValue().getAbierta()) {
+								abrirDialogoReservaInstalacion();
+								actualizarListaSocios();
+								getListSocios().clearSelection();
+							}else {
+								showMessage();
+							}
+					
+				}else {
+					JOptionPane.showMessageDialog(rootPane, "Seleccione una instalacion");
+				}
 				}
 			});
 		}
 		return btnReservarInstalacion;
+	}
+	
+	private void showMessage() {
+		JOptionPane.showMessageDialog(this, "La instalación se encuentra cerrada");
 	}
 	private JButton getBtnNewButton() {
 		if (btnNewButton == null) {
@@ -434,7 +450,7 @@ public class VentanaAdmin extends JFrame {
 	}
 	private DefaultListModel<Instalacion> getModelInstalaciones() {
 		DefaultListModel<Instalacion> model = new DefaultListModel<Instalacion>();
-		for (Instalacion i : GymControlador.getInstalacionesDisponibles().values())
+		for (Instalacion i : GymControlador.getInstalaciones().values())
 			model.addElement(i);
 		return model;
 	}
@@ -641,9 +657,9 @@ public class VentanaAdmin extends JFrame {
 		}
 		ModelSocio model = new ModelSocio();
 		Actividad actividad = listActividades.getSelectedValue();
-		if (!model.checkPuedoApuntarme(actividad.getDia(), actividad.getIni())) {
-			showMessage("No puedes apuntarte a esta actividad, debe ser maximo un "
-					+ "dia antes y minimo una hora antes de comenzar", 
+		if (!model.checkPuedoApuntarAUnSocio(actividad.getDia(), actividad.getIni())) {
+			showMessage("No puedes apuntar a nadie a esta actividad, la actividad"
+					+ " debe ser hoy", 
 					"Aviso - Imposible apuntar", JOptionPane.WARNING_MESSAGE);
 			return;
 		}
@@ -689,21 +705,20 @@ public class VentanaAdmin extends JFrame {
 			btnAnularActividad.setFont(new Font("Tahoma", Font.PLAIN, 10));
 			btnAnularActividad.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					anularActividad();
+					abrirDialogFormasDeAnular();
 				}
 			});
 		}
 		return btnAnularActividad;
 	}
-	private void anularActividad() {
-		Actividad act;
-		if ((act = this.getListActividades().getSelectedValue()) != null) {
-			GymControlador.anularActividad(act);
-			if (act.getPlazas() != -1) {
-				String socios = "Socios apuntados a la actividad cancelada:\n" + GymControlador.getSociosDe(act);
-				JOptionPane.showMessageDialog(this, socios);
-			}
-			actualizarListaActividades();
+	
+	private void abrirDialogFormasDeAnular() {
+		try {
+			DialogFormasAnular dialog = new DialogFormasAnular(this, getListActividades().getSelectedValue());
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setVisible(true);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	public void actualizarListaActividades() {
@@ -729,7 +744,23 @@ public class VentanaAdmin extends JFrame {
 	private JButton getBtnNewButton_1() {
 		if (btnNewButton_1 == null) {
 			btnNewButton_1 = new JButton("Gestionar Instalación");
+			btnNewButton_1.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						DialogGestionarInstalacion dialog = new DialogGestionarInstalacion();
+						dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+						dialog.setVisible(true);
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+					showInstalaciones();
+				}
+			});
 		}
 		return btnNewButton_1;
+	}
+	
+	private void showInstalaciones() {
+		listInstalaciones.setModel(getModelInstalaciones());
 	}
 }

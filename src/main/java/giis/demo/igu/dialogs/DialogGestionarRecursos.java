@@ -175,7 +175,7 @@ public class DialogGestionarRecursos extends JDialog {
 						return;
 					}
 					Recurso eliminar = listTiene.getSelectedValue();
-					model.eliminarRecursoDeInstalacion(eliminar.getNombre(), nombreInstalacion);
+					model.eliminarRecursoDeInstalacion(eliminar, nombreInstalacion);
 					actualizarListas();
 				}
 			});
@@ -203,9 +203,9 @@ public class DialogGestionarRecursos extends JDialog {
 								JOptionPane.DEFAULT_OPTION);
 						return;
 					}
-					String nombreRecurso = listNoTiene.getSelectedValue().getNombre();
+					Recurso rc = listNoTiene.getSelectedValue();
 					
-					model.AñadirRecursoAInstalacion(nombreRecurso, nombreInstalacion, cantidad);
+					model.AñadirRecursoAInstalacion(rc, nombreInstalacion, cantidad);
 					actualizarListas();
 				}
 			});

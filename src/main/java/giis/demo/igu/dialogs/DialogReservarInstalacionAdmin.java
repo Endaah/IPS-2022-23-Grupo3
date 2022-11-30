@@ -97,7 +97,6 @@ private static final long serialVersionUID = 1L;
 			JOptionPane.showMessageDialog(this, "Hay campos con contenido no válido:" + motivo);
 			return;
 		}
-		
 		int n = 666;
 		LocalDate fecha = new java.sql.Date(getCalendar().getDate().getTime()).toLocalDate();
 		int hora = (int) getSpnHora().getValue();

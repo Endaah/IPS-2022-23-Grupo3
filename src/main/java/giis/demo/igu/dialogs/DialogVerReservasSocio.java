@@ -81,7 +81,7 @@ public class DialogVerReservasSocio extends JDialog {
 	}
 	
 	private void showPrecio() {
-		List<GrupoReservas> reservas = model.getListReservas(userId);
+		List<GrupoReservas> reservas = model.getListReservasFor(userId);
 		int precio = 0;
 		for (GrupoReservas gr : reservas)
 			precio += gr.getPrecio();

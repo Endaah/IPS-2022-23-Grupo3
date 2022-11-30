@@ -124,12 +124,84 @@ public class Db {
 		List<Socio> sociosConReserva = new ArrayList<Socio>();
 		for (Socio s : getSocios())
 			for (GrupoReservas gr : getReservasSocio(s.getId())) {
-				if (gr.getReservas()[0].getAnulada() == 0) {
+				if (gr.getReservas()[0].getAnulada() == 0 ) {
 					sociosConReserva.add(s);
 					break;
 				}
 			}
 		return sociosConReserva;
+	}
+	
+	public static List<Socio> getSociosActividadIlimitado(int dia) {
+		List<Socio> sociosConReserva = new ArrayList<Socio>();
+		for (Socio s : getSocios()) {
+			boolean b = false;
+			for (GrupoReservas gr : getReservasSocio(s.getId())) {
+				if (gr.getReservas()[0].getAnulada() == 0 ) {
+						
+						for(ReservaInstalacion r : gr.getReservas()) {
+							if(r.getFecha().getDayOfMonth() >= dia) {
+								b = true;
+							}
+						}
+					}
+				
+			}
+			if(b) {
+				sociosConReserva.add(s);
+			}
+		}
+	
+		return sociosConReserva;
+	}
+	
+	public static List<Socio> getSociosActividad(Date dia) {
+		List<Socio> socios = new ArrayList<Socio>();
+		for (Socio s : getSocios()) {
+			boolean b = false;
+			for (Actividad a : getActividadesDe(s.getId())) {
+				if (a.getDia() == dia) {
+						b = true;
+					}
+				
+			}
+			if(b) {
+				socios.add(s);
+			}
+		}
+	
+		return socios;
+	}
+	
+	public static void desapuntarInstalacion(Date d, Instalacion ins) {
+		LocalDate t = d.toLocalDate();
+		for (Socio s : getSocios()) {
+			for (GrupoReservas gr : getReservasSocio(s.getId())) {
+				if (gr.getReservas()[0].getAnulada() == 0 ) {
+						
+						for(ReservaInstalacion r : gr.getReservas()) {
+							if(r.getFecha().getMonthValue() == t.getMonthValue() && r.getFecha().getYear()== t.getYear() && r.getFecha().getDayOfMonth() >= t.getDayOfMonth() && r.getInstalacion() == ins.getNombre()) {
+								dbAnularReserva(d, r.getHora(), ins.getNombre());
+							}
+						}
+					}
+				
+			}
+		}
+	}
+	
+	public static void borrarActividades(Date d, Instalacion ins) {
+		LocalDate t = d.toLocalDate();
+		for (Actividad s : GymControlador.getActividadesDisponibles()) {
+			LocalDate d1 = s.getDia().toLocalDate();
+			if(d1.getMonthValue() == t.getMonthValue() && d1.getYear()== t.getYear() && d1.getDayOfMonth() >= t.getDayOfMonth() && s.getInstalacion() == ins) {
+				dbAnularActividad(s);
+			}else if(d1.getMonthValue() > t.getMonthValue() && d1.getYear() == t.getYear()  && s.getInstalacion() == ins) {
+				dbAnularActividad(s);
+			}else if(d1.getYear() > t.getYear() && s.getInstalacion() == ins) {
+				dbAnularActividad(s);
+			}
+		}
 	}
 	
 	public static List<GrupoReservas> getReservasSocio(int idSocio) {
@@ -347,12 +419,69 @@ public class Db {
 		sqlUpdate(query, Arrays.asList(instalacion, fecha, hora));
 	}
 	
+	public static void abrirInstalacion(String instalacion) {
+		String query = "UPDATE INSTALACION "
+				+ "SET ABIERTA = 1 "
+				+ "WHERE I_NOMBRE = ? ";
+		
+		sqlUpdate(query, Arrays.asList(instalacion));
+	}
+	
+	public static void cerrarInstalacion(String instalacion) {
+		String query = "UPDATE INSTALACION "
+				+ "SET ABIERTA = 0 "
+				+ "WHERE I_NOMBRE = ? ";
+		
+		sqlUpdate(query, Arrays.asList(instalacion));
+	}
+	
 	public static void dbAnularActividad(Actividad a) {
 		String query = "UPDATE ACTIVIDAD "
 				+ "SET A_CANCELADA = 1 "
 				+ "WHERE A_ID = ? ";
 		
 		sqlUpdate(query, Arrays.asList(a.getId()));
+	}
+	
+	public static List<Actividad> getActividadesDelGrupo(int grupo) {
+		String query = "SELECT A_ID FROM ACTIVIDAD "
+				+ "WHERE A_GRUPO = ? "
+				+ "AND A_CANCELADA = 0 "
+				+ "AND A_DIA > ?";
+		ResultSet rs = sqlExecute(query, Arrays.asList(grupo, java.sql.Date.valueOf(LocalDate.now())));
+		
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		try {
+			while (rs.next()) {
+				for (Actividad a : GymControlador.getActividadesDisponibles()) {
+					if (a.getId() == rs.getInt(1))
+						actividades.add(a);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return actividades;
+	}
+	
+	public static List<Actividad> getActividadesDia(LocalDate date) {
+		String query = "SELECT A_ID FROM ACTIVIDAD "
+				+"WHERE A_CANCELADA = 0 "
+				+ "AND A_DIA = ?";
+		ResultSet rs = sqlExecute(query, Arrays.asList(java.sql.Date.valueOf(date)));
+		
+		List<Actividad> actividades = new ArrayList<Actividad>();
+		try {
+			while (rs.next()) {
+				for (Actividad a : GymControlador.getActividadesDisponibles()) {
+					if (a.getId() == rs.getInt(1))
+						actividades.add(a);
+				}
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return actividades;
 	}
 	
 	// ============ CARGA DE TABLAS A MEMORIA ==============
@@ -431,7 +560,11 @@ public class Db {
 					}
 					reservas.add(gr);
 				}
-				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), rsI.getInt(2),tmp, reservas));
+				boolean abierta = false;
+				if(rsI.getInt(3) == 1) {
+					abierta = true;
+				}
+				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), rsI.getInt(2),tmp, reservas,abierta));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -440,6 +573,78 @@ public class Db {
 			try {rsRC.close();} catch (SQLException e) {e.printStackTrace();}
 			try {rsRes.close();} catch (SQLException e) {e.printStackTrace();}
 			try {rsAct.close();} catch (SQLException e) {e.printStackTrace();}
+		}
+		return instalaciones;
+	}
+	
+	/**
+	 * Carga las instalaciones desde la base de datos a listas en memoria
+	 * @return Lista con todas las instalaciones de la bd
+	 */
+	public static HashMap<String, Instalacion> cargarInstalacionesDisponibles() {
+		String queryI = "SELECT * FROM INSTALACION WHERE ABIERTA = ?";
+		String queryRC = "SELECT RC_NOMBRE, RC_CANTIDAD "
+				+ "FROM TIENE "
+				+ "WHERE I_NOMBRE = ?";
+		String queryRes = "SELECT * FROM RESERVA "
+				+ "WHERE I_NOMBRE = ?";
+		String queryAct = "SELECT A_ID, A_DIA, A_INI, A_FIN, A_CANCELADA FROM ACTIVIDAD "
+				+ "WHERE I_NOMBRE = ?";
+		
+		HashMap<String, Instalacion> instalaciones = new HashMap<String, Instalacion>();
+		
+		try {
+			PreparedStatement p = con.prepareStatement(queryI);
+			p.setInt(1,1);
+			ResultSet rsI = p.executeQuery();
+			ResultSet rsRC = null;
+			ResultSet rsRes = null;
+			ResultSet rsAct = null;
+			while (rsI.next()) {
+				rsRC = sqlExecute(queryRC, Arrays.asList(rsI.getString(1)));
+				List<Recurso> tmp = new ArrayList<Recurso>();
+				while (rsRC.next()) {
+					Recurso r = GymControlador.getRecursosDisponibles().get(rsRC.getString(1));
+					if (r != null)
+						tmp.add(r);
+				}
+				rsRes = sqlExecute(queryRes, Arrays.asList(rsI.getString(1)));
+				List<GrupoReservas> reservas = new ArrayList<GrupoReservas>();
+				while (rsRes.next()) {
+					boolean added = false;
+					for (GrupoReservas gr : reservas) {
+						if (gr.getIdReserva() == rsRes.getInt(6) && gr.getIdSocio() == rsRes.getInt(1)) {
+							gr.addReserva(new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5), rsRes.getInt(6)));
+							added = true;
+							break;
+						}
+					} if (!added) {
+						GrupoReservas gr = new GrupoReservas(rsRes.getInt(6), rsRes.getInt(1), rsI.getInt(2));
+						gr.addReserva(new ReservaInstalacion(rsRes.getInt(1), rsRes.getDate(3).toLocalDate(), rsRes.getInt(4), rsI.getString(1), rsRes.getInt(5), rsRes.getInt(6)));
+						reservas.add(gr);
+					}
+				}
+				rsAct = sqlExecute(queryAct, Arrays.asList(rsI.getString(1)));
+				while(rsAct.next()) {
+					GrupoReservas gr = new GrupoReservas(rsAct.getInt(1), 0, 0);
+					for (int i = 0; i < rsAct.getInt(4) - rsAct.getInt(3); i++) {
+						ReservaInstalacion rI = new ReservaInstalacion(0, rsAct.getDate(2).toLocalDate(), rsAct.getInt(3) + i, rsI.getString(1), rsAct.getInt(5), rsAct.getInt(1));
+						gr.addReserva(rI);
+					}
+					reservas.add(gr);
+				}
+				boolean abierta = false;
+				if(rsI.getInt(3) == 1) {
+					abierta = true;
+				}
+				instalaciones.put(rsI.getString(1), new Instalacion(rsI.getString(1), rsI.getInt(2),tmp, reservas,abierta));
+			}
+			rsI.close();
+			rsRC.close();
+			rsRes.close();
+			rsAct.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return instalaciones;
 	}
@@ -489,7 +694,7 @@ public class Db {
 		ResultSet rs = sqlExecute(query);
 		try {
 			while (rs.next()) {
-				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7)),rs.getInt(8)));
+				actividades.add(new Actividad(rs.getInt(1), rs.getString(2),rs.getDate(3),rs.getInt(4),rs.getInt(5),rs.getInt(6),GymControlador.getInstalacionesDisponibles().get(rs.getString(7)),rs.getInt(8),rs.getInt(9)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

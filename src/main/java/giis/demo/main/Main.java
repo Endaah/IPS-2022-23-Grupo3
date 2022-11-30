@@ -32,6 +32,7 @@ public class Main {
 		GymControlador.cargarInstalaciones();
 		GymControlador.cargarTiposDeActividad();
 		GymControlador.cargarActividades();
+		GymControlador.cargarIns();
 	}
 	
 	private static void initializeDB() {

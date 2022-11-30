@@ -315,28 +315,35 @@ public class VentanaSocio extends JFrame {
 			btnReservarInstalacion = new JButton("Reservar Instalación");
 			btnReservarInstalacion.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
-						int userId = model.askForIdSocio();
-						//Mario, cuando hagas el ver instalaciones, conecta esto 
-						//a la instalación seleccionada, dia y hora de los spinners
-						LocalDate d = LocalDate.of((int)spYear.getValue(), (int)spMonth.getValue(), (int)spDay.getValue());
-						
-						DialogReservaInstalacionSocio dialog = 
-								new DialogReservaInstalacionSocio(model, 
-										getActList1().getSelectedValue(),d,getListHoras().getSelectedValue(),userId);
-						dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-						dialog.setLocationRelativeTo(contentPane);
-						dialog.setModal(true);
-						dialog.setVisible(true);
-					} catch (Exception exc) {
-						exc.printStackTrace();
-					}
+					reservar1();
 				}
 			});
 			btnReservarInstalacion.setBackground(Color.GREEN);
 			btnReservarInstalacion.setBounds(34, 444, 142, 35);
 		}
 		return btnReservarInstalacion;
+	}
+	
+	private void reservar1() {
+		try {
+			int userId = model.askForIdSocio();
+			//Mario, cuando hagas el ver instalaciones, conecta esto 
+			//a la instalación seleccionada, dia y hora de los spinners
+			LocalDate d = LocalDate.of((int)spYear.getValue(), (int)spMonth.getValue(), (int)spDay.getValue());
+			if(!getActList1().getSelectedValue().getAbierta()) {
+				JOptionPane.showMessageDialog(this, "La instalación se encuentra cerrada");
+			}else {
+			DialogReservaInstalacionSocio dialog = 
+					new DialogReservaInstalacionSocio(model, 
+							getActList1().getSelectedValue(),d,getListHoras().getSelectedValue(),userId);
+			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			dialog.setLocationRelativeTo(contentPane);
+			dialog.setModal(true);
+			dialog.setVisible(true);
+			}
+		} catch (Exception exc) {
+			exc.printStackTrace();
+		}
 	}
 	private JButton getBtnVerReservas() {
 		if (btnVerReservas == null) {
@@ -406,8 +413,8 @@ public class VentanaSocio extends JFrame {
 		else {
 			LocalDate date = LocalDate.of(year, month, day);
 			List<Instalacion> ins = new ArrayList<Instalacion>();
-			Instalacion[] instalaciones =  GymControlador.getInstalacionesDisponibles().values().toArray(
-					new Instalacion[GymControlador.getInstalacionesDisponibles().values().size()]);
+			Instalacion[] instalaciones =  GymControlador.getInstalaciones().values().toArray(
+					new Instalacion[GymControlador.getInstalaciones().values().size()]);
 			for(int i =0; i < instalaciones.length; i++) {
 				ins.add(instalaciones[i]);
 			}
@@ -445,7 +452,7 @@ public class VentanaSocio extends JFrame {
 	}
 	private JList<Integer> getListHoras() {
 		if (listHoras == null) {
-			listHoras = new JList();
+			listHoras = new JList<Integer>();
 			
 			modelo = new DefaultListModel<>();
 			listHoras.setModel(modelo);
@@ -477,19 +484,22 @@ public class VentanaSocio extends JFrame {
 	}
 	
 	private void showHoras() {
+		modelo.removeAllElements();
 		Instalacion ins = getActList1().getSelectedValue();
 		GrupoReservas[] g = ins.getReservas();
 		ArrayList<ReservaInstalacion> r = new ArrayList<ReservaInstalacion>();
+		ArrayList<ReservaInstalacion> r2 = new ArrayList<ReservaInstalacion>();
 		for(GrupoReservas g1 : g) {
 			for(ReservaInstalacion r1 : g1.getReservas()) {
 				r.add(r1);
+				r2.add(r1);
 			}
 		}
-		
+		int a = r.size();
 		LocalDate date = LocalDate.of((int)spYear.getValue(), (int)spMonth.getValue(),(int)spDay.getValue());
-		for(ReservaInstalacion r1 : r) {
-			if(r1.getFecha() != date) {
-				r.remove(r1);
+		for(int i = 0; i < a ;i++) {
+			if(r2.get(i).getFecha() != date) {
+				r.remove(r2.get(i));
 			}
 		}
 		

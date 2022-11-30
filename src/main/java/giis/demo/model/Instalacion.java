@@ -14,16 +14,18 @@ public class Instalacion {
 	
 	private String nombre;
 	private int precioPorHora;
+	private boolean abierta;
 	private List<Recurso> recursos;
 	private List<GrupoReservas> reservas;
 	
 	private HashMap<String, Integer> cantidades;
 	
-	public Instalacion(String nombre, int precio, List<Recurso> recurso, List<GrupoReservas> reservas) {
+	public Instalacion(String nombre, int precio, List<Recurso> recurso, List<GrupoReservas> reservas, boolean ab) {
 		this.nombre = nombre;
 		this.precioPorHora = precio;
 		this.recursos = recurso;
 		this.reservas = reservas;
+		this.abierta = ab;
 		
 		this.cantidades = new HashMap<>();
 		for (Recurso r : recursos) {
@@ -32,8 +34,24 @@ public class Instalacion {
 		
 	}
 	
+	public void addGrupoReserva(GrupoReservas gr) {
+		reservas.add(gr);
+	}
+	
+	public void addRecurso(Recurso r, int cantidad) {
+		recursos.add(r);
+		cantidades.put(r.getNombre(), cantidad);
+	}
+	
+	public void removeRecurso(Recurso r) {
+		recursos.remove(r);
+	}
 	public String getNombre() {
 		return nombre;
+	}
+	
+	public boolean getAbierta() {
+		return abierta;
 	}
 	
 	public Recurso[] getRecurso() {
@@ -47,51 +65,62 @@ public class Instalacion {
 	public HashMap<String, Integer> getCantidades() {
 		return new HashMap<>(cantidades);
 	}
+	public int getPrecioPorHora() {
+		return precioPorHora;
+	}
 	
 	public String validarReserva(int idSocio, LocalDate fecha, int hora, boolean larga) {
 		String motivo = "";
-		if (fecha.getDayOfYear() - LocalDate.now().getDayOfYear() >= 8) {		// Si la reserva se ha hecho más de 7 días antes
-			motivo += "Las resrvas se deben hacer como mucho 7 días antes\n";
-		}
-		
-		for (GrupoReservas gr : reservas) {										// Por cada reserva
-			for (ReservaInstalacion ri : gr.getReservas()) {
-				if (ri.getAnulada() == 0) {
-					if (ri.getFecha().equals(fecha)
-							&& (ri.getHora() == hora
-								|| (larga && ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
-						motivo += "La instalación ya estaba reservada\n";
+		if(abierta == true) {
+			if (fecha.getDayOfYear() - LocalDate.now().getDayOfYear() >= 8) {		// Si la reserva se ha hecho más de 7 días antes
+				motivo += "Las reservas se deben hacer como mucho 7 días antes\n";
+			}
+			
+			for (GrupoReservas gr : reservas) {										// Por cada reserva
+				for (ReservaInstalacion ri : gr.getReservas()) {
+					if (ri.getAnulada() == 0) {
+						if (ri.getFecha().equals(fecha)
+								&& (ri.getHora() == hora
+									|| (larga && ri.getHora() == hora + 1))) { 		// Si existe una reserva el mismo dia a la misma hora que lo que se ha intentado reservar
+							motivo += "La instalación ya estaba reservada\n";
+						}
 					}
 				}
 			}
-		}
-		
-		for (GrupoReservas gr : Db.getReservasSocio(idSocio)) {
-			for (ReservaInstalacion ri : gr.getReservas())
-				if (ri.getFecha().equals(fecha)
-						&& (ri.getHora() == hora
-						|| (larga && (ri.getHora() == hora || ri.getHora() == hora + 1)))) {			// Si el socio ya tiene una reserva de instalación
-					motivo += "Este socio ya tiene una reserva a esta hora\n";
-				}
-		}
-		
-		for (Actividad a : Db.getActividadesDe(idSocio)) {
 			
-			boolean overlaps = false;
-			for (int i = 0; i < a.getFin() - a.getIni(); i++) {
-				if (a.getDia().toLocalDate().equals(fecha)
-						&& (a.getIni() + i == hora
-						|| (larga && (a.getIni() + i == hora || a.getIni() + i == hora + 1)))) {	// Si el socio está apuntado a una actividad a esa hora
-					overlaps = true;
-				}
+			for (GrupoReservas gr : Db.getReservasSocio(idSocio)) {
+				for (ReservaInstalacion ri : gr.getReservas())
+					if (ri.getFecha().equals(fecha)
+							&& (ri.getHora() == hora
+							|| (larga && (ri.getHora() == hora || ri.getHora() == hora + 1)))) {			// Si el socio ya tiene una reserva de instalación
+						motivo += "Este socio ya tiene una reserva a esta hora\n";
+					}
 			}
 			
-			if (overlaps) {
-				motivo += "Este socio ya está apuntado a una actividad a esta hora\n";
+			for (Actividad a : Db.getActividadesDe(idSocio)) {
+				
+				boolean overlaps = false;
+				for (int i = 0; i < a.getFin() - a.getIni(); i++) {
+					if (a.getDia().toLocalDate().equals(fecha)
+							&& (a.getIni() + i == hora
+							|| (larga && (a.getIni() + i == hora || a.getIni() + i == hora + 1)))) {	// Si el socio está apuntado a una actividad a esa hora
+						overlaps = true;
+					}
+				}
+				
+				if (overlaps) {
+					motivo += "Este socio ya está apuntado a una actividad a esta hora\n";
+				}
 			}
+		}else {
+			motivo += "La instalación está cerrada";
 		}
 		
 		return motivo;
+	}
+	
+	public void abrir(boolean a) {
+		abierta = a;
 	}
 	
 	public String reservar(int idSocio, LocalDate fecha, int hora, boolean larga) {
@@ -143,13 +172,6 @@ public class Instalacion {
 	}
 	
 	public void anular(Actividad act) {
-		if ((act.getDia().toLocalDate().getDayOfMonth() < LocalDate.now().getDayOfMonth()
-				&& act.getDia().toLocalDate().getMonthValue() == LocalDate.now().getMonthValue())
-				|| act.getDia().toLocalDate().getMonthValue() < LocalDate.now().getMonthValue()) {
-			System.err.println("No se ha podido anular la actividad, "
-					+ "no se puede anular una reserva pasada");
-			return;
-		}
 		
 		for (GrupoReservas gr : reservas) {
 			if (gr.getIdSocio() == 0)
@@ -183,22 +205,6 @@ public class Instalacion {
 	}
 	
 	public boolean reservarEmpresa(int idSocio, LocalDate fecha, int hora,boolean larga) {
-		LocalDate d = LocalDate.now();
-		if(fecha.getYear() < d.getYear()) {
-			System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-					+ "fecha errónea");
-			return false;
-		}else if((fecha.getYear() == d.getYear()) && (fecha.getMonthValue() < d.getMonthValue())){
-			System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-					+ "fecha errónea");
-			return false;
-		}else if((fecha.getYear() == d.getYear()) && (fecha.getMonthValue() == d.getMonthValue()) && (fecha.getDayOfMonth() < d.getDayOfMonth())) {
-			System.err.println("No se ha realizado la reserva, "	// Avisar que no se ha realizado
-					+ "fecha errónea");
-			return false;
-		}
-		
-		
 		for (GrupoReservas gr : reservas) {
 			for (ReservaInstalacion ri : gr.getReservas()) {						// Por cada reserva
 				if (ri.getFecha().equals(fecha)

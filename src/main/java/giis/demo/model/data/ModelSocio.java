@@ -61,7 +61,7 @@ public class ModelSocio {
 			Connection c = getConnection();
 			
 			String query = "SELECT a_id, TA_NOMBRE, A_DIA, A_INI, A_FIN, A_PLAZAS, I_NOMBRE, A_CANCELADA "
-					+ "FROM actividad WHERE A_DIA = ? ORDER BY A_INI";
+					+ "FROM actividad WHERE A_DIA = ? AND A_CANCELADA = 0 ORDER BY A_INI";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
@@ -85,7 +85,7 @@ public class ModelSocio {
 				fin = rs.getInt(5);
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
-				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), rs.getInt(8)));
+				activities.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), rs.getInt(8),0));
 			}
 		    
 		    rs.close();
@@ -305,6 +305,13 @@ public class ModelSocio {
 		    
 		    pst.setInt(1, actId);
 		    
+		    Actividad a = null;
+		    for (Actividad act : GymControlador.getActividadesDisponibles()) {
+		    	if (act.getId() == actId)
+		    		a = act;
+		    }
+		    
+		    
 		    int res = pst.executeUpdate();
 		    
 		    if (res == 1) {
@@ -362,6 +369,38 @@ public class ModelSocio {
 		
 		return false;
 	}
+	
+	/**
+	 * Comprueba que la hora a la que se solicita una reserva de actividad, 
+	 * esté recogida dentro del rango de los criterios de aceptacion
+	 * para apuntar siendo administrador (mismo dia, antes de esa hora)
+	 * @param dia
+	 * @param ini
+	 * @return
+	 */
+	public boolean checkPuedoApuntarAUnSocio(Date dia, int ini) {
+		
+		Calendar now = Calendar.getInstance();
+		now.setTime(new Date(System.currentTimeMillis()));
+		
+		Calendar act = Calendar.getInstance();
+		act.setTime(dia);
+		
+		//Mirar si coincide fecha
+		if (act.getTime().getYear() == now.getTime().getYear() && 
+				act.getTime().getMonth() == now.getTime().getMonth() &&
+				act.getTime().getDate() == now.getTime().getDate()) {
+			//Return true o false segun la hora
+			if (now.getTime().getHours() < ini) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Checkea que el socio que desea reservar o apuntarse no tenga ninguna otra actividad a esas horas
@@ -380,7 +419,7 @@ public class ModelSocio {
 					+ "AND ac.a_dia = ?"
 					+ "AND ac.a_ini <= ?"
 					+ "AND ac.a_fin > ?"
-					+ "AND a.a_cancelada == 0";
+					+ "AND ac.a_cancelada = ?";
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
@@ -389,6 +428,7 @@ public class ModelSocio {
 		    pst.setDate(2, dia);
 		    pst.setInt(3, ini);
 		    pst.setInt(4, ini);
+		    pst.setInt(5, 0);
 		    
 		    ResultSet rs = pst.executeQuery();
 		    
@@ -577,13 +617,15 @@ public class ModelSocio {
 			
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
-		    		    
+		    
+		    int idReserva = instalacion.getReservas()[instalacion.getReservas().length - 1].getIdReserva();
+		    
 		    pst.setInt(1, socioId);
 		    pst.setString(2, instalacion.getNombre());
 		    pst.setDate(3, dia);
 		    pst.setInt(4, hora);
 		    pst.setInt(5, ReservaInstalacion.VALIDA);
-		    pst.setInt(6, instalacion.getReservas()[instalacion.getReservas().length - 1].getIdReserva());
+		    pst.setInt(6, idReserva);
 		    
 		    int res = pst.executeUpdate();
 		    
@@ -593,6 +635,11 @@ public class ModelSocio {
 			else {
 				System.out.println("ERROR insertando los datos");
 			}
+		    
+		    GrupoReservas gr = new GrupoReservas(idReserva, socioId, instalacion.getPrecioPorHora());
+		    gr.addReserva(new ReservaInstalacion(socioId, dia.toLocalDate(), hora, instalacion.getNombre(), 0, idReserva));
+		    instalacion.addGrupoReserva(gr);
+		    GymControlador.addGrupoReserva(instalacion, gr);
 		    
 			pst.close();
 			c.close();
@@ -694,62 +741,7 @@ public class ModelSocio {
 		return reservas;
 	}
 	
-	/**
-	 * Devuelve una lista de reservas  para un socio
-	 * @param date
-	 * @return
-	 */
-	public List<GrupoReservas> getListReservas(int socioId) {
-		List<GrupoReservas> reservas = new ArrayList<>(); 
-		
-		try {
-			Connection c = getConnection();
-			
-			String query = "SELECT * "
-					+ "FROM reserva WHERE "
-					+ "r_cancelada = ? ORDER BY R_dia, r_hora";
-			
-			PreparedStatement pst = null;
-		    pst = c.prepareStatement(query);
-		    
-		    Calendar today = Calendar.getInstance();
-		    		    
-		    pst.setInt(1, ReservaInstalacion.VALIDA);
-		    
-		    ResultSet rs = pst.executeQuery();
-		    
-		    int id;
-		    String nombre;
-		    Date dia;
-		    int hora;
-		    
-		    while(rs.next()) {
-		    	id = rs.getInt(1);
-				nombre = rs.getString(2);
-				dia = rs.getDate(3);
-				hora = rs.getInt(4);
-				
-				for (GrupoReservas gr : GymControlador.getInstalacionesDisponibles().get(rs.getString(2)).getReservas()) {
-					ReservaInstalacion rI = gr.getReservas()[0];
-					if (Date.valueOf(rI.getFecha()).equals(rs.getDate(3))
-							&& rI.getHora() == rs.getInt(4)
-							&& gr.getIdSocio() == socioId)
-						reservas.add(gr);
-				}
-			}
-		    
-		    rs.close();
-			pst.close();
-			c.close();
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			System.err.println("Error obteniendo las actividades");
-		}
-		
-		return reservas;
-	}
+	
 	
 	/**
 	 * Comprueba en la db si la fecha de una reserva es valida para borrar una reserva
@@ -833,6 +825,7 @@ public class ModelSocio {
 		    int plazas;
 		    String instalacion;
 		    int cancelada;
+		    int grupo;
 		    while(rs.next()) {
 		    	System.out.println("Reservilla");
 		    	id = rs.getInt(1);
@@ -843,7 +836,8 @@ public class ModelSocio {
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
 				cancelada = rs.getInt(8);
-				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada));
+				grupo = rs.getInt(9);
+				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada, grupo));
 			}
 		    
 		    rs.close();
@@ -883,6 +877,7 @@ public class ModelSocio {
 		    int plazas;
 		    String instalacion;
 		    int cancelada;
+		    int grupo;
 		    while(rs.next()) {
 		    	System.out.println("Reservilla");
 		    	id = rs.getInt(1);
@@ -893,7 +888,8 @@ public class ModelSocio {
 				plazas = rs.getInt(6);
 				instalacion = rs.getString(7);
 				cancelada = rs.getInt(8);
-				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada));
+				grupo = rs.getInt(9);
+				actividades.add(new Actividad(id, nombre, dia, ini, fin, plazas, GymControlador.getInstalacionesDisponibles().get(instalacion), cancelada, grupo));
 			}
 		    
 		    rs.close();

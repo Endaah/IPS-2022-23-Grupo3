@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 
 import giis.demo.model.Actividad;
 import giis.demo.model.GymControlador;
+import giis.demo.model.Instalacion;
 import giis.demo.model.Recurso;
 
 public class ModelActividadRecursos {
@@ -100,10 +101,10 @@ public class ModelActividadRecursos {
 
 	/**
 	 * Elimina una relacion entre un recurso y una instalacion
-	 * @param nombreRecurso
+	 * @param rc
 	 * @param nombreInstalacion
 	 */
-	public void eliminarRecursoDeInstalacion(String nombreRecurso, String nombreInstalacion) {
+	public void eliminarRecursoDeInstalacion(Recurso rc, String nombreInstalacion) {
 		try {
 			Connection c = getConnection();
 			
@@ -112,7 +113,7 @@ public class ModelActividadRecursos {
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
 		    
-		    pst.setString(1, nombreRecurso);
+		    pst.setString(1, rc.getNombre());
 		    pst.setString(2, nombreInstalacion);
 		    
 		    int res = pst.executeUpdate();
@@ -127,6 +128,9 @@ public class ModelActividadRecursos {
 			pst.close();
 			c.close();
 			
+			Instalacion i = GymControlador.getInstalacionesDisponibles().get(nombreInstalacion);
+			i.removeRecurso(rc);
+			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -136,10 +140,10 @@ public class ModelActividadRecursos {
 	
 	/**
 	 * Añade una relacion entre un recurso y una instalacion
-	 * @param nombreRecurso
+	 * @param rc
 	 * @param nombreInstalacion
 	 */
-	public void AñadirRecursoAInstalacion(String nombreRecurso, String nombreInstalacion, int cantidad) {
+	public void AñadirRecursoAInstalacion(Recurso rc, String nombreInstalacion, int cantidad) {
 		try {
 			Connection c = getConnection();
 			
@@ -148,7 +152,7 @@ public class ModelActividadRecursos {
 			PreparedStatement pst = null;
 		    pst = c.prepareStatement(query);
 		    
-		    pst.setString(1, nombreRecurso);
+		    pst.setString(1, rc.getNombre());
 		    pst.setString(2, nombreInstalacion);
 		    pst.setInt(3, cantidad);
 		    
@@ -163,6 +167,9 @@ public class ModelActividadRecursos {
 		    
 			pst.close();
 			c.close();
+			
+			Instalacion i = GymControlador.getInstalacionesDisponibles().get(nombreInstalacion);
+			i.addRecurso(rc, cantidad);
 			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
